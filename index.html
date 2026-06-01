@@ -8251,6 +8251,50 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   </div>
 </div>
 
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="sec-tag rv" data-i18n="price.tag">Pricing</div>
+  <h2 class="big rv" data-i18n="price.title" data-i18n-html="true"><em>Fair</em> pricing</h2>
+  <p class="sec-sub rv" data-i18n="price.sub">Regional pricing — fair in every country, with a price-lock guarantee.</p>
+
+  <div class="price-wrap">
+    <div class="pc rv">
+      <div class="pc-name" data-i18n="price.m.name">Monthly Plan</div>
+      <div class="pc-price"><sup id="price-sym-m">$</sup><span id="price-mo">19.99</span><sub data-i18n="price.perMo">/mo</sub></div>
+      <ul class="pc-feats">
+        <li data-i18n="price.m.f0">Unlimited products &amp; stock</li>
+        <li data-i18n="price.m.f1">Offline operation</li>
+        <li data-i18n="price.m.f2">Z-Report</li>
+        <li data-i18n="price.m.f3">Cloud backup</li>
+        <li data-i18n="price.m.f4">Supplier system</li>
+      </ul>
+      <button class="pc-btn out" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" data-i18n="price.m.cta">Get Started</button>
+    </div>
+    <div class="pc star rv" style="transition-delay:.1s">
+      <div class="pc-glow"></div>
+      <div class="pc-badge" data-i18n="price.y.badge">POPULAR · 17% SAVINGS</div>
+      <div class="pc-name" data-i18n="price.y.name">Annual Plan</div>
+      <div class="pc-price"><sup id="price-sym-y">$</sup><span id="price-an">16.67</span><sub data-i18n="price.perMo">/mo</sub></div>
+      <ul class="pc-feats">
+        <li data-i18n="price.y.f0">Everything in the monthly plan</li>
+        <li data-i18n="price.y.f1">Courier integration</li>
+        <li data-i18n="price.y.f2">Freelance courier management</li>
+        <li data-i18n="price.y.f3">Priority support</li>
+        <li data-i18n="price.y.f4">Price lock guarantee</li>
+      </ul>
+      <button class="pc-btn fill" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" data-i18n="price.y.cta">Try Free for 7 Days</button>
+    </div>
+  </div>
+  <div class="price-location">
+    <span class="price-loc-icon">&#128205;</span>
+    <span id="price-tz-label" class="price-tz"></span>
+    <span class="price-loc-dot">&middot;</span>
+    <select id="countrySelect" class="price-country-sel" onchange="window.pruvaSetCountry(this.value)">
+    </select>
+  </div>
+  <p class="price-note" data-i18n="price.note">Charged in your local currency via App Store.</p>
+</section>
+
 <!-- ABOUT -->
 <section class="section" id="about" style="max-width:900px;margin:0 auto">
   <div class="sec-tag rv" data-i18n="about.tag">About Us</div>
@@ -8302,50 +8346,6 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       <path d="M72,28 C52,32 28,36 0,42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
     </svg>
   </div>
-</section>
-
-<!-- PRICING -->
-<section class="section" id="pricing">
-  <div class="sec-tag rv" data-i18n="price.tag">Pricing</div>
-  <h2 class="big rv" data-i18n="price.title" data-i18n-html="true"><em>Fair</em> pricing</h2>
-  <p class="sec-sub rv" data-i18n="price.sub">Regional pricing — fair in every country, with a price-lock guarantee.</p>
-
-  <div class="price-wrap">
-    <div class="pc rv">
-      <div class="pc-name" data-i18n="price.m.name">Monthly Plan</div>
-      <div class="pc-price"><sup id="price-sym-m">$</sup><span id="price-mo">19.99</span><sub data-i18n="price.perMo">/mo</sub></div>
-      <ul class="pc-feats">
-        <li data-i18n="price.m.f0">Unlimited products &amp; stock</li>
-        <li data-i18n="price.m.f1">Offline operation</li>
-        <li data-i18n="price.m.f2">Z-Report</li>
-        <li data-i18n="price.m.f3">Cloud backup</li>
-        <li data-i18n="price.m.f4">Supplier system</li>
-      </ul>
-      <button class="pc-btn out" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" data-i18n="price.m.cta">Get Started</button>
-    </div>
-    <div class="pc star rv" style="transition-delay:.1s">
-      <div class="pc-glow"></div>
-      <div class="pc-badge" data-i18n="price.y.badge">POPULAR · 17% SAVINGS</div>
-      <div class="pc-name" data-i18n="price.y.name">Annual Plan</div>
-      <div class="pc-price"><sup id="price-sym-y">$</sup><span id="price-an">16.67</span><sub data-i18n="price.perMo">/mo</sub></div>
-      <ul class="pc-feats">
-        <li data-i18n="price.y.f0">Everything in the monthly plan</li>
-        <li data-i18n="price.y.f1">Courier integration</li>
-        <li data-i18n="price.y.f2">Freelance courier management</li>
-        <li data-i18n="price.y.f3">Priority support</li>
-        <li data-i18n="price.y.f4">Price lock guarantee</li>
-      </ul>
-      <button class="pc-btn fill" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" data-i18n="price.y.cta">Try Free for 7 Days</button>
-    </div>
-  </div>
-  <div class="price-location">
-    <span class="price-loc-icon">&#128205;</span>
-    <span id="price-tz-label" class="price-tz"></span>
-    <span class="price-loc-dot">&middot;</span>
-    <select id="countrySelect" class="price-country-sel" onchange="window.pruvaSetCountry(this.value)">
-    </select>
-  </div>
-  <p class="price-note" data-i18n="price.note">Charged in your local currency via App Store.</p>
 </section>
 
 <!-- CTA -->
