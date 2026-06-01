@@ -7069,9 +7069,9 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   <div class="badge"><span class="badge-dot"></span> iOS 17 · Mac Catalyst · Offline-First</div>
 
   <h1>
-    <span class="line"><span class="word" data-i18n="hero.word1">Rethink</span></span>
-    <span class="line"><span class="word" data-i18n="hero.word2">how you</span></span>
-    <span class="line"><span class="word" data-i18n="hero.word3">sell</span></span>
+    <span class="line"><span class="word" data-i18n="hero.word1">Run your</span></span>
+    <span class="line"><span class="word" data-i18n="hero.word2">business</span></span>
+    <span class="line"><span class="word" data-i18n="hero.word3">uninterrupted</span></span>
   </h1>
 
   <p class="hero-sub" data-i18n="hero.sub">Barcode scanning, stock tracking, end-of-day reports — all in one. Works without internet, so you can stop worrying about the rest.</p>
@@ -7940,7 +7940,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   </div>
   <div class="footer-copy" data-i18n="footer.copy">© 2026 Pruva Business. All rights reserved.</div>
   <div class="footer-links">
-    <a href="privacy.html" data-i18n="footer.privacy">Privacy &amp; GDPR</a><a href="#" data-i18n="footer.terms">Terms</a><a href="mailto:privacy@pruvabusiness.app" data-i18n="footer.contact">Contact</a>
+    <a href="privacy.html" data-i18n="footer.privacy">Privacy &amp; GDPR</a><a href="mailto:privacy@pruvabusiness.app" data-i18n="footer.contact">Contact</a>
   </div>
 </footer>
 
@@ -8322,6 +8322,7 @@ class Orb{
     this.c=c[Math.floor(Math.random()*c.length)];
   }
   draw(){
+    if(this.y-this.r<120)return;
     const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
     g.addColorStop(0,`rgba(${this.c},${this.a})`);g.addColorStop(1,`rgba(${this.c},0)`);
     ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
