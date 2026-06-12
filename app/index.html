@@ -2,894 +2,997 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Pruva Business</title>
 <style>
 :root {
   --purple: #6C47FF;
-  --purple-dark: #4A2ED4;
-  --purple-mid: #5C35D9;
+  --purple-light: #EDE9FF;
+  --purple-mid: #5838E8;
   --amber: #D97706;
-  --amber-light: #FEF3C7;
   --green: #10B981;
   --green-light: #D1FAE5;
   --red: #EF4444;
   --red-light: #FEE2E2;
   --blue: #3B82F6;
   --blue-light: #DBEAFE;
+  --sidebar-bg: #1C1C1E;
+  --sidebar-w: 220px;
+  --topbar-h: 52px;
   --bg: #F2F2F7;
   --card: #FFFFFF;
   --text: #1A1A1A;
   --text2: #3C3C43;
-  --muted: #6B7280;
-  --border: #E5E7EB;
-  --tab-h: 72px;
-  --header-h: 88px;
-  --radius: 16px;
-  --radius-sm: 12px;
+  --muted: #8E8E93;
+  --border: rgba(0,0,0,0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   height: 100dvh;
   overflow: hidden;
-  max-width: 430px;
-  margin: 0 auto;
-  position: relative;
 }
 
-/* ── Login Screen ─────────────────────────────────────────── */
+/* ════════════════════════════════════════════
+   LOGIN
+════════════════════════════════════════════ */
 #login-screen {
   position: fixed; inset: 0;
-  background: linear-gradient(160deg, #4A2ED4 0%, #2D1A8A 60%, #1A0D5C 100%);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 32px;
+  background: linear-gradient(160deg, #1A0D5C 0%, #2D1A8A 50%, #4A2ED4 100%);
+  display: flex; align-items: center; justify-content: center;
   z-index: 1000;
 }
 #login-screen.hidden { display: none; }
 
+.login-box {
+  width: 380px;
+  display: flex; flex-direction: column; align-items: center;
+}
 .login-logo {
-  font-size: 36px; font-weight: 800; color: #fff;
-  letter-spacing: -0.5px; margin-bottom: 8px;
+  font-size: 28px; font-weight: 800; color: #fff;
+  letter-spacing: -0.5px; margin-bottom: 6px;
 }
 .login-logo span { color: #FBBF24; }
-.login-sub {
-  font-size: 15px; color: rgba(255,255,255,0.6);
-  margin-bottom: 48px; font-weight: 500;
-}
+.login-tagline { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 36px; }
 .login-card {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 20px;
-  padding: 28px 24px;
   width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 24px;
   backdrop-filter: blur(20px);
 }
-.input-group { margin-bottom: 14px; }
+.input-group { margin-bottom: 12px; }
 .input-group label {
-  display: block; font-size: 12px; font-weight: 600;
-  color: rgba(255,255,255,0.6); text-transform: uppercase;
-  letter-spacing: 0.5px; margin-bottom: 8px;
+  display: block; font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.5); text-transform: uppercase;
+  letter-spacing: 0.6px; margin-bottom: 6px;
 }
 .input-group input {
-  width: 100%; padding: 14px 16px;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.20);
-  border-radius: 12px;
-  font-size: 16px; color: #fff;
-  outline: none;
+  width: 100%; padding: 11px 14px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; font-size: 15px; color: #fff; outline: none;
 }
-.input-group input::placeholder { color: rgba(255,255,255,0.35); }
-.input-group input:focus { border-color: rgba(255,255,255,0.50); background: rgba(255,255,255,0.14); }
+.input-group input::placeholder { color: rgba(255,255,255,0.3); }
+.input-group input:focus { border-color: rgba(255,255,255,0.4); }
 .btn-login {
-  width: 100%; padding: 15px;
-  background: #FBBF24; border: none; border-radius: 14px;
-  font-size: 16px; font-weight: 700; color: #1A0D5C;
-  cursor: pointer; margin-top: 6px;
-  transition: opacity 0.15s;
+  width: 100%; padding: 13px; margin-top: 4px;
+  background: #FBBF24; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700; color: #1A0D5C;
+  cursor: pointer; transition: opacity .15s;
 }
-.btn-login:active { opacity: 0.85; }
-#login-error {
-  color: #FCA5A5; font-size: 13px; text-align: center;
-  margin-top: 12px; min-height: 20px;
-}
-.login-spinner {
-  display: none; width: 22px; height: 22px;
-  border: 2px solid rgba(26,13,92,0.3);
-  border-top-color: #1A0D5C;
-  border-radius: 50%; animation: spin 0.7s linear infinite;
-  margin: 0 auto;
+.btn-login:hover { opacity: .9; }
+.btn-login:active { opacity: .8; }
+#login-error { color: #FCA5A5; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
+.spinner {
+  display: none; width: 18px; height: 18px;
+  border: 2px solid rgba(26,13,92,0.25); border-top-color: #1A0D5C;
+  border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Main App ─────────────────────────────────────────────── */
+/* ════════════════════════════════════════════
+   APP SHELL — Mac Catalyst layout
+════════════════════════════════════════════ */
 #app {
-  display: flex; flex-direction: column;
-  height: 100dvh; overflow: hidden;
+  display: flex; height: 100dvh; overflow: hidden;
 }
 #app.hidden { display: none; }
 
-/* ── Header ───────────────────────────────────────────────── */
-.app-header {
-  height: var(--header-h);
-  background: linear-gradient(160deg, #5838E8 0%, #3D22CC 55%, #2D18A8 100%);
-  padding: 0 20px;
-  display: flex; align-items: flex-end; padding-bottom: 14px;
+/* ── Sidebar ──────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
   flex-shrink: 0;
-  position: relative;
-  box-shadow: 0 2px 20px rgba(60,34,200,0.35);
 }
-.header-left { display: flex; flex-direction: column; gap: 2px; }
-.header-store {
-  font-size: 18px; font-weight: 700; color: #fff;
-  letter-spacing: -0.3px;
+.sidebar-header {
+  height: var(--topbar-h);
+  display: flex; align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
 }
-.header-date {
-  font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 500;
+.sidebar-logo {
+  font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.3px;
 }
-.header-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-.header-badge {
-  background: rgba(255,255,255,0.14);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 20px; padding: 4px 10px;
-  display: flex; align-items: center; gap: 4px;
+.sidebar-logo span { color: #FBBF24; }
+
+.sidebar-store {
+  padding: 14px 12px 8px;
 }
-.header-badge span:first-child { font-size: 14px; font-weight: 700; color: #fff; }
-.header-badge span:last-child { font-size: 14px; font-weight: 700; color: #FBBF24; }
-.header-avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: rgba(255,255,255,0.20);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; cursor: pointer;
+.sidebar-store-name {
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.sidebar-store-val {
+  font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* ── Tab Content ─────────────────────────────────────────── */
-.tab-content {
+.sidebar-nav {
+  flex: 1; padding: 4px 8px; overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase; letter-spacing: 0.7px;
+  padding: 10px 8px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px;
+  cursor: pointer; transition: background .12s;
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); }
+.nav-item.active { background: rgba(108,71,255,0.32); }
+.nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-label {
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.5);
+}
+.nav-item.active .nav-label { color: #fff; font-weight: 600; }
+
+.sidebar-footer {
+  padding: 10px 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px; cursor: pointer;
+  transition: background .12s;
+}
+.sidebar-user:hover { background: rgba(255,255,255,0.06); }
+.sidebar-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+.sidebar-user-email {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Main Area ────────────────────────────── */
+.main-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Top Bar ──────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 16px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  flex: 1;
+}
+.topbar-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: linear-gradient(135deg, #5838E8, #3D22CC);
+  border-radius: 20px; padding: 3px 10px;
+}
+.topbar-badge span:first-child { font-size: 12px; font-weight: 700; color: #fff; }
+.topbar-badge span:last-child { font-size: 12px; font-weight: 700; color: #FBBF24; }
+.topbar-date { font-size: 12px; color: var(--muted); }
+
+/* ── Content ──────────────────────────────── */
+.content-area {
   flex: 1; overflow: hidden; position: relative;
 }
 .tab-panel {
   position: absolute; inset: 0;
   overflow-y: auto; overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  display: none;
-  padding-bottom: calc(var(--tab-h) + 8px);
+  display: none; padding: 22px;
 }
 .tab-panel.active { display: block; }
 
-/* ── Tab Bar ─────────────────────────────────────────────── */
-.tab-bar {
-  height: var(--tab-h);
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-top: 0.5px solid rgba(0,0,0,0.12);
-  display: flex; align-items: center;
-  flex-shrink: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+/* ════════════════════════════════════════════
+   HOME
+════════════════════════════════════════════ */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 18px;
 }
-.tab-item {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px;
-  cursor: pointer; padding: 8px 4px;
-  transition: opacity 0.15s;
-}
-.tab-item:active { opacity: 0.6; }
-.tab-icon {
-  font-size: 22px; line-height: 1;
-  filter: grayscale(1) opacity(0.4);
-  transition: filter 0.2s, transform 0.2s;
-}
-.tab-label {
-  font-size: 10px; font-weight: 600;
-  color: var(--muted);
-  transition: color 0.2s;
-}
-.tab-item.active .tab-icon { filter: none; transform: scale(1.1); }
-.tab-item.active .tab-label { color: var(--purple); }
-
-/* ── Cards ───────────────────────────────────────────────── */
-.card {
+.stat-card {
   background: var(--card); border-radius: var(--radius);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 16px 18px; box-shadow: var(--shadow);
 }
-.section-title {
-  font-size: 13px; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 18px 16px 8px;
+.stat-card.primary {
+  background: linear-gradient(135deg, #5838E8 0%, #3D22CC 100%);
+  box-shadow: 0 4px 20px rgba(88,56,232,0.28);
 }
-
-/* ── Hero Card (Today's Revenue) ─────────────────────────── */
-.hero-card {
-  margin: 14px 16px 0;
-  background: linear-gradient(135deg, #5838E8 0%, #3D22CC 60%, #2A18A0 100%);
-  border-radius: var(--radius); padding: 20px;
-  position: relative; overflow: hidden;
-  box-shadow: 0 4px 24px rgba(60,34,200,0.30);
+.stat-label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;
 }
-.hero-card::before {
-  content: '';
-  position: absolute; top: -40px; right: -40px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
-  border-radius: 50%;
+.stat-card.primary .stat-label { color: rgba(255,255,255,0.6); }
+.stat-value {
+  font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px;
 }
-.hero-label {
-  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6);
-  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;
-}
-.hero-amount {
-  font-size: 36px; font-weight: 800; color: #fff;
-  letter-spacing: -1px; line-height: 1.1;
-}
-.hero-currency { font-size: 22px; font-weight: 700; }
-.hero-meta {
-  display: flex; gap: 16px; margin-top: 14px;
-}
-.hero-stat { display: flex; flex-direction: column; gap: 2px; }
-.hero-stat-val { font-size: 16px; font-weight: 700; color: #fff; }
-.hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.55); }
-.hero-change {
-  margin-left: auto; align-self: flex-start;
-  background: rgba(255,255,255,0.15);
-  border-radius: 20px; padding: 4px 10px;
-  font-size: 13px; font-weight: 700; color: #fff;
-}
-.hero-change.up { background: rgba(16,185,129,0.25); color: #34D399; }
-.hero-change.down { background: rgba(239,68,68,0.25); color: #FCA5A5; }
-
-/* ── Alert Strip ─────────────────────────────────────────── */
-.alert-strip {
-  margin: 10px 16px 0;
-  background: #FEF3C7; border: 1px solid #FCD34D;
-  border-radius: var(--radius-sm); padding: 12px 14px;
-  display: flex; align-items: center; gap: 10px;
-  cursor: pointer;
-}
-.alert-strip:active { opacity: 0.8; }
-.alert-strip-icon { font-size: 18px; flex-shrink: 0; }
-.alert-strip-text { font-size: 13px; font-weight: 600; color: #92400E; }
-.alert-strip-sub { font-size: 12px; color: #B45309; margin-top: 1px; }
-.alert-strip-arrow { margin-left: auto; color: #92400E; font-size: 14px; }
-
-/* ── Trend Cells ─────────────────────────────────────────── */
-.trend-row {
-  display: flex; gap: 10px;
-  padding: 0 16px; margin-top: 10px;
-}
-.trend-cell {
-  flex: 1; background: var(--card);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-}
-.trend-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-.trend-pct {
-  font-size: 16px; font-weight: 800;
+.stat-card.primary .stat-value { color: #fff; }
+.stat-change {
+  font-size: 11px; font-weight: 600; margin-top: 4px;
   display: flex; align-items: center; gap: 3px;
 }
-.trend-pct.up { color: var(--green); }
-.trend-pct.down { color: var(--red); }
-.trend-pct.flat { color: var(--muted); }
-.mini-bars {
-  display: flex; gap: 2px; align-items: flex-end;
-  height: 28px; margin-top: 6px;
-}
-.mini-bar {
-  flex: 1; border-radius: 3px 3px 0 0;
-  background: var(--purple); opacity: 0.25;
-  min-height: 3px;
-  transition: opacity 0.2s;
-}
-.mini-bar.latest { opacity: 0.85; }
+.stat-change.up { color: var(--green); }
+.stat-change.down { color: var(--red); }
+.stat-change.neutral { color: var(--muted); }
+.stat-card.primary .stat-change { color: rgba(255,255,255,0.65); }
 
-/* ── Quick Actions ───────────────────────────────────────── */
+.home-cols {
+  display: grid; grid-template-columns: 1fr 320px;
+  gap: 12px;
+}
+
+.section-card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.section-sub { font-size: 12px; color: var(--muted); }
+.chart-area { padding: 14px 18px; }
+
+.bar-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 9px;
+}
+.bar-row:last-child { margin-bottom: 0; }
+.bar-day { font-size: 11px; color: var(--muted); width: 30px; flex-shrink: 0; }
+.bar-track {
+  flex: 1; height: 20px; background: var(--bg); border-radius: 5px; overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, var(--purple) 0%, #8B6AFF 100%);
+  transition: width .5s ease;
+}
+.bar-val { font-size: 11px; font-weight: 600; width: 60px; text-align: right; flex-shrink: 0; }
+
+.alert-strip {
+  background: #FEF3C7; border: 1px solid #FCD34D;
+  border-radius: var(--radius-sm); padding: 9px 12px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px; cursor: pointer;
+}
+.alert-strip:hover { background: #FDE68A; }
+.alert-strip-text { font-size: 13px; font-weight: 600; color: #92400E; }
+.alert-strip-sub { font-size: 11px; color: #B45309; margin-top: 1px; }
+
 .action-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 10px; padding: 0 16px; margin-top: 10px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4px; padding: 10px;
 }
-.action-tile {
-  background: var(--card); border-radius: var(--radius-sm);
-  padding: 16px 10px; display: flex; flex-direction: column;
-  align-items: center; gap: 8px; cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  transition: transform 0.12s, box-shadow 0.12s;
-  min-height: 90px; justify-content: center;
+.action-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 7px;
+  cursor: pointer; transition: background .12s;
 }
-.action-tile:active { transform: scale(0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.action-item:hover { background: var(--bg); }
 .action-icon {
-  width: 44px; height: 44px; border-radius: 12px;
+  width: 30px; height: 30px; border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
+  font-size: 15px; flex-shrink: 0;
 }
-.action-label {
-  font-size: 11px; font-weight: 600; color: var(--text2);
-  text-align: center; line-height: 1.2;
-}
+.action-label { font-size: 12.5px; font-weight: 500; color: var(--text2); }
 
-/* ── Sales View ──────────────────────────────────────────── */
-.sales-layout {
-  display: flex; flex-direction: column; height: 100%;
+/* ════════════════════════════════════════════
+   SALES — split panel
+════════════════════════════════════════════ */
+#tab-sales {
+  padding: 0;
+  display: none;
+  flex-direction: row;
 }
-.product-search-bar {
-  padding: 10px 16px 6px;
-  background: var(--bg);
-  position: sticky; top: 0; z-index: 10;
+#tab-sales.active { display: flex; }
+
+.sales-products {
+  flex: 1; display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
 }
-.search-input-wrap {
-  background: var(--card); border-radius: 12px;
-  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+.sales-toolbar {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  flex-shrink: 0;
 }
-.search-input-wrap input {
-  flex: 1; border: none; outline: none;
-  font-size: 15px; background: transparent; color: var(--text);
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border-radius: 8px; padding: 8px 12px;
+  border: 1px solid var(--border);
 }
-.search-icon { font-size: 16px; color: var(--muted); }
-.product-list { padding: 0 16px; }
+.search-bar input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 14px; color: var(--text);
+}
+.search-bar .search-icon { color: var(--muted); font-size: 13px; }
+
+.product-list-wrap { flex: 1; overflow-y: auto; padding: 8px 16px; }
+
 .product-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 12px 0; border-bottom: 0.5px solid var(--border);
-  cursor: pointer;
+  padding: 9px 10px; border-radius: 8px;
+  cursor: pointer; transition: background .1s;
 }
-.product-row:active { opacity: 0.7; }
+.product-row:hover { background: var(--bg); }
 .product-emoji {
-  width: 44px; height: 44px; background: var(--bg);
-  border-radius: 10px; display: flex; align-items: center;
-  justify-content: center; font-size: 20px; flex-shrink: 0;
+  width: 38px; height: 38px; background: var(--bg);
+  border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 17px; flex-shrink: 0;
 }
 .product-info { flex: 1; min-width: 0; }
-.product-name {
-  font-size: 15px; font-weight: 600; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.product-stock { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.product-price {
-  font-size: 16px; font-weight: 700; color: var(--text);
-  flex-shrink: 0;
-}
+.product-name { font-size: 13.5px; font-weight: 600; }
+.product-stock { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.product-price { font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .product-add-btn {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 26px; height: 26px; border-radius: 50%;
   background: var(--purple); color: #fff; border: none;
-  font-size: 20px; font-weight: 300; cursor: pointer;
+  font-size: 17px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: transform 0.1s;
+  flex-shrink: 0; transition: opacity .12s;
 }
-.product-add-btn:active { transform: scale(0.88); }
+.product-add-btn:hover { opacity: .85; }
 
-/* ── Cart ────────────────────────────────────────────────── */
+/* Cart panel */
 .cart-panel {
+  width: 280px; flex-shrink: 0;
+  display: flex; flex-direction: column;
   background: var(--card);
-  border-top: 0.5px solid var(--border);
-  padding: 12px 16px;
+}
+.cart-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
 }
-.cart-panel.empty { display: none; }
-.cart-items { max-height: 130px; overflow-y: auto; }
+.cart-count {
+  font-size: 11px; font-weight: 600;
+  background: var(--purple); color: #fff;
+  border-radius: 10px; padding: 2px 7px;
+}
+.cart-items-wrap { flex: 1; overflow-y: auto; padding: 6px 14px; }
 .cart-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 0; border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
 }
-.cart-row:last-child { border-bottom: none; }
-.cart-name { flex: 1; font-size: 14px; font-weight: 500; }
-.cart-qty-wrap { display: flex; align-items: center; gap: 8px; }
-.cart-qty-btn {
-  width: 26px; height: 26px; border-radius: 50%;
+.cart-row:last-child { border: none; }
+.cart-name { flex: 1; font-size: 12.5px; font-weight: 500; min-width: 0; }
+.cart-qty-ctrl { display: flex; align-items: center; gap: 5px; }
+.qty-btn {
+  width: 20px; height: 20px; border-radius: 50%;
   background: var(--bg); border: 1px solid var(--border);
-  font-size: 16px; cursor: pointer; display: flex;
+  font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .1s; flex-shrink: 0;
+}
+.qty-btn:hover { background: #e0e0e5; }
+.qty-num { font-size: 12px; font-weight: 600; min-width: 16px; text-align: center; }
+.cart-item-price { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.cart-empty {
+  flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  gap: 6px; color: var(--muted);
+  font-size: 13px; text-align: center;
 }
-.cart-qty { font-size: 15px; font-weight: 600; min-width: 20px; text-align: center; }
-.cart-item-price { font-size: 14px; font-weight: 600; color: var(--text); }
+.cart-empty-icon { font-size: 32px; }
 .cart-footer {
-  display: flex; align-items: center;
-  padding-top: 12px; gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
-.cart-total { font-size: 20px; font-weight: 800; flex: 1; }
+.cart-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.cart-total-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.cart-total-val { font-size: 19px; font-weight: 800; }
 .btn-checkout {
+  width: 100%; padding: 11px;
   background: var(--green); color: #fff; border: none;
-  border-radius: 14px; padding: 12px 20px;
-  font-size: 15px; font-weight: 700; cursor: pointer;
-  transition: opacity 0.15s;
+  border-radius: 9px; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; transition: opacity .12s;
 }
-.btn-checkout:active { opacity: 0.85; }
+.btn-checkout:hover { opacity: .9; }
+.btn-checkout:disabled { opacity: .35; cursor: default; }
 
-/* ── Inventory View ──────────────────────────────────────── */
+/* ════════════════════════════════════════════
+   INVENTORY
+════════════════════════════════════════════ */
+.inv-toolbar {
+  display: flex; gap: 10px; margin-bottom: 14px; align-items: center;
+}
+.inv-toolbar .search-bar { flex: 1; }
 .inv-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 10px; padding: 14px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
 }
 .inv-card {
   background: var(--card); border-radius: var(--radius);
-  padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  cursor: pointer;
+  padding: 14px; box-shadow: var(--shadow);
+  cursor: pointer; transition: box-shadow .15s, transform .15s;
 }
-.inv-card:active { opacity: 0.8; }
-.inv-product-emoji {
-  width: 50px; height: 50px; background: var(--bg);
-  border-radius: 12px; display: flex; align-items: center;
-  justify-content: center; font-size: 26px; margin-bottom: 8px;
+.inv-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.10); transform: translateY(-1px); }
+.inv-emoji {
+  width: 44px; height: 44px; background: var(--bg);
+  border-radius: 9px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; margin-bottom: 8px;
 }
-.inv-product-name {
-  font-size: 14px; font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.inv-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.inv-price { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+.stock-badge {
+  display: inline-block; padding: 2px 7px;
+  border-radius: 5px; font-size: 10.5px; font-weight: 700;
 }
-.inv-product-price { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.inv-stock-badge {
-  display: inline-block; margin-top: 6px;
-  padding: 3px 8px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-}
-.inv-stock-badge.ok { background: var(--green-light); color: #065F46; }
-.inv-stock-badge.low { background: var(--amber-light); color: #92400E; }
-.inv-stock-badge.crit { background: var(--red-light); color: #991B1B; }
-.inv-stock-badge.out { background: #F3F4F6; color: var(--muted); }
+.stock-ok { background: var(--green-light); color: #065F46; }
+.stock-low { background: #FEF3C7; color: #92400E; }
+.stock-crit { background: var(--red-light); color: #991B1B; }
+.stock-out { background: var(--bg); color: var(--muted); }
 
-/* ── Reports View ────────────────────────────────────────── */
-.report-card {
-  margin: 14px 16px 0;
+/* ════════════════════════════════════════════
+   REPORTS
+════════════════════════════════════════════ */
+.reports-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;
+}
+.report-stat-card {
   background: var(--card); border-radius: var(--radius);
-  padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 18px; box-shadow: var(--shadow);
 }
-.report-card-title {
-  font-size: 12px; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+.report-stat-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.report-stat-val { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+.report-stat-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.reports-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ════════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════════ */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.settings-group {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
 }
-.report-stat-row { display: flex; gap: 0; }
-.report-stat { flex: 1; text-align: center; padding: 4px 0; }
-.report-stat:not(:last-child) { border-right: 0.5px solid var(--border); }
-.report-stat-val { font-size: 20px; font-weight: 800; color: var(--text); }
-.report-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.bar-chart { margin-top: 12px; }
-.bar-row {
+.settings-group-title {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 12px 16px 6px;
+}
+.settings-row {
   display: flex; align-items: center; gap: 10px;
-  margin-bottom: 8px;
+  padding: 11px 16px; border-top: 1px solid var(--border);
+  cursor: pointer; transition: background .1s;
 }
-.bar-day { font-size: 11px; color: var(--muted); width: 28px; flex-shrink: 0; }
-.bar-track {
-  flex: 1; height: 24px; background: var(--bg);
-  border-radius: 6px; overflow: hidden; position: relative;
+.settings-row:hover { background: var(--bg); }
+.settings-icon {
+  width: 30px; height: 30px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
 }
-.bar-fill {
-  height: 100%; border-radius: 6px;
-  background: linear-gradient(90deg, var(--purple) 0%, #8B6AFF 100%);
-  transition: width 0.5s ease;
-}
-.bar-val { font-size: 12px; font-weight: 600; color: var(--text); width: 60px; text-align: right; flex-shrink: 0; }
+.settings-text { flex: 1; }
+.settings-title { font-size: 13.5px; font-weight: 500; }
+.settings-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.settings-arrow { color: var(--muted); font-size: 12px; }
 
-/* ── Menu View ───────────────────────────────────────────── */
-.menu-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-.menu-group {
-  background: var(--card); border-radius: var(--radius);
-  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+/* ════════════════════════════════════════════
+   CHECKOUT MODAL
+════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 900; opacity: 0; pointer-events: none;
+  transition: opacity .2s;
 }
-.menu-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; cursor: pointer;
-  border-bottom: 0.5px solid var(--border);
-  transition: background 0.1s;
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--card); border-radius: 16px;
+  width: 420px; padding: 26px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.20);
+  transform: scale(0.96) translateY(8px);
+  transition: transform .25s cubic-bezier(0.34,1.56,0.64,1);
 }
-.menu-row:last-child { border-bottom: none; }
-.menu-row:active { background: var(--bg); }
-.menu-row-icon {
-  width: 34px; height: 34px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
+.modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
+.modal-title { font-size: 17px; font-weight: 800; margin-bottom: 18px; }
+.payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.payment-btn {
+  padding: 12px; border-radius: 9px; border: 2px solid var(--border);
+  background: var(--bg); cursor: pointer; text-align: center;
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+  transition: all .12s;
 }
-.menu-row-text { flex: 1; }
-.menu-row-title { font-size: 15px; font-weight: 600; }
-.menu-row-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
-.menu-row-arrow { color: var(--muted); font-size: 14px; }
-.menu-account-card {
-  background: linear-gradient(135deg, #5838E8 0%, #3D22CC 100%);
-  border-radius: var(--radius); margin: 14px 16px 0;
-  padding: 18px 20px; display: flex; align-items: center; gap: 14px;
-  box-shadow: 0 4px 20px rgba(60,34,200,0.25);
+.payment-btn.selected { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+.payment-btn:hover:not(.selected) { border-color: #ccc; }
+.payment-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+.modal-total { font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 18px; }
+.modal-actions { display: flex; gap: 8px; }
+.btn-cancel {
+  flex: 1; padding: 12px; border-radius: 9px;
+  background: var(--bg); border: 1px solid var(--border);
+  font-size: 13.5px; font-weight: 600; cursor: pointer;
 }
-.menu-account-avatar {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
-  display: flex; align-items: center; justify-content: center; font-size: 24px;
+.btn-confirm {
+  flex: 2; padding: 12px; border-radius: 9px;
+  background: var(--green); color: #fff; border: none;
+  font-size: 13.5px; font-weight: 700; cursor: pointer; transition: opacity .12s;
 }
-.menu-account-name { font-size: 17px; font-weight: 700; color: #fff; }
-.menu-account-email { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.btn-confirm:hover { opacity: .9; }
 
-/* ── Toast ───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
 #toast {
-  position: fixed; bottom: calc(var(--tab-h) + 16px); left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: rgba(28,28,30,0.92); color: #fff;
-  padding: 10px 18px; border-radius: 20px;
-  font-size: 14px; font-weight: 600;
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: rgba(28,28,30,0.90); color: #fff;
+  padding: 8px 16px; border-radius: 18px;
+  font-size: 12.5px; font-weight: 600;
   backdrop-filter: blur(10px);
   opacity: 0; pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  z-index: 999; white-space: nowrap;
+  transition: opacity .2s, transform .2s; z-index: 9999;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── Checkout Modal ──────────────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(4px); z-index: 900;
-  display: flex; align-items: flex-end;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.25s;
-}
-.modal-overlay.show { opacity: 1; pointer-events: all; }
-.modal-sheet {
-  background: var(--card); border-radius: 24px 24px 0 0;
-  width: 100%; padding: 20px 24px 40px;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.modal-overlay.show .modal-sheet { transform: translateY(0); }
-.modal-handle {
-  width: 36px; height: 4px; background: var(--border);
-  border-radius: 2px; margin: 0 auto 20px;
-}
-.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
-.payment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-.payment-btn {
-  padding: 16px; border-radius: 14px; border: 2px solid var(--border);
-  background: var(--bg); cursor: pointer; text-align: center;
-  font-size: 14px; font-weight: 600; color: var(--text);
-  transition: all 0.15s;
-}
-.payment-btn.selected {
-  border-color: var(--purple); background: #F0EDFF; color: var(--purple);
-}
-.payment-btn:active { transform: scale(0.96); }
-.payment-icon { font-size: 28px; display: block; margin-bottom: 6px; }
-.modal-total { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 16px; }
-.btn-confirm {
-  width: 100%; padding: 16px;
-  background: var(--green); color: #fff; border: none;
-  border-radius: 16px; font-size: 17px; font-weight: 700;
-  cursor: pointer; transition: opacity 0.15s;
-}
-.btn-confirm:active { opacity: 0.85; }
-
-/* ── Loading / Empty ─────────────────────────────────────── */
+/* ════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════ */
 .loading-dots {
-  display: flex; gap: 8px; justify-content: center;
-  padding: 40px 0;
+  display: flex; gap: 5px; justify-content: center; padding: 40px;
 }
 .loading-dots span {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--purple); opacity: 0.3;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--purple); opacity: .3;
   animation: pulse 1.2s ease-in-out infinite;
 }
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+.loading-dots span:nth-child(2) { animation-delay: .2s; }
+.loading-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes pulse { 0%,100% { opacity:.3; transform:scale(1); } 50% { opacity:1; transform:scale(1.2); } }
+
+.empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+.empty-icon { font-size: 36px; margin-bottom: 8px; }
+.empty-text { font-size: 14px; font-weight: 600; }
+.empty-sub { font-size: 12px; margin-top: 3px; opacity: .7; }
+
+/* ════════════════════════════════════════════
+   MOBILE FALLBACK  (< 768px)
+════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .sidebar { display: none; }
+  #tab-sales { flex-direction: column; }
+  .cart-panel { width: 100%; border-right: none; border-top: 1px solid var(--border); max-height: 220px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .home-cols { grid-template-columns: 1fr; }
+  .reports-grid, .reports-charts, .settings-grid { grid-template-columns: 1fr; }
+  .inv-grid { grid-template-columns: repeat(2, 1fr); }
+  .tab-panel { padding: 14px 14px 90px; }
+  .mobile-tab-bar { display: flex !important; }
 }
-.empty-state { text-align: center; padding: 48px 24px; }
-.empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-text { font-size: 16px; font-weight: 600; color: var(--muted); }
-.empty-sub { font-size: 13px; color: var(--muted); margin-top: 6px; opacity: 0.7; }
+
+.mobile-tab-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border-top: .5px solid rgba(0,0,0,0.12);
+  padding-bottom: env(safe-area-inset-bottom,0);
+  z-index: 100;
+}
+.mobile-tab-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  padding: 8px 4px; cursor: pointer;
+}
+.mobile-tab-icon { font-size: 21px; filter: grayscale(1) opacity(.4); }
+.mobile-tab-label { font-size: 10px; font-weight: 600; color: var(--muted); }
+.mobile-tab-item.active .mobile-tab-icon { filter: none; }
+.mobile-tab-item.active .mobile-tab-label { color: var(--purple); }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════ LOGIN ═══════════════════════════ -->
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
 <div id="login-screen">
-  <div class="login-logo">Pruva <span>Business</span></div>
-  <div class="login-sub">Akıllı POS · 24 Dil · Offline-First</div>
-  <div class="login-card">
-    <div class="input-group">
-      <label>E-posta</label>
-      <input type="email" id="login-email" placeholder="ornek@sirket.com" autocomplete="email">
+  <div class="login-box">
+    <div class="login-logo">Pruva <span>Business</span></div>
+    <div class="login-tagline">Akıllı POS · 24 Dil · Offline-First</div>
+    <div class="login-card">
+      <div class="input-group">
+        <label>E-posta</label>
+        <input type="email" id="login-email" placeholder="ornek@sirket.com" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <label>Şifre</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" onclick="doLogin()">
+        <span id="login-btn-text">Giriş Yap</span>
+        <div class="spinner" id="login-spinner"></div>
+      </button>
+      <div id="login-error"></div>
     </div>
-    <div class="input-group">
-      <label>Şifre</label>
-      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn-login" id="login-btn" onclick="doLogin()">
-      <span id="login-btn-text">Giriş Yap</span>
-      <div class="login-spinner" id="login-spinner"></div>
-    </button>
-    <div id="login-error"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════ MAIN APP ════════════════════════ -->
+<!-- ══ APP ════════════════════════════════════════════════════ -->
 <div id="app" class="hidden">
 
-  <!-- Header -->
-  <div class="app-header">
-    <div class="header-left">
-      <div class="header-store" id="store-name">Mağazam</div>
-      <div class="header-date" id="header-date"></div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Pruva <span>Business</span></div>
     </div>
-    <div class="header-right">
-      <div class="header-badge">
-        <span>Pruva</span><span>Pro</span>
+    <div class="sidebar-store">
+      <div class="sidebar-store-name">Mağaza</div>
+      <div class="sidebar-store-val" id="sidebar-store-name">—</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Ana</div>
+      <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">Ana Sayfa</div>
       </div>
-      <div class="header-avatar" onclick="switchTab('menu')">👤</div>
+      <div class="nav-item" id="nav-sales" onclick="switchTab('sales')">
+        <div class="nav-icon">💳</div>
+        <div class="nav-label">Satış</div>
+      </div>
+      <div class="nav-item" id="nav-inv" onclick="switchTab('inv')">
+        <div class="nav-icon">📦</div>
+        <div class="nav-label">Stok</div>
+      </div>
+      <div class="nav-item" id="nav-reports" onclick="switchTab('reports')">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Raporlar</div>
+      </div>
+      <div class="nav-section-label">İşletme</div>
+      <div class="nav-item" onclick="showToast('Yakında…')">
+        <div class="nav-icon">📈</div>
+        <div class="nav-label">Tahmin</div>
+      </div>
+      <div class="nav-item" onclick="showToast('Yakında…')">
+        <div class="nav-icon">🚚</div>
+        <div class="nav-label">Tedarikçi</div>
+      </div>
+      <div class="nav-item" onclick="showToast('Yakında…')">
+        <div class="nav-icon">👥</div>
+        <div class="nav-label">Personel</div>
+      </div>
+      <div class="nav-item" onclick="showToast('Yakında…')">
+        <div class="nav-icon">↩️</div>
+        <div class="nav-label">İade</div>
+      </div>
+      <div class="nav-item" onclick="showToast('Yakında…')">
+        <div class="nav-icon">📋</div>
+        <div class="nav-label">Veresiye</div>
+      </div>
+      <div class="nav-section-label">Ayarlar</div>
+      <div class="nav-item" id="nav-settings" onclick="switchTab('settings')">
+        <div class="nav-icon">⚙️</div>
+        <div class="nav-label">Ayarlar</div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="switchTab('settings')">
+        <div class="sidebar-avatar">👤</div>
+        <div class="sidebar-user-email" id="sidebar-email">—</div>
+      </div>
     </div>
   </div>
 
-  <!-- Tab Content -->
-  <div class="tab-content">
+  <!-- Main Area -->
+  <div class="main-area">
 
-    <!-- HOME TAB -->
-    <div class="tab-panel active" id="tab-home">
-      <!-- Hero Card -->
-      <div class="hero-card" id="hero-card">
-        <div class="hero-label">Bugünkü Ciro</div>
-        <div class="hero-amount" id="hero-amount"><span class="hero-currency">₺</span>0,00</div>
-        <div class="hero-meta">
-          <div class="hero-stat">
-            <div class="hero-stat-val" id="hero-orders">0</div>
-            <div class="hero-stat-label">Sipariş</div>
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Ana Sayfa</div>
+      <div class="topbar-date" id="topbar-date"></div>
+      <div class="topbar-badge"><span>Pruva</span><span>Pro</span></div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+
+      <!-- HOME -->
+      <div class="tab-panel active" id="tab-home">
+
+        <div id="alert-strip" class="alert-strip" style="display:none" onclick="switchTab('inv')">
+          <span>⚠️</span>
+          <div>
+            <div class="alert-strip-text" id="alert-text">Kritik Stok</div>
+            <div class="alert-strip-sub" id="alert-sub"></div>
           </div>
-          <div class="hero-stat">
-            <div class="hero-stat-val" id="hero-avg">₺0</div>
-            <div class="hero-stat-label">Ort. Sepet</div>
+          <span style="margin-left:auto;color:#92400E">›</span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card primary">
+            <div class="stat-label">Bugünkü Ciro</div>
+            <div class="stat-value" id="stat-revenue">₺0,00</div>
+            <div class="stat-change" id="stat-change"></div>
           </div>
-          <div class="hero-change" id="hero-change" style="display:none">—</div>
+          <div class="stat-card">
+            <div class="stat-label">Sipariş Sayısı</div>
+            <div class="stat-value" id="stat-orders">0</div>
+            <div class="stat-change neutral">Bugün</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ort. Sepet</div>
+            <div class="stat-value" id="stat-avg">₺0</div>
+            <div class="stat-change neutral">Bugün</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Bu Ay</div>
+            <div class="stat-value" id="stat-monthly">₺0</div>
+            <div class="stat-change neutral" id="stat-monthly-sub">—</div>
+          </div>
+        </div>
+
+        <div class="home-cols">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">Son 7 Gün</div>
+              <div class="section-sub" id="week-total">—</div>
+            </div>
+            <div class="chart-area" id="week-chart">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">Hızlı İşlemler</div>
+            </div>
+            <div class="action-grid">
+              <div class="action-item" onclick="switchTab('sales')">
+                <div class="action-icon" style="background:#EDE9FF">💳</div>
+                <div class="action-label">Satış Yap</div>
+              </div>
+              <div class="action-item" onclick="switchTab('inv')">
+                <div class="action-icon" style="background:#D1FAE5">📦</div>
+                <div class="action-label">Stok</div>
+              </div>
+              <div class="action-item" onclick="switchTab('reports')">
+                <div class="action-icon" style="background:#DBEAFE">📊</div>
+                <div class="action-label">Raporlar</div>
+              </div>
+              <div class="action-item" onclick="showToast('Yakında…')">
+                <div class="action-icon" style="background:#FEF3C7">📈</div>
+                <div class="action-label">Tahmin</div>
+              </div>
+              <div class="action-item" onclick="showToast('Yakında…')">
+                <div class="action-icon" style="background:#FEE2E2">↩️</div>
+                <div class="action-label">İade</div>
+              </div>
+              <div class="action-item" onclick="showToast('Yakında…')">
+                <div class="action-icon" style="background:#E0F2FE">🚚</div>
+                <div class="action-label">Tedarikçi</div>
+              </div>
+              <div class="action-item" onclick="showToast('Yakında…')">
+                <div class="action-icon" style="background:#F3F4F6">👥</div>
+                <div class="action-label">Personel</div>
+              </div>
+              <div class="action-item" onclick="showToast('Yakında…')">
+                <div class="action-icon" style="background:#EDE9FF">✨</div>
+                <div class="action-label">Kazan & Paylaş</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Alert Strip (hidden by default) -->
-      <div class="alert-strip" id="alert-strip" style="display:none" onclick="switchTab('inv')">
-        <div class="alert-strip-icon">⚠️</div>
-        <div>
-          <div class="alert-strip-text" id="alert-text">Kritik Stok</div>
-          <div class="alert-strip-sub" id="alert-sub"></div>
+      <!-- SALES -->
+      <div class="tab-panel" id="tab-sales">
+        <div class="sales-products">
+          <div class="sales-toolbar">
+            <div class="search-bar">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Ürün ara veya barkod gir…" oninput="filterProducts(this.value)">
+            </div>
+          </div>
+          <div class="product-list-wrap" id="product-list">
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+          </div>
         </div>
-        <div class="alert-strip-arrow">›</div>
+        <div class="cart-panel">
+          <div class="cart-header">
+            Sepet <span class="cart-count" id="cart-count">0</span>
+          </div>
+          <div id="cart-empty" class="cart-empty">
+            <div class="cart-empty-icon">🛒</div>
+            <div>Sepet boş</div>
+            <div style="font-size:11px;margin-top:4px;opacity:.6">Ürün eklemek için + butonuna bas</div>
+          </div>
+          <div class="cart-items-wrap" id="cart-items" style="display:none"></div>
+          <div class="cart-footer">
+            <div class="cart-total-row">
+              <div class="cart-total-label">Toplam</div>
+              <div class="cart-total-val" id="cart-total">₺0,00</div>
+            </div>
+            <button class="btn-checkout" id="checkout-btn" onclick="openCheckout()" disabled>Ödeme Al</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Trend -->
-      <div class="section-title">Büyüme Trendi</div>
-      <div class="trend-row" id="trend-row">
-        <div class="trend-cell">
-          <div class="trend-label">Bu Hafta</div>
-          <div class="trend-pct flat" id="trend-week">—</div>
-          <div class="mini-bars" id="bars-week"></div>
+      <!-- INVENTORY -->
+      <div class="tab-panel" id="tab-inv">
+        <div class="inv-toolbar">
+          <div class="search-bar" style="flex:1">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Ürün ara…" oninput="filterInventory(this.value)">
+          </div>
         </div>
-        <div class="trend-cell">
-          <div class="trend-label">Bu Ay</div>
-          <div class="trend-pct flat" id="trend-month">—</div>
-          <div class="mini-bars" id="bars-month"></div>
-        </div>
-        <div class="trend-cell">
-          <div class="trend-label">Bu Yıl</div>
-          <div class="trend-pct flat" id="trend-year">—</div>
-          <div class="mini-bars" id="bars-year"></div>
+        <div class="inv-grid" id="inv-grid">
+          <div class="loading-dots" style="grid-column:span 4"><span></span><span></span><span></span></div>
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="section-title">Hızlı İşlemler</div>
-      <div class="action-grid">
-        <div class="action-tile" onclick="switchTab('sales')">
-          <div class="action-icon" style="background:#EDE9FF">💳</div>
-          <div class="action-label">Satış Yap</div>
-        </div>
-        <div class="action-tile" onclick="switchTab('inv')">
-          <div class="action-icon" style="background:#D1FAE5">📦</div>
-          <div class="action-label">Stok</div>
-        </div>
-        <div class="action-tile" onclick="switchTab('reports')">
-          <div class="action-icon" style="background:#DBEAFE">📊</div>
-          <div class="action-label">Raporlar</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#FEF3C7">📈</div>
-          <div class="action-label">Tahmin</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#FEE2E2">↩️</div>
-          <div class="action-label">İade</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#E0F2FE">🚚</div>
-          <div class="action-label">Tedarikçi</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#F3F4F6">👥</div>
-          <div class="action-label">Personel</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#FCE7F3">📋</div>
-          <div class="action-label">Veresiye</div>
-        </div>
-        <div class="action-tile" onclick="showToast('Yakında…')">
-          <div class="action-icon" style="background:#EDE9FF">✨</div>
-          <div class="action-label">Kazan &amp; Paylaş</div>
-        </div>
-      </div>
-      <div style="height:20px"></div>
-    </div>
-
-    <!-- SALES TAB -->
-    <div class="tab-panel" id="tab-sales">
-      <div class="product-search-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="product-search" placeholder="Ürün ara veya barkod…" oninput="filterProducts(this.value)">
-        </div>
-      </div>
-      <div class="product-list" id="product-list">
-        <div class="loading-dots"><span></span><span></span><span></span></div>
-      </div>
-      <!-- Cart -->
-      <div class="cart-panel" id="cart-panel">
-        <div class="cart-items" id="cart-items"></div>
-        <div class="cart-footer">
-          <div class="cart-total" id="cart-total">₺0,00</div>
-          <button class="btn-checkout" onclick="openCheckout()">Ödeme Al</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- INVENTORY TAB -->
-    <div class="tab-panel" id="tab-inv">
-      <div class="product-search-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="inv-search" placeholder="Ürün ara…" oninput="filterInventory(this.value)">
-        </div>
-      </div>
-      <div class="inv-grid" id="inv-grid">
-        <div class="loading-dots" style="grid-column:span 2"><span></span><span></span><span></span></div>
-      </div>
-    </div>
-
-    <!-- REPORTS TAB -->
-    <div class="tab-panel" id="tab-reports">
-      <div class="report-card">
-        <div class="report-card-title">Bu Ay</div>
-        <div class="report-stat-row">
-          <div class="report-stat">
+      <!-- REPORTS -->
+      <div class="tab-panel" id="tab-reports">
+        <div class="reports-grid">
+          <div class="report-stat-card">
+            <div class="report-stat-label">Bu Ay Ciro</div>
             <div class="report-stat-val" id="rep-monthly-rev">—</div>
-            <div class="report-stat-label">Ciro</div>
+            <div class="report-stat-sub" id="rep-monthly-sub">— işlem</div>
           </div>
-          <div class="report-stat">
-            <div class="report-stat-val" id="rep-monthly-orders">—</div>
-            <div class="report-stat-label">İşlem</div>
+          <div class="report-stat-card">
+            <div class="report-stat-label">Bu Yıl Ciro</div>
+            <div class="report-stat-val" id="rep-yearly-rev">—</div>
+            <div class="report-stat-sub">Yıllık toplam</div>
           </div>
-          <div class="report-stat">
-            <div class="report-stat-val" id="rep-monthly-avg">—</div>
-            <div class="report-stat-label">Ort. Sepet</div>
+        </div>
+        <div class="reports-charts">
+          <div class="section-card">
+            <div class="section-header"><div class="section-title">Son 7 Gün</div></div>
+            <div class="chart-area" id="rep-week-chart">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div class="section-title">Aylık Özet</div></div>
+            <div class="chart-area" id="rep-monthly-chart">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="section-title">Son 7 Gün</div>
-      <div class="report-card" style="margin:0 16px">
-        <div class="bar-chart" id="bar-chart">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
-      </div>
-      <div class="section-title">Bu Yılın Aylık Özeti</div>
-      <div class="report-card" style="margin:0 16px">
-        <div class="bar-chart" id="monthly-chart">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
-      </div>
-      <div style="height:20px"></div>
-    </div>
 
-    <!-- MENU TAB -->
-    <div class="tab-panel" id="tab-menu">
-      <div class="menu-account-card">
-        <div class="menu-account-avatar">🏪</div>
-        <div>
-          <div class="menu-account-name" id="menu-store-name">Mağazam</div>
-          <div class="menu-account-email" id="menu-user-email"></div>
-        </div>
-      </div>
-      <div class="menu-list">
-        <div class="menu-group">
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#EDE9FF">⚙️</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">Mağaza Ayarları</div>
-              <div class="menu-row-sub">İsim, kategori, çalışma saatleri</div>
+      <!-- SETTINGS -->
+      <div class="tab-panel" id="tab-settings">
+        <div class="settings-grid">
+          <div class="settings-group">
+            <div class="settings-group-title">Hesap</div>
+            <div class="settings-row">
+              <div class="settings-icon" style="background:#EDE9FF">🏪</div>
+              <div class="settings-text">
+                <div class="settings-title" id="settings-store-name">Mağazam</div>
+                <div class="settings-sub" id="settings-email">—</div>
+              </div>
             </div>
-            <div class="menu-row-arrow">›</div>
           </div>
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#D1FAE5">💱</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">Para Birimi</div>
-              <div class="menu-row-sub">TRY — Türk Lirası</div>
+          <div class="settings-group">
+            <div class="settings-group-title">Tercihler</div>
+            <div class="settings-row" onclick="showToast('Yakında…')">
+              <div class="settings-icon" style="background:#D1FAE5">💱</div>
+              <div class="settings-text">
+                <div class="settings-title">Para Birimi</div>
+                <div class="settings-sub">TRY — Türk Lirası</div>
+              </div>
+              <div class="settings-arrow">›</div>
             </div>
-            <div class="menu-row-arrow">›</div>
-          </div>
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#DBEAFE">🌍</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">Dil</div>
-              <div class="menu-row-sub">Türkçe</div>
+            <div class="settings-row" onclick="showToast('Yakında…')">
+              <div class="settings-icon" style="background:#DBEAFE">🌍</div>
+              <div class="settings-text">
+                <div class="settings-title">Dil</div>
+                <div class="settings-sub">Türkçe</div>
+              </div>
+              <div class="settings-arrow">›</div>
             </div>
-            <div class="menu-row-arrow">›</div>
           </div>
-        </div>
-        <div class="menu-group">
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#FEF3C7">🖨️</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">Yazıcı Ayarları</div>
-              <div class="menu-row-sub">WiFi ESC/POS yazıcı bağlantısı</div>
+          <div class="settings-group">
+            <div class="settings-group-title">Cihazlar</div>
+            <div class="settings-row" onclick="showToast('Yakında…')">
+              <div class="settings-icon" style="background:#FEF3C7">🖨️</div>
+              <div class="settings-text">
+                <div class="settings-title">WiFi Yazıcı</div>
+                <div class="settings-sub">ESC/POS bağlantı ayarları</div>
+              </div>
+              <div class="settings-arrow">›</div>
             </div>
-            <div class="menu-row-arrow">›</div>
-          </div>
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#FCE7F3">👥</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">Personel Yönetimi</div>
-              <div class="menu-row-sub">Kasiyer ve yönetici rolleri</div>
+            <div class="settings-row" onclick="showToast('Yakında…')">
+              <div class="settings-icon" style="background:#F3F4F6">📱</div>
+              <div class="settings-text">
+                <div class="settings-title">iOS Uygulaması</div>
+                <div class="settings-sub">Tam deneyim için iPhone'a indir</div>
+              </div>
+              <div class="settings-arrow">›</div>
             </div>
-            <div class="menu-row-arrow">›</div>
           </div>
-        </div>
-        <div class="menu-group">
-          <div class="menu-row" onclick="showToast('Yakında…')">
-            <div class="menu-row-icon" style="background:#F3F4F6">📱</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title">iOS Uygulaması</div>
-              <div class="menu-row-sub">Tam deneyim için iPhone'a indir</div>
-            </div>
-            <div class="menu-row-arrow">›</div>
-          </div>
-          <div class="menu-row" onclick="doLogout()">
-            <div class="menu-row-icon" style="background:#FEE2E2">🚪</div>
-            <div class="menu-row-text">
-              <div class="menu-row-title" style="color:var(--red)">Çıkış Yap</div>
+          <div class="settings-group">
+            <div class="settings-group-title">Oturum</div>
+            <div class="settings-row" onclick="doLogout()">
+              <div class="settings-icon" style="background:#FEE2E2">🚪</div>
+              <div class="settings-text">
+                <div class="settings-title" style="color:var(--red)">Çıkış Yap</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div style="height:20px"></div>
-    </div>
 
-  </div><!-- .tab-content -->
-
-  <!-- Bottom Tab Bar -->
-  <div class="tab-bar">
-    <div class="tab-item active" id="tab-btn-home" onclick="switchTab('home')">
-      <div class="tab-icon">🏠</div>
-      <div class="tab-label">Ana Sayfa</div>
-    </div>
-    <div class="tab-item" id="tab-btn-sales" onclick="switchTab('sales')">
-      <div class="tab-icon">💳</div>
-      <div class="tab-label">Satış</div>
-    </div>
-    <div class="tab-item" id="tab-btn-inv" onclick="switchTab('inv')">
-      <div class="tab-icon">📦</div>
-      <div class="tab-label">Stok</div>
-    </div>
-    <div class="tab-item" id="tab-btn-reports" onclick="switchTab('reports')">
-      <div class="tab-icon">📊</div>
-      <div class="tab-label">Raporlar</div>
-    </div>
-    <div class="tab-item" id="tab-btn-menu" onclick="switchTab('menu')">
-      <div class="tab-icon">☰</div>
-      <div class="tab-label">Menü</div>
-    </div>
-  </div>
-
+    </div><!-- .content-area -->
+  </div><!-- .main-area -->
 </div><!-- #app -->
 
-<!-- Toast -->
-<div id="toast"></div>
+<!-- Mobile tab bar -->
+<div class="mobile-tab-bar" id="mobile-tab-bar">
+  <div class="mobile-tab-item active" id="mob-home" onclick="switchTab('home')">
+    <div class="mobile-tab-icon">🏠</div>
+    <div class="mobile-tab-label">Ana Sayfa</div>
+  </div>
+  <div class="mobile-tab-item" id="mob-sales" onclick="switchTab('sales')">
+    <div class="mobile-tab-icon">💳</div>
+    <div class="mobile-tab-label">Satış</div>
+  </div>
+  <div class="mobile-tab-item" id="mob-inv" onclick="switchTab('inv')">
+    <div class="mobile-tab-icon">📦</div>
+    <div class="mobile-tab-label">Stok</div>
+  </div>
+  <div class="mobile-tab-item" id="mob-reports" onclick="switchTab('reports')">
+    <div class="mobile-tab-icon">📊</div>
+    <div class="mobile-tab-label">Raporlar</div>
+  </div>
+  <div class="mobile-tab-item" id="mob-settings" onclick="switchTab('settings')">
+    <div class="mobile-tab-icon">⚙️</div>
+    <div class="mobile-tab-label">Ayarlar</div>
+  </div>
+</div>
 
 <!-- Checkout Modal -->
-<div class="modal-overlay" id="checkout-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
+<div class="modal-overlay" id="checkout-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
     <div class="modal-title">Ödeme Al</div>
     <div class="payment-grid">
       <div class="payment-btn selected" id="pay-cash" onclick="selectPayment('cash')">
@@ -900,534 +1003,347 @@ body {
       </div>
     </div>
     <div class="modal-total" id="modal-total">₺0,00</div>
-    <button class="btn-confirm" onclick="confirmSale()">✓ Satışı Tamamla</button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('checkout-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" onclick="confirmSale()">✓ Tamamla</button>
+    </div>
   </div>
 </div>
 
-<!-- Firebase + App JS -->
+<div id="toast"></div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import {
-  getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit,
-  onSnapshot, Timestamp, addDoc, serverTimestamp, updateDoc, increment
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc,
+         setDoc, increment, query, orderBy, limit, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const firebaseConfig = {
+const app  = initializeApp({
   apiKey: "AIzaSyChguhy4_YdoSqWs6ukbeIdCdFTim96svQ",
   authDomain: "qwick-pos-3f05e.firebaseapp.com",
   projectId: "qwick-pos-3f05e",
   storageBucket: "qwick-pos-3f05e.firebasestorage.app",
   messagingSenderId: "142541051514",
   appId: "1:142541051514:ios:88e2c5ac4b706184548dc3"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const auth  = getAuth(fbApp);
-const db    = getFirestore(fbApp);
-
-// ── App State ────────────────────────────────────────────────
-let storeId       = null;
-let allProducts   = [];
-let cart          = [];
-let selectedPayment = 'cash';
-let dailySummaries = [];
-let monthlySummaries = [];
-
-// ── Format helpers ────────────────────────────────────────────
-function fmtCurrency(v) {
-  return '₺' + v.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtShort(v) {
-  if (v >= 1_000_000) return '₺' + (v/1_000_000).toFixed(1) + 'M';
-  if (v >= 1_000) return '₺' + (v/1_000).toFixed(1) + 'K';
-  return '₺' + Math.round(v);
-}
-
-// ── Auth ─────────────────────────────────────────────────────
-onAuthStateChanged(auth, async user => {
-  if (user) {
-    await initApp(user);
-  } else {
-    showLogin();
-  }
 });
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-window.doLogin = async function() {
+let storeId = null, allProducts = [], cart = [], selectedPay = 'cash';
+let dailySummaries = [], monthlySummaries = [];
+
+const fc  = v => '₺' + v.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fcs = v => v>=1e6?'₺'+(v/1e6).toFixed(1)+'M':v>=1e3?'₺'+(v/1e3).toFixed(1)+'K':'₺'+Math.round(v);
+
+onAuthStateChanged(auth, u => u ? initApp(u) : showLogin());
+
+window.doLogin = async () => {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
-  const errEl = document.getElementById('login-error');
-  const btnText = document.getElementById('login-btn-text');
-  const spinner = document.getElementById('login-spinner');
-  errEl.textContent = '';
-  if (!email || !pass) { errEl.textContent = 'E-posta ve şifre gerekli.'; return; }
-  btnText.style.display = 'none';
-  spinner.style.display = 'block';
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e) {
-    btnText.style.display = 'block';
-    spinner.style.display = 'none';
-    errEl.textContent = e.code === 'auth/invalid-credential'
-      ? 'E-posta veya şifre hatalı.' : 'Giriş başarısız: ' + e.message;
+  const err   = document.getElementById('login-error');
+  err.textContent = '';
+  if (!email||!pass) { err.textContent='E-posta ve şifre gerekli.'; return; }
+  document.getElementById('login-btn-text').style.display='none';
+  document.getElementById('login-spinner').style.display='block';
+  try { await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e) {
+    document.getElementById('login-btn-text').style.display='block';
+    document.getElementById('login-spinner').style.display='none';
+    err.textContent = e.code==='auth/invalid-credential'
+      ? 'E-posta veya şifre hatalı.' : 'Giriş başarısız.';
   }
 };
 
-window.doLogout = async function() {
+window.doLogout = async () => {
   await signOut(auth);
-  storeId = null; allProducts = []; cart = [];
+  storeId=null; allProducts=[]; cart=[];
   showLogin();
 };
 
 function showLogin() {
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('app').classList.add('hidden');
-  document.getElementById('login-error').textContent = '';
-  document.getElementById('login-btn-text').style.display = 'block';
-  document.getElementById('login-spinner').style.display = 'none';
 }
 
-// ── Init App ─────────────────────────────────────────────────
 async function initApp(user) {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
 
-  // Date header
   const now = new Date();
-  const days = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
-  const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-  document.getElementById('header-date').textContent =
-    `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
+  const days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  const months=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  document.getElementById('topbar-date').textContent =
+    days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
 
-  // User email on menu tab
-  document.getElementById('menu-user-email').textContent = user.email || '';
+  document.getElementById('sidebar-email').textContent = user.email||'';
+  document.getElementById('settings-email').textContent = user.email||'';
 
-  // Get storeId
   try {
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      storeId = data.storeId || user.uid;
-      const storeName = data.storeName || data.storeCode || 'Mağazam';
-      document.getElementById('store-name').textContent = storeName;
-      document.getElementById('menu-store-name').textContent = storeName;
-    } else {
-      storeId = user.uid;
-    }
-  } catch(e) {
-    storeId = user.uid;
-  }
+    const ud = await getDoc(doc(db,'users',user.uid));
+    storeId = ud.exists() ? (ud.data().storeId||user.uid) : user.uid;
+    const name = ud.exists() ? (ud.data().storeName||ud.data().storeCode||'Mağazam') : 'Mağazam';
+    ['sidebar-store-name','settings-store-name'].forEach(id=>document.getElementById(id).textContent=name);
+  } catch { storeId=user.uid; }
 
-  // Load data
   loadProducts();
   loadDailySummaries();
   loadMonthlySummaries();
 }
 
-// ── Products ─────────────────────────────────────────────────
 async function loadProducts() {
   if (!storeId) return;
   try {
-    const snap = await getDocs(collection(db, 'stores', storeId, 'products'));
-    allProducts = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(p => !p.isDeleted && p.isAvailable !== false);
+    const snap = await getDocs(collection(db,'stores',storeId,'products'));
+    allProducts = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(p=>!p.isDeleted && p.isAvailable!==false);
     renderProductList(allProducts);
     renderInventory(allProducts);
     checkCriticalStock();
   } catch(e) {
-    document.getElementById('product-list').innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📦</div>
-        <div class="empty-text">Ürün yüklenemedi</div>
-        <div class="empty-sub">${e.message}</div>
-      </div>`;
+    document.getElementById('product-list').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün yüklenemedi</div><div class="empty-sub">${e.message}</div></div>`;
   }
 }
 
-function productEmoji(category) {
-  const map = {
-    'food': '🍎', 'drink': '🥤', 'snack': '🍫', 'dairy': '🧀',
-    'meat': '🥩', 'vegetable': '🥦', 'fruit': '🍊', 'bread': '🍞',
-    'cleaning': '🧹', 'personal': '🧴', 'electronics': '📱',
-    'stationery': '📝', 'clothing': '👕', 'toy': '🧸'
-  };
-  const c = (category || '').toLowerCase();
-  return map[c] || '🛒';
-}
+const emojiMap = {food:'🍎',drink:'🥤',snack:'🍫',dairy:'🧀',meat:'🥩',
+  vegetable:'🥦',fruit:'🍊',bread:'🍞',cleaning:'🧹',personal:'🧴',
+  electronics:'📱',stationery:'📝'};
+const pEmoji = p => emojiMap[(p.category||'').toLowerCase()] || '🛒';
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-function renderProductList(products) {
+function renderProductList(list) {
   const el = document.getElementById('product-list');
-  if (!products.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün bulunamadı</div></div>`;
+  if (!list.length) {
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün bulunamadı</div></div>';
     return;
   }
-  el.innerHTML = products.map(p => `
+  el.innerHTML = list.map(p=>`
     <div class="product-row" onclick="addToCart('${p.id}')">
-      <div class="product-emoji">${productEmoji(p.category)}</div>
+      <div class="product-emoji">${pEmoji(p)}</div>
       <div class="product-info">
-        <div class="product-name">${escHtml(p.name || p.id)}</div>
-        <div class="product-stock">Stok: ${p.stockQuantity ?? '?'}</div>
+        <div class="product-name">${esc(p.name||p.id)}</div>
+        <div class="product-stock">Stok: ${p.stockQuantity??'?'}</div>
       </div>
-      <div class="product-price">${fmtCurrency(p.price || 0)}</div>
+      <div class="product-price">${fc(p.price||0)}</div>
       <button class="product-add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-window.filterProducts = function(q) {
-  const q2 = q.toLowerCase();
-  const filtered = q2 ? allProducts.filter(p =>
-    (p.name||'').toLowerCase().includes(q2) ||
-    (p.barcode||p.id||'').toLowerCase().includes(q2)
-  ) : allProducts;
-  renderProductList(filtered);
+window.filterProducts = q => {
+  const f = q.toLowerCase();
+  renderProductList(f ? allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)||(p.id||'').toLowerCase().includes(f)) : allProducts);
 };
 
-// ── Cart ─────────────────────────────────────────────────────
-window.addToCart = function(productId) {
-  const product = allProducts.find(p => p.id === productId);
-  if (!product) return;
-  const existing = cart.find(i => i.id === productId);
-  if (existing) {
-    existing.qty++;
-  } else {
-    cart.push({ id: productId, name: product.name||productId, price: product.price||0, qty: 1 });
-  }
+window.addToCart = id => {
+  const p = allProducts.find(x=>x.id===id); if(!p) return;
+  const ex = cart.find(i=>i.id===id);
+  if (ex) ex.qty++; else cart.push({id,name:p.name||id,price:p.price||0,qty:1});
   renderCart();
-  showToast(`${product.name || productId} eklendi`);
+  showToast(`${p.name||id} eklendi`);
 };
-
-window.changeQty = function(productId, delta) {
-  const idx = cart.findIndex(i => i.id === productId);
-  if (idx === -1) return;
-  cart[idx].qty += delta;
-  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+window.changeQty = (id,d) => {
+  const i = cart.findIndex(x=>x.id===id); if(i===-1) return;
+  cart[i].qty+=d; if(cart[i].qty<=0) cart.splice(i,1);
   renderCart();
 };
-
-function cartTotal() {
-  return cart.reduce((s, i) => s + i.price * i.qty, 0);
-}
+const cartTotal = () => cart.reduce((s,i)=>s+i.price*i.qty,0);
 
 function renderCart() {
-  const panel = document.getElementById('cart-panel');
-  if (!cart.length) { panel.classList.add('empty'); return; }
-  panel.classList.remove('empty');
   const total = cartTotal();
-  document.getElementById('cart-items').innerHTML = cart.map(i => `
-    <div class="cart-row">
-      <div class="cart-name">${escHtml(i.name)}</div>
-      <div class="cart-qty-wrap">
-        <div class="cart-qty-btn" onclick="changeQty('${i.id}',-1)">−</div>
-        <div class="cart-qty">${i.qty}</div>
-        <div class="cart-qty-btn" onclick="changeQty('${i.id}',1)">+</div>
-      </div>
-      <div class="cart-item-price">${fmtCurrency(i.price * i.qty)}</div>
-    </div>
-  `).join('');
-  document.getElementById('cart-total').textContent = fmtCurrency(total);
+  const empty = !cart.length;
+  document.getElementById('cart-empty').style.display  = empty ? 'flex' : 'none';
+  document.getElementById('cart-items').style.display  = empty ? 'none' : 'block';
+  document.getElementById('cart-count').textContent    = cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cart-total').textContent    = fc(total);
+  document.getElementById('checkout-btn').disabled     = empty;
+  if (!empty) {
+    document.getElementById('cart-items').innerHTML = cart.map(i=>`
+      <div class="cart-row">
+        <div class="cart-name">${esc(i.name)}</div>
+        <div class="cart-qty-ctrl">
+          <div class="qty-btn" onclick="changeQty('${i.id}',-1)">−</div>
+          <div class="qty-num">${i.qty}</div>
+          <div class="qty-btn" onclick="changeQty('${i.id}',1)">+</div>
+        </div>
+        <div class="cart-item-price">${fc(i.price*i.qty)}</div>
+      </div>`).join('');
+  }
 }
 
-// ── Checkout ─────────────────────────────────────────────────
-window.openCheckout = function() {
+window.openCheckout = () => {
   if (!cart.length) return;
-  document.getElementById('modal-total').textContent = fmtCurrency(cartTotal());
+  document.getElementById('modal-total').textContent = fc(cartTotal());
   document.getElementById('checkout-modal').classList.add('show');
 };
-
-window.selectPayment = function(method) {
-  selectedPayment = method;
-  document.getElementById('pay-cash').classList.toggle('selected', method === 'cash');
-  document.getElementById('pay-card').classList.toggle('selected', method === 'card');
+window.selectPayment = m => {
+  selectedPay=m;
+  document.getElementById('pay-cash').classList.toggle('selected',m==='cash');
+  document.getElementById('pay-card').classList.toggle('selected',m==='card');
 };
-
-window.confirmSale = async function() {
+window.confirmSale = async () => {
   const total = cartTotal();
-  const modal = document.getElementById('checkout-modal');
-  modal.classList.remove('show');
-
+  document.getElementById('checkout-modal').classList.remove('show');
   try {
-    // Write transaction to Firestore
     if (storeId) {
-      const txRef = collection(db, 'stores', storeId, 'transactions');
-      await addDoc(txRef, {
-        items: cart.map(i => ({ productId: i.id, name: i.name, price: i.price, qty: i.qty })),
-        totalPrice: total,
-        paymentMethod: selectedPayment,
-        date: serverTimestamp(),
-        isRefund: false,
-        source: 'web'
+      await addDoc(collection(db,'stores',storeId,'transactions'), {
+        items: cart.map(i=>({productId:i.id,name:i.name,price:i.price,qty:i.qty})),
+        totalPrice: total, paymentMethod: selectedPay,
+        date: serverTimestamp(), isRefund: false, source: 'web'
       });
-      // Update daily summary
-      const today = new Date();
-      const dayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-      const summaryRef = doc(db, 'stores', storeId, 'dailySummaries', dayKey);
-      await updateDoc(summaryRef, {
-        totalRevenue: increment(total),
-        transactionCount: increment(1)
-      }).catch(async () => {
-        // doc doesn't exist yet
-        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-        await setDoc(summaryRef, { totalRevenue: total, transactionCount: 1, date: dayKey }, { merge: true });
-      });
+      const td = new Date();
+      const dk = `${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+      const sr = doc(db,'stores',storeId,'dailySummaries',dk);
+      await updateDoc(sr,{totalRevenue:increment(total),transactionCount:increment(1)})
+        .catch(()=>setDoc(sr,{totalRevenue:total,transactionCount:1,date:dk},{merge:true}));
     }
-  } catch(e) {
-    console.error('Sale write error:', e);
-  }
-
-  cart = [];
-  renderCart();
+  } catch(e) { console.error(e); }
+  cart=[]; renderCart();
   loadDailySummaries();
-  showToast(`✓ Satış tamamlandı — ${fmtCurrency(total)}`);
+  showToast(`✓ ${fc(total)} — satış tamamlandı`);
   switchTab('home');
 };
 
-// Close modal on overlay tap
-document.getElementById('checkout-modal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('show');
-});
-
-// ── Inventory ─────────────────────────────────────────────────
-function renderInventory(products) {
+function renderInventory(list) {
   const el = document.getElementById('inv-grid');
-  if (!products.length) {
-    el.innerHTML = `<div class="empty-state" style="grid-column:span 2"><div class="empty-icon">📦</div><div class="empty-text">Ürün yok</div></div>`;
+  if (!list.length) {
+    el.innerHTML='<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">📦</div><div class="empty-text">Ürün yok</div></div>';
     return;
   }
-  el.innerHTML = products.map(p => {
-    const stock = p.stockQuantity ?? 0;
-    const min   = p.minStockThreshold ?? 0;
-    let badgeClass, badgeText;
-    if (stock === 0) { badgeClass = 'out'; badgeText = 'Tükendi'; }
-    else if (min > 0 && stock <= min) { badgeClass = 'crit'; badgeText = `${stock} — KRİTİK`; }
-    else if (min > 0 && stock <= min * 2) { badgeClass = 'low'; badgeText = `${stock} — Az`; }
-    else { badgeClass = 'ok'; badgeText = `${stock} adet`; }
-    return `
-      <div class="inv-card">
-        <div class="inv-product-emoji">${productEmoji(p.category)}</div>
-        <div class="inv-product-name">${escHtml(p.name || p.id)}</div>
-        <div class="inv-product-price">${fmtCurrency(p.price || 0)}</div>
-        <div class="inv-stock-badge ${badgeClass}">${badgeText}</div>
-      </div>`;
+  el.innerHTML = list.map(p => {
+    const s=p.stockQuantity??0, m=p.minStockThreshold??0;
+    let cls,txt;
+    if(s===0){cls='stock-out';txt='Tükendi';}
+    else if(m>0&&s<=m){cls='stock-crit';txt=`${s} — Kritik`;}
+    else if(m>0&&s<=m*2){cls='stock-low';txt=`${s} — Az`;}
+    else{cls='stock-ok';txt=`${s} adet`;}
+    return `<div class="inv-card">
+      <div class="inv-emoji">${pEmoji(p)}</div>
+      <div class="inv-name">${esc(p.name||p.id)}</div>
+      <div class="inv-price">${fc(p.price||0)}</div>
+      <span class="stock-badge ${cls}">${txt}</span>
+    </div>`;
   }).join('');
 }
-
-window.filterInventory = function(q) {
-  const q2 = q.toLowerCase();
-  const filtered = q2 ? allProducts.filter(p =>
-    (p.name||'').toLowerCase().includes(q2)
-  ) : allProducts;
-  renderInventory(filtered);
+window.filterInventory = q => {
+  const f=q.toLowerCase();
+  renderInventory(f?allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)):allProducts);
 };
 
 function checkCriticalStock() {
-  const crit = allProducts.filter(p => (p.minStockThreshold||0) > 0 && p.stockQuantity <= p.minStockThreshold);
+  const crit = allProducts.filter(p=>(p.minStockThreshold||0)>0&&p.stockQuantity<=p.minStockThreshold);
   if (crit.length) {
-    document.getElementById('alert-strip').style.display = 'flex';
-    document.getElementById('alert-text').textContent = `${crit.length} ürün kritik stokta`;
-    document.getElementById('alert-sub').textContent = crit.slice(0,3).map(p => p.name||p.id).join(', ');
+    document.getElementById('alert-strip').style.display='flex';
+    document.getElementById('alert-text').textContent=`${crit.length} ürün kritik stokta`;
+    document.getElementById('alert-sub').textContent=crit.slice(0,3).map(p=>p.name||p.id).join(', ');
   }
 }
 
-// ── Daily Summaries ───────────────────────────────────────────
 async function loadDailySummaries() {
-  if (!storeId) return;
+  if(!storeId) return;
   try {
-    const today = new Date();
-    const days = [];
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(today); d.setDate(d.getDate() - i);
-      days.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
-    }
-    const snap = await getDocs(query(
-      collection(db, 'stores', storeId, 'dailySummaries'),
-      orderBy('__name__', 'desc'), limit(31)
-    ));
-    const summaryMap = {};
-    snap.docs.forEach(d => { summaryMap[d.id] = d.data(); });
-    dailySummaries = days.map(key => ({
-      date: key,
-      revenue: summaryMap[key]?.totalRevenue || 0,
-      orders: summaryMap[key]?.transactionCount || 0
-    }));
+    const today=new Date(), days30=[];
+    for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days30.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
+    const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy('__name__','desc'),limit(31)));
+    const m={}; snap.docs.forEach(d=>{m[d.id]=d.data();});
+    dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.transactionCount||0}));
     renderHomeStats();
     renderReports();
-  } catch(e) {
-    console.error('Daily summaries error:', e);
-    renderHomeStats();
-    renderReports();
-  }
+  } catch { renderHomeStats(); renderReports(); }
 }
 
 async function loadMonthlySummaries() {
-  if (!storeId) return;
+  if(!storeId) return;
   try {
-    const snap = await getDocs(query(
-      collection(db, 'stores', storeId, 'monthlySummaries'),
-      orderBy('__name__', 'asc'), limit(13)
-    ));
-    monthlySummaries = snap.docs.map(d => ({
-      month: d.id,
-      revenue: d.data().totalRevenue || 0,
-      orders: d.data().transactionCount || 0
-    }));
+    const snap=await getDocs(query(collection(db,'stores',storeId,'monthlySummaries'),orderBy('__name__','asc'),limit(13)));
+    monthlySummaries=snap.docs.map(d=>({month:d.id,revenue:d.data().totalRevenue||0,orders:d.data().transactionCount||0}));
+    renderHomeStats();
     renderReports();
-  } catch(e) {
-    console.error('Monthly summaries error:', e);
-  }
+  } catch {}
 }
 
-// ── Home Stats ────────────────────────────────────────────────
 function renderHomeStats() {
-  if (!dailySummaries.length) return;
-  const today = dailySummaries[dailySummaries.length - 1];
-  const yesterday = dailySummaries.length > 1 ? dailySummaries[dailySummaries.length - 2] : null;
+  if(!dailySummaries.length) return;
+  const t=dailySummaries[dailySummaries.length-1];
+  const y=dailySummaries.length>1?dailySummaries[dailySummaries.length-2]:null;
+  document.getElementById('stat-revenue').textContent=fc(t.revenue);
+  document.getElementById('stat-orders').textContent=t.orders;
+  document.getElementById('stat-avg').textContent=t.orders>0?fcs(t.revenue/t.orders):'₺0';
 
-  document.getElementById('hero-amount').innerHTML =
-    `<span class="hero-currency">₺</span>${today.revenue.toLocaleString('tr-TR', {minimumFractionDigits:2,maximumFractionDigits:2})}`;
-  document.getElementById('hero-orders').textContent = today.orders;
-  document.getElementById('hero-avg').textContent =
-    today.orders > 0 ? fmtShort(today.revenue / today.orders) : '₺0';
-
-  if (yesterday && yesterday.revenue > 0) {
-    const chg = (today.revenue - yesterday.revenue) / yesterday.revenue * 100;
-    const el = document.getElementById('hero-change');
-    el.style.display = 'block';
-    el.textContent = (chg >= 0 ? '▲ ' : '▼ ') + Math.abs(chg).toFixed(1) + '%';
-    el.className = 'hero-change ' + (chg >= 0 ? 'up' : 'down');
+  if(y&&y.revenue>0){
+    const chg=(t.revenue-y.revenue)/y.revenue*100;
+    const el=document.getElementById('stat-change');
+    el.textContent=(chg>=0?'▲ ':'▼ ')+Math.abs(chg).toFixed(1)+'% dünden';
+    el.className='stat-change '+(chg>=0?'up':'down');
   }
 
-  // Trend cells
-  const weekly  = dailySummaries.slice(-7).map(d => d.revenue);
-  const monthly = dailySummaries.slice(-30).map(d => d.revenue);
-  const thisYear = monthlySummaries.map(d => d.revenue);
+  const now=new Date();
+  const mk=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const me=monthlySummaries.find(s=>s.month===mk);
+  const mr=me?.revenue??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.revenue,0);
+  const mo=me?.orders??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.orders,0);
+  document.getElementById('stat-monthly').textContent=fcs(mr);
+  document.getElementById('stat-monthly-sub').textContent=`${mo} işlem`;
 
-  renderTrendCell('trend-week', 'bars-week', weekly);
-  renderTrendCell('trend-month', 'bars-month', monthly);
-  if (thisYear.length) renderTrendCell('trend-year', 'bars-year', thisYear);
+  const last7=dailySummaries.slice(-7);
+  const weekTotal=last7.reduce((s,d)=>s+d.revenue,0);
+  document.getElementById('week-total').textContent=fcs(weekTotal);
+  renderBarChart('week-chart',last7,'day');
 }
 
-function renderTrendCell(pctId, barsId, pts) {
-  const pct = calcGrowthPct(pts);
-  const el = document.getElementById(pctId);
-  if (Math.abs(pct) < 0.5) {
-    el.textContent = '→ 0%'; el.className = 'trend-pct flat';
-  } else if (pct > 0) {
-    el.textContent = `▲ ${pct.toFixed(1)}%`; el.className = 'trend-pct up';
-  } else {
-    el.textContent = `▼ ${Math.abs(pct).toFixed(1)}%`; el.className = 'trend-pct down';
-  }
-  const max = Math.max(...pts, 1);
-  const barsEl = document.getElementById(barsId);
-  barsEl.innerHTML = pts.map((v, i) => {
-    const h = Math.max((v / max) * 28, 3);
-    const isLatest = i === pts.length - 1;
-    return `<div class="mini-bar${isLatest?' latest':''}" style="height:${h}px"></div>`;
-  }).join('');
-}
-
-function calcGrowthPct(pts) {
-  const n = pts.length;
-  if (n < 2) return 0;
-  const nonZero = pts.filter(x => x > 0);
-  if (!nonZero.length) return 0;
-  const xMean = (n - 1) / 2;
-  const yMean = pts.reduce((a,b) => a+b, 0) / n;
-  if (yMean <= 0) return 0;
-  let num = 0, den = 0;
-  pts.forEach((y, i) => {
-    const x = i - xMean;
-    num += x * (y - yMean);
-    den += x * x;
-  });
-  if (den === 0) return 0;
-  return ((num / den) * (n - 1) / yMean) * 100;
-}
-
-// ── Reports ───────────────────────────────────────────────────
 function renderReports() {
-  if (!dailySummaries.length) return;
+  if(!dailySummaries.length) return;
+  const now=new Date();
+  const mk=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const me=monthlySummaries.find(s=>s.month===mk);
+  const mr=me?.revenue??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.revenue,0);
+  const mo=me?.orders??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.orders,0);
+  const yr=monthlySummaries.reduce((s,m)=>s+m.revenue,0);
+  document.getElementById('rep-monthly-rev').textContent=fcs(mr);
+  document.getElementById('rep-monthly-sub').textContent=`${mo} işlem`;
+  document.getElementById('rep-yearly-rev').textContent=fcs(yr);
+  renderBarChart('rep-week-chart',dailySummaries.slice(-7),'day');
+  if(monthlySummaries.length) renderBarChart('rep-monthly-chart',monthlySummaries.map(s=>({date:s.month,revenue:s.revenue})),'month');
+}
 
-  // Monthly totals (current month)
-  const now = new Date();
-  const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const monthlyEntry = monthlySummaries.find(s => s.month === monthKey);
-  const monthRevenue = monthlyEntry?.revenue ?? dailySummaries
-    .filter(d => d.date.startsWith(monthKey)).reduce((s,d) => s+d.revenue, 0);
-  const monthOrders = monthlyEntry?.orders ?? dailySummaries
-    .filter(d => d.date.startsWith(monthKey)).reduce((s,d) => s+d.orders, 0);
-
-  document.getElementById('rep-monthly-rev').textContent = fmtShort(monthRevenue);
-  document.getElementById('rep-monthly-orders').textContent = monthOrders;
-  document.getElementById('rep-monthly-avg').textContent =
-    monthOrders > 0 ? fmtShort(monthRevenue / monthOrders) : '—';
-
-  // Last 7 days bar chart
-  const last7 = dailySummaries.slice(-7);
-  const maxVal = Math.max(...last7.map(d => d.revenue), 1);
-  const dayLabels = ['Pz','Pt','Sa','Ça','Pe','Cu','Ct'];
-  document.getElementById('bar-chart').innerHTML = last7.map(d => {
-    const date = new Date(d.date + 'T00:00:00');
-    const label = dayLabels[date.getDay()];
-    const pct = (d.revenue / maxVal) * 100;
+function renderBarChart(id,data,type) {
+  const max=Math.max(...data.map(d=>d.revenue),1);
+  const dayL=['Pz','Pt','Sa','Ça','Pe','Cu','Ct'];
+  const monL=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  document.getElementById(id).innerHTML = data.map(d=>{
+    const pct=(d.revenue/max)*100;
+    let label;
+    if(type==='day'){const dt=new Date(d.date+'T00:00:00');label=dayL[dt.getDay()];}
+    else{const [,m]=d.date.split('-');label=monL[parseInt(m)-1];}
     return `<div class="bar-row">
       <div class="bar-day">${label}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="bar-val">${fmtShort(d.revenue)}</div>
+      <div class="bar-val">${fcs(d.revenue)}</div>
     </div>`;
   }).join('');
-
-  // Monthly chart
-  if (monthlySummaries.length) {
-    const maxM = Math.max(...monthlySummaries.map(m => m.revenue), 1);
-    const mLabels = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-    document.getElementById('monthly-chart').innerHTML = monthlySummaries.map(s => {
-      const [y, m] = s.month.split('-');
-      const label = mLabels[parseInt(m)-1] + ' ' + y.slice(2);
-      const pct = (s.revenue / maxM) * 100;
-      return `<div class="bar-row">
-        <div class="bar-day" style="width:36px;font-size:10px">${label}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-        <div class="bar-val">${fmtShort(s.revenue)}</div>
-      </div>`;
-    }).join('');
-  }
 }
 
-// ── Tab Navigation ────────────────────────────────────────────
-window.switchTab = function(tab) {
-  // Panels
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  // Buttons
-  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById(`tab-btn-${tab}`);
-  if (btn) btn.classList.add('active');
+const tabTitles = {home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',settings:'Ayarlar'};
+
+window.switchTab = tab => {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const nav=document.getElementById('nav-'+tab); if(nav) nav.classList.add('active');
+  document.querySelectorAll('.mobile-tab-item').forEach(n=>n.classList.remove('active'));
+  const mob=document.getElementById('mob-'+tab); if(mob) mob.classList.add('active');
+  document.getElementById('topbar-title').textContent = tabTitles[tab]||tab;
 };
 
-// ── Toast ─────────────────────────────────────────────────────
-let toastTimer;
-window.showToast = function(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+let toastT;
+window.showToast = msg => {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200);
 };
 
-// ── Utils ─────────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Enter key on login
-document.getElementById('login-pass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') window.doLogin();
-});
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
 </script>
-
 </body>
 </html>
