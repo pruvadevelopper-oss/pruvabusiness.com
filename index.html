@@ -6994,9 +6994,8 @@ tk: {
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;overflow-x:hidden;cursor:none}
 
-#cursor-dot{width:8px;height:8px;background:#fff;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,opacity .2s}
-#cursor-ring{width:40px;height:40px;border:1.5px solid rgba(108,71,255,0.6);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s;animation:cursorPulse 3s ease-in-out infinite}
-@keyframes cursorPulse{0%,100%{box-shadow:0 0 0 0 rgba(108,71,255,0)}50%{box-shadow:0 0 0 8px rgba(108,71,255,0.1)}}
+#cursor-dot{width:6px;height:6px;background:#fff;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:width .15s,height .15s,opacity .3s,background .2s}
+#cursor-ring{width:32px;height:32px;border:1px solid rgba(139,111,255,0.55);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0;transition:width .25s,height .25s,border-color .25s,opacity .3s}
 
 #canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
 
@@ -9151,19 +9150,25 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 // ── CURSOR
 const dot = document.getElementById('cursor-dot');
 const ring = document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
+let mx=0,my=0,rx=0,ry=0,cursorReady=false;
 document.addEventListener('mousemove',e=>{
   mx=e.clientX; my=e.clientY;
   dot.style.left=mx+'px'; dot.style.top=my+'px';
+  if(!cursorReady){
+    cursorReady=true;
+    rx=mx; ry=my;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    dot.style.opacity='1'; ring.style.opacity='1';
+  }
 });
 (function animCursor(){
-  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  rx+=(mx-rx)*.1; ry+=(my-ry)*.1;
   ring.style.left=rx+'px'; ring.style.top=ry+'px';
   requestAnimationFrame(animCursor);
 })();
 document.querySelectorAll('button,a,.feat-card,.pc,.demo-step').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{ring.style.width='60px';ring.style.height='60px';ring.style.borderColor='rgba(108,71,255,0.8)'});
-  el.addEventListener('mouseleave',()=>{ring.style.width='40px';ring.style.height='40px';ring.style.borderColor='rgba(108,71,255,0.6)'});
+  el.addEventListener('mouseenter',()=>{ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(108,71,255,0.85)';dot.style.width='4px';dot.style.height='4px'});
+  el.addEventListener('mouseleave',()=>{ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='rgba(139,111,255,0.55)';dot.style.width='6px';dot.style.height='6px'});
 });
 
 // ── CANVAS PARTICLES
