@@ -7588,48 +7588,27 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .market-card-ai{display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 10px;background:rgba(139,111,255,.1);border:1px solid rgba(139,111,255,.2);border-radius:10px;font-size:11px;color:#8B6FFF;font-weight:600}
 .market-note{margin-top:24px;padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:13px;color:rgba(241,245,255,.5);line-height:1.6}
 
-/* ── BOW SCENE ──────────────────────────────── */
-#bowScene{position:relative;height:300vh}
-#bowPin{width:100%;height:100vh;overflow:hidden}
-.bow-sea{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 120% 80% at 52% 50%,#142240,#0c1829);overflow:hidden}
-.bow-sea::before{content:'';position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(180deg,transparent,transparent 52px,rgba(100,150,210,.045) 52px,rgba(100,150,210,.045) 53px)}
-.bow-sea::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 60% 40% at 50% 100%,rgba(239,68,68,.06),transparent),
-             radial-gradient(ellipse 80% 60% at 50% 0%,rgba(15,45,100,.4),transparent)}
-#bowFrontTop{position:absolute;inset:0;z-index:4;
-  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 50%,0% 50%)}
-#bowFrontBot{position:absolute;inset:0;z-index:4;
-  clip-path:polygon(0% 50%,100% 50%,100% 100%,0% 100%)}
-.bow-card-wrap{position:relative;max-width:580px;width:90%;
-  background:rgba(12,24,50,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border:1px solid rgba(239,68,68,.22);border-radius:24px;padding:48px 52px;
-  box-shadow:0 0 60px rgba(239,68,68,.08),0 24px 80px rgba(0,0,0,.5)}
-.bow-card-emoji{font-size:52px;display:block;margin-bottom:22px;line-height:1}
-.bow-card-h3{font-size:clamp(22px,3.2vw,34px);font-weight:900;letter-spacing:-1.2px;
-  color:#fff;line-height:1.18;margin-bottom:16px}
-.bow-card-p{font-size:15px;color:rgba(241,245,255,.5);line-height:1.78;margin-bottom:22px}
-.bow-card-fix{display:inline-flex;align-items:center;gap:8px;
-  background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);
-  border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;color:#34D399}
-#bowShipWrap{position:absolute;top:50%;z-index:20;pointer-events:none;
-  transform:translate(calc(100vw + 150px),-50%);will-change:transform}
-#bowShipWrap svg{width:220px;height:84px}
-@media(max-width:640px){
-  #bowShipWrap svg{width:170px;height:65px}
-}
+/* ── BOW SCENE (Dikey Yükseliş) ──────────────── */
+#bowScene{position:relative;height:320vh}
+#bowPin{width:100%;height:100vh;overflow:hidden;position:relative}
+#bowBack{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 90% 70% at 50% 50%,#0e2418,#061812);overflow:hidden}
+.bow-sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:left;margin-top:36px}
+@media(max-width:768px){.bow-sol-grid{grid-template-columns:1fr;gap:12px;margin-top:24px}}
+.bow-sol-card{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.15);
+  border-radius:16px;padding:22px 20px}
+.bow-sol-card h4{font-size:14px;font-weight:800;color:#fff;margin:10px 0 8px;line-height:1.3}
+.bow-sol-card p{font-size:13px;color:rgba(52,211,153,.7);margin:0;line-height:1.6}
+#bowFront{position:absolute;inset:0;z-index:4;
+  background:radial-gradient(ellipse 120% 80% at 50% 50%,#142240,#0c1829);
+  clip-path:polygon(0% 0%,100% 0%,100% 100%,0% 100%)}
+#bowShipWrap{position:absolute;top:0;left:50%;z-index:20;pointer-events:none;will-change:transform}
+#bowShipWrap svg{width:48px;height:138px}
+@media(max-width:640px){#bowShipWrap svg{width:38px;height:110px}}
 #bowWakeSvg{position:absolute;inset:0;z-index:18;pointer-events:none;width:100%;height:100%}
-#bowCanvas{position:absolute;inset:0;z-index:19;pointer-events:none}
 #bowScrollHint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
   z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;
   transition:opacity .4s}
-@keyframes bowMouseAnim{0%,100%{transform:translateY(0);opacity:.9}50%{transform:translateY(4px);opacity:.3}}
-@media(max-width:640px){
-  .bow-card-wrap{padding:32px 26px}
-  .bow-card-h3{font-size:20px;letter-spacing:-.5px}
-  .bow-card-p{font-size:14px}
-}
 </style>
 </head>
 <body>
@@ -8108,161 +8087,74 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       <span class="sorun-emoji" data-i18n="sorun.s1.icon">📡</span>
       <h3 data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
       <p data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
-      <span class="sorun-fix" data-i18n="sorun.s1.fix">Pruva internetsiz de çalışır</span>
     </div>
     <div class="sorun-card c-blue rv" style="transition-delay:.1s">
       <span class="sorun-emoji" data-i18n="sorun.s2.icon">🏪</span>
       <h3 data-i18n="sorun.s2.title">Dükkanınız var ama online görünmüyorsunuz</h3>
       <p data-i18n="sorun.s2.body">Müşteri sizi arayıp bulmak zorunda. Web siteniz yok, online mağazanız yok — rakibinizin var.</p>
-      <span class="sorun-fix" data-i18n="sorun.s2.fix">Pruva sizi pazaryerinde listeler</span>
     </div>
     <div class="sorun-card c-purple rv" style="transition-delay:.2s">
       <span class="sorun-emoji" data-i18n="sorun.s3.icon">🔧</span>
       <h3 data-i18n="sorun.s3.title">Her iş için ayrı uygulama</h3>
       <p data-i18n="sorun.s3.body">Kasa başka uygulama, stok başka, kurye başka, muhasebe başka. Hepsini açıp kapatmak, birinden diğerine geçmek zaman çalıyor.</p>
-      <span class="sorun-fix" data-i18n="sorun.s3.fix">Pruva'da hepsi tek yerde</span>
     </div>
   </div>
 </div>
 </section>
 
-<!-- BOW SCENE: Scrollytelling Geçişi -->
+<!-- BOW SCENE: Gemi Alttan Yukarı / 3 Çözüm Açılışı -->
 <section id="bowScene">
   <div id="bowPin">
 
-    <!-- ARKA KATMAN: Çözüm (wake'in açtığı alanda görünür) -->
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      background:radial-gradient(ellipse 90% 70% at 42% 50%,#0e2418,#061812);z-index:1;padding:24px">
-      <div style="text-align:center;max-width:540px">
-        <div style="font-size:50px;margin-bottom:14px;filter:drop-shadow(0 0 22px rgba(52,211,153,.5))">⚓</div>
-        <div style="font-size:11px;font-weight:700;color:#34D399;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">Pruva'nın Cevabı</div>
-        <h2 style="font-size:clamp(26px,4.2vw,50px);font-weight:900;letter-spacing:-2px;line-height:1.08;color:#fff;margin:0 0 16px">
-          İnternet kesilse de<br><em style="font-style:normal;color:#34D399">Pruva çalışır.</em>
+    <!-- ARKA KATMAN: 3 Çözüm (yeşil) -->
+    <div id="bowBack">
+      <div style="text-align:center;max-width:780px;width:90%;padding:0 16px">
+        <div style="font-size:11px;font-weight:700;color:#34D399;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px">Pruva'nın Cevabı</div>
+        <h2 style="font-size:clamp(28px,4.5vw,56px);font-weight:900;letter-spacing:-2.5px;line-height:1.06;color:#fff;margin:0">
+          Her soruna <em style="font-style:normal;color:#34D399">bir yanıt.</em>
         </h2>
-        <p style="font-size:16px;color:rgba(255,255,255,.48);line-height:1.8;margin:0 0 28px">
-          7 güne kadar tam offline çalışma imkanı.<br>Bağlantı geri geldiğinde tüm işlemler sessizce senkronize olur.
-        </p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">⚡ 7 gün offline</span>
-          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">🔄 Otomatik sync</span>
-          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">✓ Sıfır veri kaybı</span>
+        <div class="bow-sol-grid">
+          <div class="bow-sol-card">
+            <div style="font-size:26px">📡</div>
+            <h4>İnternet kesilse de çalışır</h4>
+            <p>7 güne kadar tam offline. Bağlantı gelince otomatik senkronize.</p>
+          </div>
+          <div class="bow-sol-card">
+            <div style="font-size:26px">🏪</div>
+            <h4>Online görünürlük dahil</h4>
+            <p>Pazaryerine otomatik listelenir. Müşteri sizi bulur, siz bir şey yapmazsınız.</p>
+          </div>
+          <div class="bow-sol-card">
+            <div style="font-size:26px">🔧</div>
+            <h4>Hepsi tek uygulamada</h4>
+            <p>Kasa, stok, kurye, muhasebe — hepsi Pruva'da. Tek açılış, sıfır geçiş.</p>
+          </div>
+        </div>
+        <div style="margin-top:28px">
+          <a href="https://apps.apple.com" style="display:inline-flex;align-items:center;gap:10px;
+            background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);
+            border-radius:100px;padding:13px 30px;font-size:14px;font-weight:700;
+            color:#34D399;text-decoration:none;letter-spacing:.01em">
+            Pruva ile başla →
+          </a>
         </div>
       </div>
     </div>
 
-    <!-- ÜST YARI: problem kartı, yalnızca üst kısmı gösterir (clip ile) -->
-    <div id="bowFrontTop">
-      <div class="bow-sea">
-        <div class="bow-card-wrap">
-          <span class="bow-card-emoji">📡</span>
-          <h3 class="bow-card-h3" data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
-          <p class="bow-card-p" data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
-          <span class="bow-card-fix" data-i18n="sorun.s1.fix">Pruva internetsiz de çalışır</span>
-        </div>
-      </div>
-    </div>
+    <!-- ÖN KATMAN: Koyu deniz (V klipiyle kaldırılır, çözüm alttan açılır) -->
+    <div id="bowFront"></div>
 
-    <!-- ALT YARI: aynı kart, yalnızca alt kısmı gösterir -->
-    <div id="bowFrontBot">
-      <div class="bow-sea">
-        <div class="bow-card-wrap">
-          <span class="bow-card-emoji">📡</span>
-          <h3 class="bow-card-h3" data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
-          <p class="bow-card-p" data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
-          <span class="bow-card-fix" data-i18n="sorun.s1.fix">Pruva internetsiz de çalışır</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- GEMİ PRUVASI SVG (tepeden görünüm — sivri pruva solda, düz kıç sağda) -->
+    <!-- GEMİ: tepeden bakış, düz renk, sivri pruva YUKARDA -->
     <div id="bowShipWrap">
-      <svg viewBox="0 0 340 130" width="340" height="130" xmlns="http://www.w3.org/2000/svg"
-           style="display:block;filter:drop-shadow(0 2px 18px rgba(0,0,0,.55))">
-        <defs>
-          <linearGradient id="hG" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"   stop-color="#ddeeff"/>
-            <stop offset="18%"  stop-color="#c4d8ec"/>
-            <stop offset="100%" stop-color="#7a9ab8"/>
-          </linearGradient>
-          <linearGradient id="dkG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#6888a8"/>
-            <stop offset="25%"  stop-color="#a0bcce"/>
-            <stop offset="50%"  stop-color="#c2d8e6"/>
-            <stop offset="75%"  stop-color="#a0bcce"/>
-            <stop offset="100%" stop-color="#6888a8"/>
-          </linearGradient>
-        </defs>
-
-        <!-- Dış gövde: sivri pruva (sol) + düz kıç (sağ) -->
-        <path d="M 6,65
-                 C 10,54 22,34 48,21
-                 L 256,14 L 274,14 L 284,24
-                 L 284,106 L 274,116 L 256,116
-                 L 48,109
-                 C 22,96 10,76 6,65 Z"
-              fill="url(#hG)"/>
-
-        <!-- Güverte yüzeyi (biraz içeride) -->
-        <path d="M 20,65
-                 C 24,56 34,40 56,30
-                 L 256,22 L 270,22 L 278,30
-                 L 278,100 L 270,108 L 256,108
-                 L 56,100
-                 C 34,90 24,74 20,65 Z"
-              fill="url(#dkG)"/>
-
-        <!-- Köprü/Süperyapı -->
-        <rect x="162" y="38" width="72" height="54" rx="5"
-              fill="rgba(155,185,205,.8)" stroke="rgba(200,225,240,.6)" stroke-width="1.2"/>
-        <!-- Köprü pencereleri -->
-        <rect x="170" y="46" width="8" height="6" rx="1.5" fill="rgba(50,120,190,.6)"/>
-        <rect x="183" y="46" width="8" height="6" rx="1.5" fill="rgba(50,120,190,.6)"/>
-        <rect x="196" y="46" width="8" height="6" rx="1.5" fill="rgba(50,120,190,.6)"/>
-        <rect x="209" y="46" width="8" height="6" rx="1.5" fill="rgba(50,120,190,.6)"/>
-        <!-- Köprü alt bölüm -->
-        <rect x="170" y="62" width="55" height="22" rx="3" fill="rgba(120,155,180,.4)"/>
-
-        <!-- Direk (mast) -->
-        <line x1="148" y1="48" x2="148" y2="82" stroke="rgba(180,205,220,.8)" stroke-width="2.2" stroke-linecap="round"/>
-        <line x1="132" y1="65" x2="164" y2="65" stroke="rgba(180,205,220,.6)" stroke-width="1.5"/>
-
-        <!-- Ön ambar kapağı -->
-        <rect x="62" y="48" width="62" height="34" rx="4"
-              fill="rgba(90,120,150,.28)" stroke="rgba(140,175,205,.35)" stroke-width="1"/>
-        <!-- Ambar çizgileri -->
-        <line x1="83" y1="48" x2="83" y2="82" stroke="rgba(140,175,205,.25)" stroke-width="1"/>
-        <line x1="104" y1="48" x2="104" y2="82" stroke="rgba(140,175,205,.25)" stroke-width="1"/>
-
-        <!-- Arka ambar -->
-        <rect x="254" y="50" width="16" height="30" rx="3"
-              fill="rgba(90,120,150,.28)" stroke="rgba(140,175,205,.35)" stroke-width="1"/>
-
-        <!-- Güverte korkulukları (dashed) -->
-        <path d="M 20,65 C 26,57 36,43 58,33 L 254,23"
-              fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1" stroke-dasharray="4,4"/>
-        <path d="M 20,65 C 26,73 36,87 58,97 L 254,107"
-              fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1" stroke-dasharray="4,4"/>
-
-        <!-- Pruva vurgusu (üst) -->
-        <path d="M 6,65 C 10,56 20,44 36,36"
-              fill="none" stroke="rgba(255,255,255,.78)" stroke-width="2.5" stroke-linecap="round"/>
-
-        <!-- Pruva uç köpüğü (küçük) -->
-        <ellipse cx="6" cy="65" rx="14" ry="7" fill="rgba(215,238,255,.4)"/>
-        <circle  cx="6" cy="65" r="5"   fill="rgba(235,250,255,.88)"/>
-        <circle  cx="6" cy="65" r="2.2" fill="#fff"/>
-
-        <!-- Çapa zinciri detayı -->
-        <path d="M 6,65 L 2,58 M 6,65 L 2,72"
-              stroke="rgba(205,225,242,.55)" stroke-width="1.3" stroke-linecap="round"/>
+      <svg viewBox="0 0 60 170" xmlns="http://www.w3.org/2000/svg"
+           style="display:block;filter:drop-shadow(0 0 14px rgba(200,225,255,.3))">
+        <path d="M 30,3 C 54,46 58,100 58,132 L 58,152 Q 58,167 30,167 Q 2,167 2,152 L 2,132 C 2,100 6,46 30,3 Z"
+              fill="rgba(210,228,252,0.88)"/>
       </svg>
     </div>
 
     <!-- DALGA ÇİZGİLERİ (V-şekli, dinamik SVG) -->
     <svg id="bowWakeSvg"></svg>
-
-    <!-- SU PARTİKÜLLERİ (canvas) -->
-    <canvas id="bowCanvas"></canvas>
 
     <!-- SCROLL İPUCU -->
     <div id="bowScrollHint">
@@ -9506,88 +9398,77 @@ document.querySelectorAll('.pay-method').forEach(m=>{
   });
 });
 
-// ── BOW SCENE (Pruva Scrollytelling)
+// ── BOW SCENE (Dikey Yükseliş — alttan yukarı)
 (function(){
   if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
   gsap.registerPlugin(ScrollTrigger);
 
-  const scene=document.getElementById('bowScene');
-  if(!scene)return;
+  const scene = document.getElementById('bowScene');
+  if(!scene) return;
 
-  const pin  = document.getElementById('bowPin'),
-        fTop = document.getElementById('bowFrontTop'),
-        fBot = document.getElementById('bowFrontBot'),
-        ship = document.getElementById('bowShipWrap'),
-        wake = document.getElementById('bowWakeSvg'),
-        hint = document.getElementById('bowScrollHint');
-  if(!fTop||!fBot)return;
+  const pin   = document.getElementById('bowPin'),
+        front = document.getElementById('bowFront'),
+        ship  = document.getElementById('bowShipWrap'),
+        wake  = document.getElementById('bowWakeSvg'),
+        hint  = document.getElementById('bowScrollHint');
+  if(!front||!ship) return;
 
-  // Wake kenar çizgileri için sabit gradient tanımları (SVG defs)
-  const DEFS=`<defs>
-<linearGradient id="wgTop" gradientUnits="userSpaceOnUse">
-  <stop offset="0%"   stop-color="rgba(255,255,255,0.18)"/>
-  <stop offset="100%" stop-color="rgba(200,230,255,0.04)"/>
-</linearGradient>
-<linearGradient id="wgBot" gradientUnits="userSpaceOnUse">
-  <stop offset="0%"   stop-color="rgba(255,255,255,0.18)"/>
-  <stop offset="100%" stop-color="rgba(200,230,255,0.04)"/>
-</linearGradient></defs>`;
+  const SHIP_H = 170; // SVG viewBox yüksekliği
 
   ScrollTrigger.create({
-    trigger:scene, start:'top top', end:'bottom bottom',
-    pin:pin, scrub:1.5,
-    onUpdate(st){
+    trigger: scene, start: 'top top', end: 'bottom bottom',
+    pin: pin, scrub: 1.2,
+    onUpdate(st) {
       const prog = st.progress;
       const W = innerWidth, H = innerHeight;
 
-      // Gemi: sağdan (W+200) sola çıkışa kadar
-      // Stern x=284 olduğundan tam çıkış için bowX < -(284+80) = -364 lazım
-      // prog=1'de bowX = W+200-(W+580) = -380 → stern = -380+278 = -102 ✓
-      const bowX = W + 200 - prog*(W + 580);
+      // Pruva ucu: alttan (H+120) üste çıkışa (-(SHIP_H+80))
+      // prog=0 → bowY = H+120 (ekran dışı alt)
+      // prog=1 → bowY = -(SHIP_H+80) (ekran dışı üst)
+      const totalTravel = H + 120 + SHIP_H + 80;
+      const bowY = (H + 120) - prog * totalTravel;
 
-      // ── WAKE GEOMETRİSİ: V, geminin ARKASINA (sağa) doğru açılır
-      // Kelvin wake açısı: her zaman 19.47° → slope = tan(19.47°) = 0.354
-      const slope = 0.354;
-      const behind = W - bowX;            // geminin kaçtığı mesafe (px)
-      const spread = Math.max(0, behind) * slope;
-      const topY = Math.max(0,   H/2 - spread);
-      const botY = Math.min(H,   H/2 + spread);
+      // ── WAKE: V aşağıya doğru açılır, gemi yukarı çıktıkça genişler
+      // slope=0.72 → gemi ekranın tepesine geldiğinde V tüm ekranı kaplar
+      const slope  = 0.72;
+      const behind = H - bowY;                    // pruvanın altına olan mesafe
+      const spread = Math.max(0, behind) * slope; // yatay yayılma
+      const leftX  = W / 2 - spread;
+      const rightX = W / 2 + spread;
 
-      const bPct  = (bowX / W * 100).toFixed(2);
-      const tPct  = (topY / H * 100).toFixed(2);
-      const b2Pct = (botY / H * 100).toFixed(2);
+      const bowPct   = (bowY   / H * 100).toFixed(2);
+      const leftPct  = (leftX  / W * 100).toFixed(2);
+      const rightPct = (rightX / W * 100).toFixed(2);
 
-      if(bowX >= W) {
-        // Gemi henüz girmedi — tam deniz görünür
-        fTop.style.clipPath='polygon(0% 0%,100% 0%,100% 50%,0% 50%)';
-        fBot.style.clipPath='polygon(0% 50%,100% 50%,100% 100%,0% 100%)';
-        wake.innerHTML='';
+      if(bowY > H) {
+        // Gemi henüz girmedi — ön katman tam kapalı
+        front.style.clipPath = 'polygon(0% 0%,100% 0%,100% 100%,0% 100%)';
+        wake.innerHTML = '';
+      } else if(bowY < -(SHIP_H + 60)) {
+        // Gemi tamamen geçti — ön katmanı kaldır
+        front.style.clipPath = 'polygon(0% 0%,0% 0%,0% 0%)';
+        wake.innerHTML = '';
       } else {
-        // Wake sağa doğru açılan V:
-        // Üst deniz yarısı → üst wake kolunun üzerinde kalan alan
-        fTop.style.clipPath=
-          `polygon(0% 0%,100% 0%,100% ${tPct}%,${bPct}% 50%,0% 50%)`;
-        // Alt deniz yarısı → alt wake kolunun altında kalan alan
-        fBot.style.clipPath=
-          `polygon(0% 50%,${bPct}% 50%,100% ${b2Pct}%,100% 100%,0% 100%)`;
+        // Ön katman: tam dikdörtgen EKSI aşağıya açılan V
+        // polygon: tüm ekran, alttan V boşluğu çıkarılmış
+        front.style.clipPath =
+          `polygon(0% 0%,100% 0%,100% 100%,${rightPct}% 100%,50% ${bowPct}%,${leftPct}% 100%,0% 100%)`;
 
-        // Wake kenar çizgileri (ince, silik — geminin geçtiği yerin izi)
-        if(bowX < W) {
-          const wOp = Math.min((W-bowX)/W*2.2, 0.75).toFixed(2);
-          wake.innerHTML=`${DEFS}
-<line x1="${bowX}" y1="${H/2}" x2="${W}" y2="${topY}"
+        // Wake V çizgileri
+        const wOp = Math.min(Math.max(0, (H - bowY) / H) * 0.9, 0.8).toFixed(2);
+        wake.innerHTML = bowY < H
+          ? `<line x1="${W/2}" y1="${bowY}" x2="${Math.max(-50,rightX)}" y2="${H}"
       stroke="rgba(180,225,255,${wOp})" stroke-width="2.5" stroke-linecap="round"/>
-<line x1="${bowX}" y1="${H/2}" x2="${W}" y2="${botY}"
+<line x1="${W/2}" y1="${bowY}" x2="${Math.min(W+50,leftX)}"  y2="${H}"
       stroke="rgba(180,225,255,${wOp})" stroke-width="2.5" stroke-linecap="round"/>
-<circle cx="${bowX}" cy="${H/2}" r="5" fill="rgba(255,255,255,${Math.min(wOp*1.5,0.9)})"/>`;
-        }
+<circle cx="${W/2}" cy="${bowY}" r="5" fill="rgba(255,255,255,${Math.min(+wOp*1.3,0.92)})"/>`
+          : '';
       }
 
-      // Gemi hareketi (SVG'de pruva ucu x=6, 220px'de ≈4px kenar)
-      ship.style.transform=`translate(${bowX - 4}px,-50%)`;
+      // Gemi: yatayda ortalı, dikeyde bowY
+      ship.style.transform = `translateX(-50%) translateY(${bowY}px)`;
 
-      // Scroll ipucu
-      if(hint) hint.style.opacity=String(Math.max(0,1-prog*8));
+      if(hint) hint.style.opacity = String(Math.max(0, 1 - prog * 6));
     }
   });
 })();
