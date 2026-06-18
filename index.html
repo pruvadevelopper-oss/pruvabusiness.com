@@ -9544,9 +9544,8 @@ document.querySelectorAll('.pay-method').forEach(m=>{
       const bowX = W + 150 - prog*(W + 300);
 
       // ── WAKE GEOMETRİSİ: V, geminin ARKASINA (sağa) doğru açılır
-      // Kelvin açısı ~19.5° → slope = tan(19.5°) ≈ 0.354
-      // Görsel dramatizm için 0.30 kullanıyoruz (~16.7°)
-      const slope = 0.30;
+      // Kelvin wake açısı: her zaman 19.47° → slope = tan(19.47°) = 0.354
+      const slope = 0.354;
       const behind = W - bowX;            // geminin kaçtığı mesafe (px)
       const spread = Math.max(0, behind) * slope;
       const topY = Math.max(0,   H/2 - spread);
