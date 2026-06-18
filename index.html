@@ -7587,6 +7587,46 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .market-card-meta{font-size:11px;color:rgba(241,245,255,.4)}
 .market-card-ai{display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 10px;background:rgba(139,111,255,.1);border:1px solid rgba(139,111,255,.2);border-radius:10px;font-size:11px;color:#8B6FFF;font-weight:600}
 .market-note{margin-top:24px;padding:14px 18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:13px;color:rgba(241,245,255,.5);line-height:1.6}
+
+/* ── BOW SCENE ──────────────────────────────── */
+#bowScene{position:relative;height:300vh}
+#bowPin{width:100%;height:100vh;overflow:hidden}
+.bow-sea{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 120% 80% at 52% 50%,#142240,#0c1829);overflow:hidden}
+.bow-sea::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,transparent,transparent 52px,rgba(100,150,210,.045) 52px,rgba(100,150,210,.045) 53px)}
+.bow-sea::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 50% 100%,rgba(239,68,68,.06),transparent),
+             radial-gradient(ellipse 80% 60% at 50% 0%,rgba(15,45,100,.4),transparent)}
+#bowFrontTop{position:absolute;inset:0;z-index:4;
+  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 50%,0% 50%)}
+#bowFrontBot{position:absolute;inset:0;z-index:4;
+  clip-path:polygon(0% 50%,100% 50%,100% 100%,0% 100%)}
+.bow-card-wrap{position:relative;max-width:580px;width:90%;
+  background:rgba(12,24,50,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(239,68,68,.22);border-radius:24px;padding:48px 52px;
+  box-shadow:0 0 60px rgba(239,68,68,.08),0 24px 80px rgba(0,0,0,.5)}
+.bow-card-emoji{font-size:52px;display:block;margin-bottom:22px;line-height:1}
+.bow-card-h3{font-size:clamp(22px,3.2vw,34px);font-weight:900;letter-spacing:-1.2px;
+  color:#fff;line-height:1.18;margin-bottom:16px}
+.bow-card-p{font-size:15px;color:rgba(241,245,255,.5);line-height:1.78;margin-bottom:22px}
+.bow-card-fix{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);
+  border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;color:#34D399}
+#bowShipWrap{position:absolute;top:50%;z-index:20;pointer-events:none;
+  transform:translate(calc(100vw + 120px),-50%);will-change:transform}
+#bowWakeSvg{position:absolute;inset:0;z-index:18;pointer-events:none;width:100%;height:100%}
+#bowCanvas{position:absolute;inset:0;z-index:19;pointer-events:none}
+#bowScrollHint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  z-index:25;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;
+  transition:opacity .4s}
+@keyframes bowMouseAnim{0%,100%{transform:translateY(0);opacity:.9}50%{transform:translateY(4px);opacity:.3}}
+@media(max-width:640px){
+  .bow-card-wrap{padding:32px 26px}
+  .bow-card-h3{font-size:20px;letter-spacing:-.5px}
+  .bow-card-p{font-size:14px}
+  #bowShipWrap svg{width:170px;height:72px}
+}
 </style>
 </head>
 <body>
@@ -8081,6 +8121,108 @@ html[dir="rtl"] .pc-feats{padding-right:0}
     </div>
   </div>
 </div>
+</section>
+
+<!-- BOW SCENE: Scrollytelling Geçişi -->
+<section id="bowScene">
+  <div id="bowPin">
+
+    <!-- ARKA KATMAN: Çözüm (wake'in açtığı alanda görünür) -->
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse 90% 70% at 42% 50%,#0e2418,#061812);z-index:1;padding:24px">
+      <div style="text-align:center;max-width:540px">
+        <div style="font-size:50px;margin-bottom:14px;filter:drop-shadow(0 0 22px rgba(52,211,153,.5))">⚓</div>
+        <div style="font-size:11px;font-weight:700;color:#34D399;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">Pruva'nın Cevabı</div>
+        <h2 style="font-size:clamp(26px,4.2vw,50px);font-weight:900;letter-spacing:-2px;line-height:1.08;color:#fff;margin:0 0 16px">
+          İnternet kesilse de<br><em style="font-style:normal;color:#34D399">Pruva çalışır.</em>
+        </h2>
+        <p style="font-size:16px;color:rgba(255,255,255,.48);line-height:1.8;margin:0 0 28px">
+          7 güne kadar tam offline çalışma imkanı.<br>Bağlantı geri geldiğinde tüm işlemler sessizce senkronize olur.
+        </p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">⚡ 7 gün offline</span>
+          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">🔄 Otomatik sync</span>
+          <span style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:100px;padding:9px 18px;font-size:12px;font-weight:700;color:#34D399">✓ Sıfır veri kaybı</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÜST YARI: problem kartı, yalnızca üst kısmı gösterir (clip ile) -->
+    <div id="bowFrontTop">
+      <div class="bow-sea">
+        <div class="bow-card-wrap">
+          <span class="bow-card-emoji">📡</span>
+          <h3 class="bow-card-h3" data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
+          <p class="bow-card-p" data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
+          <span class="bow-card-fix" data-i18n="sorun.s1.fix">Pruva internetsiz de çalışır</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALT YARI: aynı kart, yalnızca alt kısmı gösterir -->
+    <div id="bowFrontBot">
+      <div class="bow-sea">
+        <div class="bow-card-wrap">
+          <span class="bow-card-emoji">📡</span>
+          <h3 class="bow-card-h3" data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
+          <p class="bow-card-p" data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
+          <span class="bow-card-fix" data-i18n="sorun.s1.fix">Pruva internetsiz de çalışır</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GEMİ PRUVASI SVG (tepeden görünüm, sola doğru hareket) -->
+    <div id="bowShipWrap">
+      <svg viewBox="0 0 260 110" width="260" height="110" xmlns="http://www.w3.org/2000/svg"
+           style="display:block;filter:drop-shadow(0 0 14px rgba(180,220,255,.55)) drop-shadow(0 4px 20px rgba(0,0,0,.4))">
+        <defs>
+          <linearGradient id="hullGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"  stop-color="#eef6ff"/>
+            <stop offset="30%" stop-color="#ccddef"/>
+            <stop offset="100%" stop-color="#7a9fc4"/>
+          </linearGradient>
+          <radialGradient id="tipGlow" cx="4%" cy="50%" r="12%">
+            <stop offset="0%"  stop-color="rgba(220,240,255,.9)"/>
+            <stop offset="100%" stop-color="rgba(180,220,255,0)"/>
+          </radialGradient>
+        </defs>
+        <!-- Ana gövde -->
+        <path d="M 10,55 C 22,46 66,24 158,12 C 198,6 228,5 252,5 L 260,5 L 260,105 L 252,105 C 228,105 198,104 158,98 C 66,86 22,64 10,55 Z"
+              fill="url(#hullGrad)"/>
+        <!-- Üst su hattı (kılavuz çizgi) -->
+        <path d="M 10,55 C 28,48 72,28 160,17" fill="none"
+              stroke="rgba(255,255,255,.62)" stroke-width="1.3" stroke-dasharray="5,4" stroke-linecap="round"/>
+        <!-- Gövde vurgusu -->
+        <path d="M 10,55 C 24,49 62,34 144,23" fill="none"
+              stroke="rgba(255,255,255,.42)" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- Pruva ucu parlaması -->
+        <ellipse cx="10" cy="55" rx="22" ry="12" fill="url(#tipGlow)"/>
+        <!-- Uç noktası -->
+        <circle cx="10" cy="55" r="6" fill="rgba(210,235,255,.85)"/>
+        <circle cx="10" cy="55" r="3" fill="#fff"/>
+      </svg>
+    </div>
+
+    <!-- DALGA ÇİZGİLERİ (V-şekli, dinamik SVG) -->
+    <svg id="bowWakeSvg"></svg>
+
+    <!-- SU PARTİKÜLLERİ (canvas) -->
+    <canvas id="bowCanvas"></canvas>
+
+    <!-- SCROLL İPUCU -->
+    <div id="bowScrollHint">
+      <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase">Kaydırın</span>
+      <svg width="18" height="26" viewBox="0 0 18 26">
+        <rect x="6" y="1" width="6" height="11" rx="3" stroke="rgba(255,255,255,.28)" stroke-width="1.4" fill="none"/>
+        <circle cx="9" cy="6" r="1.8" fill="rgba(255,255,255,.38)">
+          <animate attributeName="cy" values="5;8;5" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.1;1" dur="1.4s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M 4,17 L 9,22 L 14,17" stroke="rgba(255,255,255,.25)" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+  </div>
 </section>
 
 <!-- STATS -->
@@ -8807,6 +8949,8 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
 // ── PRICING ENGINE
 (function(){
@@ -9306,6 +9450,134 @@ document.querySelectorAll('.pay-method').forEach(m=>{
     m.classList.add('selected');
   });
 });
+
+// ── BOW SCENE (Pruva Scrollytelling)
+(function(){
+  if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined')return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  const scene=document.getElementById('bowScene');
+  if(!scene)return;
+
+  const pin      = document.getElementById('bowPin');
+  const fTop     = document.getElementById('bowFrontTop');
+  const fBot     = document.getElementById('bowFrontBot');
+  const shipWrap = document.getElementById('bowShipWrap');
+  const wakeSvg  = document.getElementById('bowWakeSvg');
+  const cvs      = document.getElementById('bowCanvas');
+  const hint     = document.getElementById('bowScrollHint');
+  if(!cvs||!fTop||!fBot)return;
+  const ctx=cvs.getContext('2d');
+
+  // Canvas resize
+  function resizeCvs(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
+  resizeCvs();
+  window.addEventListener('resize',resizeCvs,{passive:true});
+
+  // ── Particle system
+  const PTS=[];let raf=null;
+
+  function burst(x,y){
+    for(let i=0;i<10;i++){
+      const up=i%2===0;
+      const spread=0.35+Math.random()*0.85;
+      const spd=2.5+Math.random()*10;
+      PTS.push({
+        x,y,
+        vx:-(0.4+Math.random()*0.6)*spd,      // mostly leftward
+        vy:(up?-1:1)*Math.sin(spread)*spd,
+        life:1,
+        d:0.016+Math.random()*0.016,
+        r:1.5+Math.random()*5
+      });
+    }
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    for(let i=PTS.length-1;i>=0;i--){
+      const p=PTS[i];
+      p.x+=p.vx; p.y+=p.vy;
+      p.vx*=0.955; p.vy*=0.94;
+      p.life-=p.d;
+      if(p.life<=0){PTS.splice(i,1);continue;}
+      const a=p.life*0.78;
+      const radius=p.r*p.life*2.8;
+      const gr=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
+      gr.addColorStop(0,  `rgba(215,238,255,${a})`);
+      gr.addColorStop(0.5,`rgba(130,190,255,${a*0.55})`);
+      gr.addColorStop(1,  'rgba(100,170,255,0)');
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,radius,0,Math.PI*2);
+      ctx.fillStyle=gr; ctx.fill();
+    }
+    if(PTS.length) raf=requestAnimationFrame(tick);
+    else raf=null;
+  }
+
+  let prevBowX=Infinity;
+
+  ScrollTrigger.create({
+    trigger: scene,
+    start: 'top top',
+    end:   'bottom bottom',
+    pin:   pin,
+    scrub: 1.5,
+    onUpdate(st){
+      const prog=st.progress;
+      const W=window.innerWidth, H=window.innerHeight;
+
+      // Bow tip X: enters at W+120, exits at -140
+      const bowX = W+120 - prog*(W+260);
+      const bowPct = (bowX/W*100).toFixed(3);
+
+      // Wake gap at left edge grows 0 → 46% (so top half peels to 4%, bottom to 96%)
+      const wakeGap = Math.min(prog*60, 46);
+
+      // ── Clip-path: V-wake on both halves
+      fTop.style.clipPath=`polygon(0% 0%,100% 0%,100% 50%,${bowPct}% 50%,0% ${50-wakeGap}%)`;
+      fBot.style.clipPath=`polygon(0% ${50+wakeGap}%,${bowPct}% 50%,100% 50%,100% 100%,0% 100%)`;
+
+      // ── Move ship (tip of SVG bow is at x=10/260 of 260px = 10px from left edge)
+      shipWrap.style.transform=`translate(${bowX-10}px,-50%)`;
+
+      // ── Fade scroll hint
+      if(hint) hint.style.opacity=String(Math.max(0,1-prog*10));
+
+      // ── Wake V-lines (dynamic SVG)
+      if(bowX < W+20){
+        const ty=H/2;
+        const topY=ty-(H*wakeGap/100);
+        const botY=ty+(H*wakeGap/100);
+        const op=Math.min(prog*4,0.92).toFixed(3);
+        wakeSvg.innerHTML=`<defs>
+<linearGradient id="wgT" gradientUnits="userSpaceOnUse"
+  x1="${bowX}" y1="${ty}" x2="0" y2="${topY}">
+  <stop offset="0%"   stop-color="rgba(200,232,255,${op})"/>
+  <stop offset="100%" stop-color="rgba(120,180,255,${Math.min(+op*0.14,0.12).toFixed(3)})"/>
+</linearGradient>
+<linearGradient id="wgB" gradientUnits="userSpaceOnUse"
+  x1="${bowX}" y1="${ty}" x2="0" y2="${botY}">
+  <stop offset="0%"   stop-color="rgba(200,232,255,${op})"/>
+  <stop offset="100%" stop-color="rgba(120,180,255,${Math.min(+op*0.14,0.12).toFixed(3)})"/>
+</linearGradient></defs>
+<line x1="${bowX}" y1="${ty}" x2="0" y2="${topY}"
+      stroke="url(#wgT)" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="${bowX}" y1="${ty}" x2="0" y2="${botY}"
+      stroke="url(#wgB)" stroke-width="2.2" stroke-linecap="round"/>`;
+      } else {
+        wakeSvg.innerHTML='';
+      }
+
+      // ── Particle burst at bow tip
+      if(bowX>-30 && bowX<W+30 && Math.abs(bowX-prevBowX)>2.5){
+        burst(bowX, H/2);
+        if(!raf) raf=requestAnimationFrame(tick);
+      }
+      prevBowX=bowX;
+    }
+  });
+})();
 </script>
 </body>
 </html>
