@@ -7615,8 +7615,9 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;color:#34D399}
 #bowShipWrap{position:absolute;top:50%;z-index:20;pointer-events:none;
   transform:translate(calc(100vw + 150px),-50%);will-change:transform}
+#bowShipWrap svg{width:220px;height:84px}
 @media(max-width:640px){
-  #bowShipWrap svg{width:200px;height:76px}
+  #bowShipWrap svg{width:170px;height:65px}
 }
 #bowWakeSvg{position:absolute;inset:0;z-index:18;pointer-events:none;width:100%;height:100%}
 #bowCanvas{position:absolute;inset:0;z-index:19;pointer-events:none}
@@ -7628,7 +7629,6 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   .bow-card-wrap{padding:32px 26px}
   .bow-card-h3{font-size:20px;letter-spacing:-.5px}
   .bow-card-p{font-size:14px}
-  #bowShipWrap svg{width:170px;height:72px}
 }
 </style>
 </head>
@@ -9540,8 +9540,10 @@ document.querySelectorAll('.pay-method').forEach(m=>{
       const prog = st.progress;
       const W = innerWidth, H = innerHeight;
 
-      // Gemi: sağdan (W+150) sola (-150) geçiş
-      const bowX = W + 150 - prog*(W + 300);
+      // Gemi: sağdan (W+200) sola çıkışa kadar
+      // Stern x=284 olduğundan tam çıkış için bowX < -(284+80) = -364 lazım
+      // prog=1'de bowX = W+200-(W+580) = -380 → stern = -380+278 = -102 ✓
+      const bowX = W + 200 - prog*(W + 580);
 
       // ── WAKE GEOMETRİSİ: V, geminin ARKASINA (sağa) doğru açılır
       // Kelvin wake açısı: her zaman 19.47° → slope = tan(19.47°) = 0.354
@@ -9571,17 +9573,18 @@ document.querySelectorAll('.pay-method').forEach(m=>{
 
         // Wake kenar çizgileri (ince, silik — geminin geçtiği yerin izi)
         if(bowX < W) {
-          const wOp = Math.min((W-bowX)/W*1.8, 0.55).toFixed(2);
+          const wOp = Math.min((W-bowX)/W*2.2, 0.75).toFixed(2);
           wake.innerHTML=`${DEFS}
 <line x1="${bowX}" y1="${H/2}" x2="${W}" y2="${topY}"
-      stroke="rgba(255,255,255,${wOp})" stroke-width="1.8" stroke-linecap="round"/>
+      stroke="rgba(180,225,255,${wOp})" stroke-width="2.5" stroke-linecap="round"/>
 <line x1="${bowX}" y1="${H/2}" x2="${W}" y2="${botY}"
-      stroke="rgba(255,255,255,${wOp})" stroke-width="1.8" stroke-linecap="round"/>`;
+      stroke="rgba(180,225,255,${wOp})" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="${bowX}" cy="${H/2}" r="5" fill="rgba(255,255,255,${Math.min(wOp*1.5,0.9)})"/>`;
         }
       }
 
-      // Gemi hareketi (SVG'de pruva ucu x=6)
-      ship.style.transform=`translate(${bowX - 6}px,-50%)`;
+      // Gemi hareketi (SVG'de pruva ucu x=6, 220px'de ≈4px kenar)
+      ship.style.transform=`translate(${bowX - 4}px,-50%)`;
 
       // Scroll ipucu
       if(hint) hint.style.opacity=String(Math.max(0,1-prog*8));
