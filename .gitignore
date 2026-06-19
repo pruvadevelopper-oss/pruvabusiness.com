@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+build/
+.cache/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Claude
+.claude/
