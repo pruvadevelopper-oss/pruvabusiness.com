@@ -7730,7 +7730,6 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       tone-mapping="neutral"
       shadow-intensity="0"
       interaction-prompt="none"
-      minimum-render-scale="0.5"
       disable-zoom disable-pan disable-tap>
     </model-viewer>
   </div>
@@ -9206,28 +9205,18 @@ window.addEventListener('scroll',()=>{document.getElementById('nav').classList.t
 const phone3d=document.getElementById('phone3d');
 if(phone3d){
   const baseRadius=145;
-  // her raw mousemove'da (saniyede yüzlerce kez) cameraOrbit set etmek model-viewer'ı sürekli
-  // re-render etmeye zorlayıp ana thread'i tıkıyordu — imlecin donması buradan geliyordu.
-  // rAF ile frame başına en fazla 1 güncelleme yapıyoruz.
-  let pendingX=null,pendingY=null,rafQueued=false,lastApply=0;
-  // 3D render'ı (WebGL) saniyede 60 kez değil ~15 kez güncelliyoruz — telefon parallax'ı
-  // hâlâ akıcı görünüyor ama main thread'in büyük kısmı diğer hafif animasyonlara kalıyor.
-  const PHONE_UPDATE_INTERVAL=65;
+  // rAF ile frame başına en fazla 1 güncelleme — raw mousemove'un saniyede yüzlerce kez
+  // tetiklemesini önlüyor, ama damping'e dokunmuyoruz: model-viewer'ın kendi yumuşatması
+  // parallax'ı akıcı gösteriyor (jumpCameraToGoal/ekstra throttle kaldırıldı — kasmaya
+  // sebep oluyordu, gerçek imleç gecikmesi başka bir yerdeymiş: bkz. cursor-dot/ring kaldırma).
+  let pendingX=null,pendingY=null,rafQueued=false;
   function applyOrbit(){
     rafQueued=false;
-    const now=performance.now();
-    if(now-lastApply<PHONE_UPDATE_INTERVAL){requestAnimationFrame(applyOrbit);rafQueued=true;return;}
-    lastApply=now;
     const cx=innerWidth/2,cy=innerHeight/2;
     const theta=180+(pendingX-cx)/cx*-22;
     // dikey eksen de yataydaki gibi ±sınırlı: 80deg merkez, min/max-camera-orbit ile 65-95deg arası kelepçeli
     const phi=80+(pendingY-cy)/cy*-15;
     phone3d.cameraOrbit=`${theta}deg ${phi}deg ${baseRadius}%`;
-    // model-viewer her orbit değişiminde kamerayı birkaç frame'lik damping animasyonuyla hedefe taşıyor;
-    // mouse sürekli hareket ettiğinde bu animasyonlar hiç durmadan üst üste binip sürekli render'a
-    // (ve Safari'de imleç donmasına) sebep oluyordu. jumpCameraToGoal damping'i atlayıp anında uyguluyor,
-    // her güncellemede tek render yeterli oluyor.
-    if(phone3d.jumpCameraToGoal)phone3d.jumpCameraToGoal();
   }
   document.addEventListener('mousemove',e=>{
     pendingX=e.clientX;pendingY=e.clientY;
