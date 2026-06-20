@@ -9235,12 +9235,21 @@ window.addEventListener('scroll',()=>{document.getElementById('nav').classList.t
 const phone3d=document.getElementById('phone3d');
 if(phone3d){
   const baseRadius=145;
-  document.addEventListener('mousemove',e=>{
+  // her raw mousemove'da (saniyede yüzlerce kez) cameraOrbit set etmek model-viewer'ı sürekli
+  // re-render etmeye zorlayıp ana thread'i tıkıyordu — imlecin donması buradan geliyordu.
+  // rAF ile frame başına en fazla 1 güncelleme yapıyoruz.
+  let pendingX=null,pendingY=null,rafQueued=false;
+  function applyOrbit(){
+    rafQueued=false;
     const cx=innerWidth/2,cy=innerHeight/2;
-    const theta=180+(e.clientX-cx)/cx*-22;
+    const theta=180+(pendingX-cx)/cx*-22;
     // dikey eksen de yataydaki gibi ±sınırlı: 80deg merkez, min/max-camera-orbit ile 65-95deg arası kelepçeli
-    const phi=80+(e.clientY-cy)/cy*-15;
+    const phi=80+(pendingY-cy)/cy*-15;
     phone3d.cameraOrbit=`${theta}deg ${phi}deg ${baseRadius}%`;
+  }
+  document.addEventListener('mousemove',e=>{
+    pendingX=e.clientX;pendingY=e.clientY;
+    if(!rafQueued){rafQueued=true;requestAnimationFrame(applyOrbit);}
   });
 
   // Ekrana gerçek uygulama görüntüsünü "OLED" materyaline texture olarak bas
