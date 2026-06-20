@@ -9243,11 +9243,11 @@ if(phone3d){
         if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
-        // ÖNEMLİ: strength'i 1'in üzerine çıkarmak texture'ın parlak (beyaz UI) piksellerini
-        // HDR'de 1.0'ı aşırıp tone-mapping'in beyaza kırpmasına sebep oluyordu — bu da ekranın
-        // alt (açık temalı) kısmındaki yazı/kontrastın tamamen silinmesi olarak görünüyordu.
-        // 1.0 hiçbir pikseli kırpmadan texture'ı olduğu gibi (kontrastı bozulmadan) yayıyor.
-        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.0);
+        // strength 3.2 iken beyaz UI pikselleri HDR'de kırpılıp kontrast/metin tamamen
+        // siliniyordu (bkz. eski commit); 1.0 güvenli ama "OLED gibi parlak" hissi azdı.
+        // 1.2 orta yol: en parlak beyaz pikseller hafif kırpılır (göze çarpmaz) ama genel
+        // parlaklık/canlılık belirgin şekilde artar.
+        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.2);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
