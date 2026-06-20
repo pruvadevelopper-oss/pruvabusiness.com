@@ -7014,8 +7014,10 @@ nav.solid{background:rgba(3,7,18,0.8);backdrop-filter:blur(24px);border-bottom:1
 
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;text-align:center;padding:120px 24px 60px;overflow:hidden}
 .hero-noise{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%17' height='100%17' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:128px;pointer-events:none}
-.hero-aurora{position:absolute;width:900px;height:700px;top:-80px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 40%,rgba(108,71,255,.18) 0%,rgba(29,158,117,.06) 45%,transparent 70%);filter:blur(80px);pointer-events:none;will-change:opacity;animation:auroraBreath 9s ease-in-out infinite}
-@keyframes auroraBreath{0%,100%{opacity:.8}50%{opacity:1}}
+/* Safari'de büyük filter:blur() + sonsuz opacity animasyonu kombosu çok pahalı —
+   3D model-viewer ile aynı anda GPU'yu kilitleyip imleci dondurabiliyordu.
+   Animasyon kaldırıldı (statik opacity), blur 80px'den 45px'e düşürüldü. */
+.hero-aurora{position:absolute;width:900px;height:700px;top:-80px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 40%,rgba(108,71,255,.18) 0%,rgba(29,158,117,.06) 45%,transparent 70%);filter:blur(45px);pointer-events:none;opacity:.9}
 
 .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(85,56,232,0.12);border:1px solid rgba(108,71,255,0.25);border-radius:100px;padding:7px 18px;font-size:12px;color:#8B6FFF;letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:36px;opacity:0;transform:translateY(20px);animation:up .8s .1s ease forwards}
 .badge-dot{width:5px;height:5px;border-radius:50%;background:#6C47FF;animation:blink 2s infinite}
