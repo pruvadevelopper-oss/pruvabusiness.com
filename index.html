@@ -7738,6 +7738,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       tone-mapping="neutral"
       shadow-intensity="0"
       interaction-prompt="none"
+      minimum-render-scale="0.5"
       disable-zoom disable-pan disable-tap>
     </model-viewer>
   </div>
@@ -9240,9 +9241,17 @@ if(phone3d){
   // her raw mousemove'da (saniyede yüzlerce kez) cameraOrbit set etmek model-viewer'ı sürekli
   // re-render etmeye zorlayıp ana thread'i tıkıyordu — imlecin donması buradan geliyordu.
   // rAF ile frame başına en fazla 1 güncelleme yapıyoruz.
-  let pendingX=null,pendingY=null,rafQueued=false;
+  let pendingX=null,pendingY=null,rafQueued=false,lastApply=0;
+  // 3D render'ı (WebGL) saniyede 60 kez değil ~15 kez güncelliyoruz — telefon parallax'ı
+  // hâlâ akıcı görünüyor ama main thread'in büyük kısmı imleç halkası/parçacıklar gibi
+  // hafif animasyonlara kalıyor; aksi halde her mousemove'da tetiklenen WebGL re-render
+  // diğer her şeyi (özellikle cursor-ring'i) geciktiriyordu.
+  const PHONE_UPDATE_INTERVAL=65;
   function applyOrbit(){
     rafQueued=false;
+    const now=performance.now();
+    if(now-lastApply<PHONE_UPDATE_INTERVAL){requestAnimationFrame(applyOrbit);rafQueued=true;return;}
+    lastApply=now;
     const cx=innerWidth/2,cy=innerHeight/2;
     const theta=180+(pendingX-cx)/cx*-22;
     // dikey eksen de yataydaki gibi ±sınırlı: 80deg merkez, min/max-camera-orbit ile 65-95deg arası kelepçeli
