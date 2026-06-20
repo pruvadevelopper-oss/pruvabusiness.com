@@ -7729,6 +7729,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       exposure="1.1"
       tone-mapping="neutral"
       shadow-intensity="0"
+      environment-image="studio-lights.jpg"
       interaction-prompt="none"
       disable-zoom disable-pan disable-tap>
     </model-viewer>
@@ -9249,11 +9250,9 @@ if(phone3d){
         if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(1);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
-        // strength 3.2 iken beyaz UI pikselleri HDR'de kırpılıp kontrast/metin tamamen
-        // siliniyordu (bkz. eski commit); 1.0 güvenli ama "OLED gibi parlak" hissi azdı.
-        // 1.2 orta yol: en parlak beyaz pikseller hafif kırpılır (göze çarpmaz) ama genel
-        // parlaklık/canlılık belirgin şekilde artar.
-        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.2);
+        // kullanıcı isteği üzerine belirgin şekilde artırıldı (1.2 -> 1.8) — en parlak
+        // pikseller daha fazla kırpılabilir ama genel ekran parlaklığı çok daha güçlü.
+        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.8);
       }
       // "Glass" mesh'i ekranın hemen kenarında (OLED'den biraz daha geniş bbox) duruyor —
       // bu ince halka gerçek iPhone'daki yuvarlatılmış cam kenar hissini veriyor.
