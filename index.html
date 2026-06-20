@@ -6994,8 +6994,13 @@ tk: {
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;overflow-x:hidden;cursor:none}
 
-#cursor-dot{width:6px;height:6px;background:#fff;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:width .15s,height .15s,opacity .3s,background .2s}
-#cursor-ring{width:32px;height:32px;border:1px solid rgba(139,111,255,0.55);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0;transition:width .25s,height .25s,border-color .25s,opacity .3s}
+/* left/top:0 sabit — pozisyon SADECE transform (translate3d) ile sürülüyor.
+   Önceden JS her rAF'ta style.left/top set ediyordu; bu, Safari'de her frame
+   layout (reflow) + paint'e zorluyordu (transform ise sadece composite, çok daha ucuz).
+   3D model-viewer'ın WebGL yükü aynı ana denk gelince bu layout-thrash görünür
+   şekilde gecikmeye sebep oluyordu. */
+#cursor-dot{width:6px;height:6px;background:#fff;border-radius:50%;position:fixed;left:0;top:0;pointer-events:none;z-index:9999;transform:translate3d(0,0,0) translate(-50%,-50%);opacity:0;transition:width .15s,height .15s,opacity .3s,background .2s;will-change:transform}
+#cursor-ring{width:32px;height:32px;border:1px solid rgba(139,111,255,0.55);border-radius:50%;position:fixed;left:0;top:0;pointer-events:none;z-index:9998;transform:translate3d(0,0,0) translate(-50%,-50%);opacity:0;transition:width .25s,height .25s,border-color .25s,opacity .3s;will-change:transform}
 
 #canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
 
@@ -9187,17 +9192,17 @@ const ring = document.getElementById('cursor-ring');
 let mx=0,my=0,rx=0,ry=0,cursorReady=false;
 document.addEventListener('mousemove',e=>{
   mx=e.clientX; my=e.clientY;
-  dot.style.left=mx+'px'; dot.style.top=my+'px';
+  dot.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;
   if(!cursorReady){
     cursorReady=true;
     rx=mx; ry=my;
-    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    ring.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;
     dot.style.opacity='1'; ring.style.opacity='1';
   }
 });
 (function animCursor(){
   rx+=(mx-rx)*.1; ry+=(my-ry)*.1;
-  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  ring.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;
   requestAnimationFrame(animCursor);
 })();
 document.querySelectorAll('button,a,.feat-card,.pc,.demo-step').forEach(el=>{
