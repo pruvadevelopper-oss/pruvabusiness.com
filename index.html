@@ -9250,8 +9250,13 @@ if(phone3d){
       const screenMat=phone3d.model.materials.find(m=>m.name==='OLED');
       if(screenMat){
         screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+        screenMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,1]);
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.05);
+        screenMat.pbrMetallicRoughness.setMetallicFactor(0);
         screenMat.emissiveTexture.setTexture(texture);
-        screenMat.setEmissiveFactor([0.6,0.6,0.6]);
+        screenMat.setEmissiveFactor([1,1,1]);
+        // KHR_materials_emissive_strength — ekranı "canlı/parlak OLED" gibi göstermek için 1'in üzerine çık
+        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(3.2);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
   });
