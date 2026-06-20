@@ -7039,14 +7039,30 @@ nav.solid{background:rgba(3,7,18,0.8);backdrop-filter:blur(24px);border-bottom:1
 .btn-ghost{background:rgba(255,255,255,.05);color:#fff;border:1px solid rgba(255,255,255,.1);padding:17px 36px;border-radius:16px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px)}
 .btn-ghost:hover{background:rgba(255,255,255,.1);transform:translateY(-4px);border-color:rgba(255,255,255,.2)}
 
-/* ─── HERO PHONE ─── */
+/* ─── HERO PHONE — gerçek 3D iPhone 17 Pro modeli (model-viewer) ─── */
 .phone-scene{margin-top:80px;position:relative;opacity:0;animation:up 1s .8s ease forwards}
 .phone-glow-outer{position:absolute;inset:-60px;background:radial-gradient(ellipse at 50% 70%,rgba(85,56,232,0.25) 0%,transparent 70%);filter:blur(20px);pointer-events:none}
-/* Gerçek ekran görüntüsü, tam/kırpılmadan — sadece köşeler iPhone kavisinde.
-   Genişlik sabit, yükseklik fotoğrafın kendi oranına göre otomatik. */
-.phone-shot{width:290px;height:auto;display:block;border-radius:46px;
-  box-shadow:0 60px 120px rgba(0,0,0,.75),0 0 0 1px rgba(85,56,232,.25);
-  position:relative;transform-style:preserve-3d;transition:transform .1s ease-out}
+
+.phone-mv{width:340px;height:480px;display:block;margin:0 auto;--poster-color:transparent;position:relative}
+
+.phone-edge{position:absolute;background:linear-gradient(180deg,#e4e1ea 0%,#46464c 6%,#86869a 16%,#2c2c30 38%,#1a1a1d 50%,#2c2c30 62%,#86869a 84%,#46464c 94%,#e4e1ea 100%);
+  box-shadow:inset 0 0 3px rgba(0,0,0,.85)}
+.phone-edge-r,.phone-edge-l{top:0;bottom:0;width:var(--d)}
+.phone-edge-r{right:0;transform-origin:right center;transform:rotateY(-90deg);border-radius:0 9px 9px 0}
+.phone-edge-l{left:0;transform-origin:left center;transform:rotateY(90deg);border-radius:9px 0 0 9px}
+.phone-edge-t,.phone-edge-b{left:0;right:0;height:var(--d);
+  background:linear-gradient(90deg,#e4e1ea 0%,#46464c 6%,#86869a 16%,#2c2c30 38%,#1a1a1d 50%,#2c2c30 62%,#86869a 84%,#46464c 94%,#e4e1ea 100%)}
+.phone-edge-t{top:0;transform-origin:top center;transform:rotateX(90deg);border-radius:9px 9px 0 0}
+.phone-edge-b{bottom:0;transform-origin:bottom center;transform:rotateX(-90deg);border-radius:0 0 9px 9px}
+
+.phone-btn{position:absolute;left:2px;right:2px;border-radius:2px;
+  background:linear-gradient(180deg,#b8b8bc,#54545a);box-shadow:0 0 1px rgba(0,0,0,.6),inset 0 0 1px rgba(255,255,255,.45)}
+.phone-btn-action{top:15%;height:24px}
+.phone-btn-vol{height:46px}
+.phone-btn-vol-up{top:25%}
+.phone-btn-vol-down{top:33%}
+.phone-btn-power{top:21%;height:58px}
+.phone-btn-camctrl{top:31%;height:24px}
 
 /* iOS STATUS BAR */
 .ios-bar{height:44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 6px;position:relative;z-index:10}
@@ -7396,7 +7412,7 @@ footer{position:relative;z-index:1;padding:48px 60px;border-top:1px solid rgba(2
   .btn-glow,.btn-ghost{width:100%;max-width:320px;text-align:center}
 
   .phone-scene{margin-top:48px}
-  .phone-shot{width:240px;border-radius:38px}
+  .phone-mv{width:260px;height:380px}
   .ios-tabbar{height:52px}
 
   .stats-strip{padding:0 20px}
@@ -7418,6 +7434,7 @@ footer{position:relative;z-index:1;padding:48px 60px;border-top:1px solid rgba(2
   .biz-title{font-size:clamp(26px,7vw,38px)}
   .biz-sub{font-size:14px}
   .biz-phone-outer{width:100%;display:flex;justify-content:center}
+  .biz-phone-case{width:260px;height:540px;--d:13px}
   .biz-phone-frame{width:260px;height:540px;border-radius:42px}
   .biz-phone-viewport{border-radius:42px}
   .biz-phone-track{height:540px}
@@ -7492,9 +7509,10 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .biz-dots{display:flex;gap:6px;margin-top:24px}
 .biz-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;border:none;padding:0;transition:all .3s}
 .biz-dot.active{width:24px;border-radius:3px;background:#6C47FF}
-.biz-phone-outer{width:300px;position:relative;flex-shrink:0}
+.biz-phone-outer{width:300px;position:relative;flex-shrink:0;perspective:1300px}
 .biz-phone-glow{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);width:200px;height:50px;background:radial-gradient(ellipse,rgba(85,56,232,.45),transparent 70%);filter:blur(20px);pointer-events:none;z-index:-1}
-.biz-phone-frame{width:300px;height:620px;border-radius:48px;background:#13072E;border:1px solid rgba(255,255,255,.13);box-shadow:0 50px 100px rgba(0,0,0,.75),0 0 0 1px rgba(85,56,232,.2),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden}
+.biz-phone-case{--d:15px;width:300px;height:620px;position:relative;transform-style:preserve-3d;transition:transform .12s ease-out;will-change:transform}
+.biz-phone-frame{width:300px;height:620px;border-radius:48px;background:#13072E;border:1px solid rgba(255,255,255,.13);box-shadow:0 50px 100px rgba(0,0,0,.75),0 0 0 1.5px rgba(225,215,255,.45),0 0 0 2.5px rgba(85,56,232,.2),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden;transform:translateZ(var(--d))}
 .biz-phone-frame::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,transparent 50%);pointer-events:none;z-index:20}
 .biz-phone-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:116px;height:34px;background:#000;border-radius:50px;z-index:25;box-shadow:0 0 0 1.5px rgba(255,255,255,.07),0 4px 12px rgba(0,0,0,.6)}
 .biz-phone-viewport{position:absolute;inset:0;border-radius:48px;overflow:hidden}
@@ -7707,7 +7725,17 @@ html[dir="rtl"] .pc-feats{padding-right:0}
        kendi status bar'ı/dynamic island'ı zaten var -->
   <div class="phone-scene" id="heroPhone">
     <div class="phone-glow-outer"></div>
-    <img class="phone-shot" id="phone3d" src="hero-phone-screen-v2.jpg" alt="Pruva Business">
+    <model-viewer id="phone3d" class="phone-mv"
+      src="models/iphone_17_pro.glb"
+      camera-orbit="180deg 80deg 145%"
+      field-of-view="22deg"
+      min-camera-orbit="auto 80deg auto"
+      max-camera-orbit="auto 80deg auto"
+      exposure="1"
+      shadow-intensity="0"
+      interaction-prompt="none"
+      disable-zoom disable-pan disable-tap>
+    </model-viewer>
   </div>
 
   <div class="scroll-hint">
@@ -8288,6 +8316,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       <!-- RIGHT: Sliding phone -->
       <div class="biz-phone-outer rv-r">
         <div class="biz-phone-glow"></div>
+        <div class="biz-phone-case" id="bizPhone3d">
         <div class="biz-phone-frame">
           <div class="biz-phone-notch"></div>
           <div class="biz-phone-viewport">
@@ -8468,6 +8497,18 @@ html[dir="rtl"] .pc-feats{padding-right:0}
             </div><!-- end biz-phone-track -->
           </div><!-- end biz-phone-viewport -->
         </div><!-- end biz-phone-frame -->
+        <div class="phone-edge phone-edge-r">
+          <span class="phone-btn phone-btn-power"></span>
+          <span class="phone-btn phone-btn-camctrl"></span>
+        </div>
+        <div class="phone-edge phone-edge-l">
+          <span class="phone-btn phone-btn-action"></span>
+          <span class="phone-btn phone-btn-vol phone-btn-vol-up"></span>
+          <span class="phone-btn phone-btn-vol phone-btn-vol-down"></span>
+        </div>
+        <div class="phone-edge phone-edge-t"></div>
+        <div class="phone-edge phone-edge-b"></div>
+        </div><!-- end biz-phone-case -->
       </div><!-- end biz-phone-outer -->
     </div><!-- end biz-body -->
   </div><!-- end biz-inner -->
@@ -8768,6 +8809,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
     <img src="pruva-logo-transparent.png" alt="Pruva" style="height:36px;width:auto;display:block">
   </div>
   <div class="footer-copy" data-i18n="footer.copy">© 2026 Pruva Business. All rights reserved.</div>
+  <div style="font-size:11px;color:rgba(241,245,255,.3);margin-top:-8px">"iPhone 17 Pro" model by <a href="https://sketchfab.com/Ranguel" target="_blank" rel="noopener" style="color:rgba(241,245,255,.45)">Ranguel</a> (<a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:rgba(241,245,255,.45)">CC BY 4.0</a>)</div>
   <div class="footer-links">
     <a href="privacy.html" data-i18n="footer.privacy">Privacy &amp; GDPR</a><a href="mailto:pruvadevelopper@gmail.com" data-i18n="footer.contact">Contact</a>
   </div>
@@ -8789,6 +8831,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
      geminin animasyonsuz/yanlış konumda donup kalmasına yol açıyordu. -->
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
+<script type="module" src="vendor/model-viewer.min.js"></script>
 <script>
 // ── PRICING ENGINE
 (function(){
@@ -9186,13 +9229,43 @@ const orbs=[];for(let i=0;i<18;i++)orbs.push(new Orb());
 // ── NAV
 window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('solid',scrollY>80)});
 
-// ── PHONE 3D PARALLAX
+// ── PHONE 3D PARALLAX (gerçek iPhone 17 Pro modeli, model-viewer)
 const phone3d=document.getElementById('phone3d');
-document.addEventListener('mousemove',e=>{
-  const cx=innerWidth/2,cy=innerHeight/2;
-  const rx=(e.clientY-cy)/cy*8,ry=(e.clientX-cx)/cx*-12;
-  phone3d.style.transform=`perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-});
+if(phone3d){
+  const baseRadius=145;
+  document.addEventListener('mousemove',e=>{
+    const cx=innerWidth/2;
+    const theta=180+(e.clientX-cx)/cx*-22;
+    phone3d.cameraOrbit=`${theta}deg 80deg ${baseRadius}%`;
+  });
+
+  // Ekrana gerçek uygulama görüntüsünü "OLED" materyaline texture olarak bas
+  // (mesh'in UV'si yatayda ters; kaynak görüntü önceden yatayda çevrilmiş kullanılıyor)
+  phone3d.addEventListener('load',async()=>{
+    try{
+      const texture=await phone3d.createTexture('hero-phone-screen-screen-tex.jpg');
+      const screenMat=phone3d.model.materials.find(m=>m.name==='OLED');
+      if(screenMat){
+        screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+        screenMat.emissiveTexture.setTexture(texture);
+        screenMat.setEmissiveFactor([0.35,0.35,0.35]);
+      }
+    }catch(err){console.warn('Phone screen texture swap failed',err)}
+  });
+}
+
+// ── BIZ DEMO PHONE 3D TILT (mouse üzerine gelince kasa gerçekten dönüyor)
+const bizPhone3d=document.getElementById('bizPhone3d');
+if(bizPhone3d){
+  bizPhone3d.addEventListener('mousemove',e=>{
+    const r=bizPhone3d.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    bizPhone3d.style.transform=`perspective(1300px) rotateX(${-y*10}deg) rotateY(${x*16}deg)`;
+  });
+  bizPhone3d.addEventListener('mouseleave',()=>{
+    bizPhone3d.style.transform='perspective(1300px) rotateX(0deg) rotateY(0deg)';
+  });
+}
 
 // ── SCROLL REVEAL (yalnızca observer destekleniyorsa; aksi halde içerik zaten görünür)
 const rvEls=document.querySelectorAll('.rv,.rv-l,.rv-r');
