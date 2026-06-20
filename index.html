@@ -9473,7 +9473,7 @@ document.querySelectorAll('.pay-method').forEach(m=>{
 <circle cx="${f.W/2}" cy="${f.bowY}" r="5" fill="rgba(255,255,255,${Math.min(wOp*1.3,0.92).toFixed(2)})"/>`;
   }
 
-  const stInst = ScrollTrigger.create({
+  ScrollTrigger.create({
     trigger: scene, start: 'top top', end: 'bottom bottom',
     pin: pin, scrub: 1.2,
     onUpdate(st) {
@@ -9535,14 +9535,26 @@ document.querySelectorAll('.pay-method').forEach(m=>{
 
   // Dalgalar kendi başına da hafifçe aksın (durağan kalmasın); scroll hızlandıkça
   // akış da hızlanıp scroll yavaşlayınca/durunca normal hızına dönsün.
+  // st.getVelocity() scrub'ın yumuşatılmış (1.2s gecikmeli) tween'ine bağlı —
+  // scroll durduktan sonra bir süre yüksek kalıp "yavaşlamıyor" gibi
+  // duruyordu. Onun yerine gerçek window.scrollY değişimini ölçüyoruz; bu,
+  // scroll durur durmaz anında sıfıra düşer.
   let lastT = performance.now();
+  let lastScrollY = window.scrollY;
+  let smoothVel = 0;
   (function animateWake(now) {
     requestAnimationFrame(animateWake);
-    const dt = Math.min(64, now - lastT);
+    const dt = Math.min(64, now - lastT) || 16;
     lastT = now;
+
+    const sy = window.scrollY;
+    const instVel = (sy - lastScrollY) / dt * 1000; // px/sn
+    lastScrollY = sy;
+    smoothVel += (instVel - smoothVel) * 0.3; // ani sıçramaları yumuşat ama gecikmeden tepki ver
+
     if (!frame || frame.fade <= 0) return;
-    const vel = Math.abs(stInst.getVelocity ? stInst.getVelocity() : 0); // px/sn
-    const speed = 0.0006 + Math.min(0.004, vel * 0.0000025); // taban hız + scroll'a göre boost
+    const vel = Math.abs(smoothVel);
+    const speed = 0.0006 + Math.min(0.005, vel * 0.000004); // taban hız + scroll'a göre boost
     phase += speed * dt;
     drawWake();
   })(performance.now());
