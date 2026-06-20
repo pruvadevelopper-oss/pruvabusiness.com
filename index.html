@@ -9243,16 +9243,15 @@ if(phone3d){
         // onu hep kapatıyordu — ekrandaki cam yansımasını hep OLED'in KENDİ specular'ı veriyormuş.
         // baseColor=0 olduğu için (diffuse/wash sorunu zaten orada çözüldü) roughness/specular'ı
         // geri açmak kontrastı bozmuyor, sadece belli açılarda ince bir cam yansıması ekliyor.
-        // roughness daha düşük + specular daha yüksek = daha keskin/görünür highlight
-        // (emissive zaten parlak olduğu için zayıf bir specular ekranda fark edilmiyordu)
-        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.05);
+        // roughness/specular maksimuma yakın değerlerde (0.05 / 1.0) Safari'de güvenilmez
+        // sonuçlar bildirildi (ekranın bazı durumlarda kapkara görünmesi) — daha güvenli,
+        // önceden doğrulanmış orta seviyeye çekildi.
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.15);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
-        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(1);
+        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.7);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
-        // kullanıcı isteği üzerine belirgin şekilde artırıldı (1.2 -> 1.8) — en parlak
-        // pikseller daha fazla kırpılabilir ama genel ekran parlaklığı çok daha güçlü.
-        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.8);
+        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.4);
       }
       // "Glass" mesh'i ekranın hemen kenarında (OLED'den biraz daha geniş bbox) duruyor —
       // bu ince halka gerçek iPhone'daki yuvarlatılmış cam kenar hissini veriyor.
