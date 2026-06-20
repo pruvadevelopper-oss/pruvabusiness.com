@@ -9429,7 +9429,7 @@ document.querySelectorAll('.pay-method').forEach(m=>{
   // çok daha geniş açılıyordu ve gemi suya sadece ucundan dokunuyormuş gibi duruyordu.
   const slope = 28 / 129; // ≈ 0.217
 
-  function wavyPath(x1, y1, x2, y2, amp) {
+  function wavyPath(x1, y1, x2, y2, amp, phase) {
     const N = 14;
     const dx = x2 - x1, dy = y2 - y1;
     const len = Math.hypot(dx, dy) || 1;
@@ -9439,8 +9439,9 @@ document.querySelectorAll('.pay-method').forEach(m=>{
     for (let i = 1; i <= N; i++) {
       const t = i / N;
       const bx = x1 + dx * t, by = y1 + dy * t;
-      // gemiye yakınken dümdüz, geriye gidince dalgalanma büyüyüp sıklaşır
-      const wob = amp * t * Math.sin(t * Math.PI * 4 + t * t * 3);
+      // gemiye yakınken dümdüz, geriye gidince dalgalanma büyüyüp sıklaşır;
+      // phase zamanla kayar, böylece dalga sabit durmaz, akıyormuş gibi görünür
+      const wob = amp * t * Math.sin(t * Math.PI * 4 + t * t * 3 + phase);
       pts.push({ x: bx + px * wob, y: by + py * wob });
     }
     let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
@@ -9453,7 +9454,26 @@ document.querySelectorAll('.pay-method').forEach(m=>{
     return d;
   }
 
-  ScrollTrigger.create({
+  // Son onUpdate'ten gelen sahne geometrisi — dalga animasyon döngüsü
+  // scroll olmadan da bu önbelleği kullanarak çiziyor.
+  let frame = null;
+  let phase = 0;
+
+  function drawWake() {
+    const f = frame;
+    if (!f || f.fade <= 0) { wake.innerHTML = ''; return; }
+    const wOp = Math.min(Math.max(0, f.behind / f.H) * 0.9, 0.8) * f.fade;
+    const amp = Math.min(22, Math.max(4, f.behind * 0.02));
+    const rEdge = Math.max(-50, f.rightX), lEdge = Math.min(f.W + 50, f.leftX);
+    wake.innerHTML =
+      `<path d="${wavyPath(f.W/2,f.bowY,rEdge,f.H,amp,phase)}" stroke="rgba(180,225,255,${wOp.toFixed(2)})" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+<path d="${wavyPath(f.W/2,f.bowY,lEdge,f.H,amp,phase)}" stroke="rgba(180,225,255,${wOp.toFixed(2)})" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+<path d="${wavyPath(f.W/2,f.bowY,rEdge,f.H,amp*1.6,phase*0.8)}" stroke="rgba(180,225,255,${(wOp*0.4).toFixed(2)})" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+<path d="${wavyPath(f.W/2,f.bowY,lEdge,f.H,amp*1.6,phase*0.8)}" stroke="rgba(180,225,255,${(wOp*0.4).toFixed(2)})" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+<circle cx="${f.W/2}" cy="${f.bowY}" r="5" fill="rgba(255,255,255,${Math.min(wOp*1.3,0.92).toFixed(2)})"/>`;
+  }
+
+  const stInst = ScrollTrigger.create({
     trigger: scene, start: 'top top', end: 'bottom bottom',
     pin: pin, scrub: 1.2,
     onUpdate(st) {
@@ -9488,6 +9508,7 @@ document.querySelectorAll('.pay-method').forEach(m=>{
         // Gemi henüz girmedi — ön katman tam kapalı
         front.style.opacity = '1';
         front.style.clipPath = 'polygon(0% 0%,100% 0%,100% 100%,0% 100%)';
+        frame = null;
         wake.innerHTML = '';
       } else {
         // Ön katman: tam dikdörtgen EKSI aşağıya açılan V (gemi yükselirken).
@@ -9500,17 +9521,8 @@ document.querySelectorAll('.pay-method').forEach(m=>{
         front.style.clipPath =
           `polygon(0% 0%,100% 0%,100% 100%,${rightPct}% 100%,50% ${bowPct}%,${leftPct}% 100%,0% 100%)`;
 
-        // Wake çizgileri — dalgalı path + ince ikinci köpük çizgisi
-        const wOp = Math.min(Math.max(0, behind / H) * 0.9, 0.8) * fade;
-        const amp = Math.min(22, Math.max(4, behind * 0.02));
-        const rEdge = Math.max(-50, rightX), lEdge = Math.min(W + 50, leftX);
-        wake.innerHTML = fade > 0
-          ? `<path d="${wavyPath(W/2,bowY,rEdge,H,amp)}" stroke="rgba(180,225,255,${wOp.toFixed(2)})" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-<path d="${wavyPath(W/2,bowY,lEdge,H,amp)}" stroke="rgba(180,225,255,${wOp.toFixed(2)})" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-<path d="${wavyPath(W/2,bowY,rEdge,H,amp*1.6)}" stroke="rgba(180,225,255,${(wOp*0.4).toFixed(2)})" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-<path d="${wavyPath(W/2,bowY,lEdge,H,amp*1.6)}" stroke="rgba(180,225,255,${(wOp*0.4).toFixed(2)})" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-<circle cx="${W/2}" cy="${bowY}" r="5" fill="rgba(255,255,255,${Math.min(wOp*1.3,0.92).toFixed(2)})"/>`
-          : '';
+        frame = { W, H, bowY, behind, leftX, rightX, fade };
+        drawWake();
       }
 
       // Gemi: yatayda ortalı, dikeyde bowY
@@ -9520,6 +9532,20 @@ document.querySelectorAll('.pay-method').forEach(m=>{
       if(hint) hint.style.opacity = String(Math.max(0, 1 - prog * 6));
     }
   });
+
+  // Dalgalar kendi başına da hafifçe aksın (durağan kalmasın); scroll hızlandıkça
+  // akış da hızlanıp scroll yavaşlayınca/durunca normal hızına dönsün.
+  let lastT = performance.now();
+  (function animateWake(now) {
+    requestAnimationFrame(animateWake);
+    const dt = Math.min(64, now - lastT);
+    lastT = now;
+    if (!frame || frame.fade <= 0) return;
+    const vel = Math.abs(stInst.getVelocity ? stInst.getVelocity() : 0); // px/sn
+    const speed = 0.0006 + Math.min(0.004, vel * 0.0000025); // taban hız + scroll'a göre boost
+    phase += speed * dt;
+    drawWake();
+  })(performance.now());
 
   // Sayfa yüklenirken fontlar/görseller henüz hazır olmadan ScrollTrigger
   // ölçüm alıyor; bu yanlış start/end değerlerine ve "scroll'a kadar donmuş"
