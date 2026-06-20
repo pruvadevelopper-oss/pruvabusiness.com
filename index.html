@@ -9246,6 +9246,11 @@ if(phone3d){
     // dikey eksen de yataydaki gibi ±sınırlı: 80deg merkez, min/max-camera-orbit ile 65-95deg arası kelepçeli
     const phi=80+(pendingY-cy)/cy*-15;
     phone3d.cameraOrbit=`${theta}deg ${phi}deg ${baseRadius}%`;
+    // model-viewer her orbit değişiminde kamerayı birkaç frame'lik damping animasyonuyla hedefe taşıyor;
+    // mouse sürekli hareket ettiğinde bu animasyonlar hiç durmadan üst üste binip sürekli render'a
+    // (ve Safari'de imleç donmasına) sebep oluyordu. jumpCameraToGoal damping'i atlayıp anında uyguluyor,
+    // her güncellemede tek render yeterli oluyor.
+    if(phone3d.jumpCameraToGoal)phone3d.jumpCameraToGoal();
   }
   document.addEventListener('mousemove',e=>{
     pendingX=e.clientX;pendingY=e.clientY;
