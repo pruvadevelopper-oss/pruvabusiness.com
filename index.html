@@ -9243,9 +9243,11 @@ if(phone3d){
         // onu hep kapatıyordu — ekrandaki cam yansımasını hep OLED'in KENDİ specular'ı veriyormuş.
         // baseColor=0 olduğu için (diffuse/wash sorunu zaten orada çözüldü) roughness/specular'ı
         // geri açmak kontrastı bozmuyor, sadece belli açılarda ince bir cam yansıması ekliyor.
-        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.2);
+        // roughness daha düşük + specular daha yüksek = daha keskin/görünür highlight
+        // (emissive zaten parlak olduğu için zayıf bir specular ekranda fark edilmiyordu)
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.1);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
-        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.5);
+        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.85);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
         // strength 3.2 iken beyaz UI pikselleri HDR'de kırpılıp kontrast/metin tamamen
@@ -9253,6 +9255,13 @@ if(phone3d){
         // 1.2 orta yol: en parlak beyaz pikseller hafif kırpılır (göze çarpmaz) ama genel
         // parlaklık/canlılık belirgin şekilde artar.
         if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.2);
+      }
+      // "Glass" mesh'i ekranın hemen kenarında (OLED'den biraz daha geniş bbox) duruyor —
+      // bu ince halka gerçek iPhone'daki yuvarlatılmış cam kenar hissini veriyor.
+      // Alpha'sını hafif artırıp bu kenar yansımasını biraz daha belirgin (ama abartısız) yapıyoruz.
+      const glassMat=phone3d.model.materials.find(m=>m.name==='Glass');
+      if(glassMat){
+        glassMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,0.4]);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
