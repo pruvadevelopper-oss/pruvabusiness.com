@@ -9244,11 +9244,14 @@ if(phone3d){
   phone3d.addEventListener('load',async()=>{
     try{
       const texture=await phone3d.createTexture('hero-phone-screen-screen-tex.jpg');
+      // mipmap yerine düz LINEAR filtreleme — küçük UI yazılarının bulanıklaşmasını önler
+      texture.sampler.setMinFilter(9729);
+      texture.sampler.setMagFilter(9729);
       const screenMat=phone3d.model.materials.find(m=>m.name==='OLED');
       if(screenMat){
         screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
         screenMat.emissiveTexture.setTexture(texture);
-        screenMat.setEmissiveFactor([0.35,0.35,0.35]);
+        screenMat.setEmissiveFactor([0.6,0.6,0.6]);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
   });
