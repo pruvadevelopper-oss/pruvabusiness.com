@@ -7602,9 +7602,21 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   border-radius:16px;padding:22px 20px}
 .bow-sol-card h4{font-size:14px;font-weight:800;color:#fff;margin:10px 0 8px;line-height:1.3}
 .bow-sol-card p{font-size:13px;color:rgba(52,211,153,.7);margin:0;line-height:1.6}
-#bowFront{position:absolute;inset:0;z-index:4;
-  background:radial-gradient(ellipse 120% 80% at 50% 50%,#142240,#0c1829);
+#bowFront{position:absolute;inset:0;z-index:4;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  padding:24px 20px;box-sizing:border-box;
   clip-path:polygon(0% 0%,100% 0%,100% 100%,0% 100%)}
+.bow-front-grid{width:100%;max-width:1100px;margin-top:0}
+.bow-front-grid .sorun-card{padding:20px 22px}
+.bow-front-grid .sorun-emoji{font-size:26px;margin-bottom:10px}
+.bow-front-grid .sorun-card h3{font-size:15px;margin-bottom:6px}
+.bow-front-grid .sorun-card p{font-size:12.5px;line-height:1.5;margin-bottom:0}
+@media(max-height:760px){
+  .bow-front-grid .sorun-card{padding:14px 18px}
+  .bow-front-grid .sorun-emoji{font-size:20px;margin-bottom:6px}
+  .bow-front-grid .sorun-card h3{font-size:13.5px;margin-bottom:4px}
+  .bow-front-grid .sorun-card p{font-size:11.5px;line-height:1.4}
+}
 #bowShipWrap{position:absolute;top:0;left:50%;z-index:20;pointer-events:none;will-change:transform}
 #bowShipWrap svg{width:48px;height:138px}
 @media(max-width:640px){#bowShipWrap svg{width:38px;height:110px}}
@@ -8079,29 +8091,12 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   </div>
 </div>
 
-<!-- GİRİŞ: SORUN -->
+<!-- GİRİŞ: SORUN (başlık normal akışta; kartlar artık BOW SCENE'in ön katmanında — gemi tam bu kartların üzerinden geçiyor) -->
 <section class="reveal-on">
-<div class="sorun-section">
+<div class="sorun-section" style="padding-bottom:0">
   <div class="sec-tag rv" data-i18n="sorun.tag">Neden Pruva?</div>
   <h2 class="big rv" data-i18n="sorun.title" data-i18n-html="true">Tanıdık <em>3 sorun.</em></h2>
   <p class="sec-sub rv" data-i18n="sorun.sub">Bunları yaşıyorsanız yalnız değilsiniz.</p>
-  <div class="sorun-grid">
-    <div class="sorun-card c-red rv" style="transition-delay:.0s">
-      <span class="sorun-emoji" data-i18n="sorun.s1.icon">📡</span>
-      <h3 data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
-      <p data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
-    </div>
-    <div class="sorun-card c-blue rv" style="transition-delay:.1s">
-      <span class="sorun-emoji" data-i18n="sorun.s2.icon">🏪</span>
-      <h3 data-i18n="sorun.s2.title">Dükkanınız var ama online görünmüyorsunuz</h3>
-      <p data-i18n="sorun.s2.body">Müşteri sizi arayıp bulmak zorunda. Web siteniz yok, online mağazanız yok — rakibinizin var.</p>
-    </div>
-    <div class="sorun-card c-purple rv" style="transition-delay:.2s">
-      <span class="sorun-emoji" data-i18n="sorun.s3.icon">🔧</span>
-      <h3 data-i18n="sorun.s3.title">Her iş için ayrı uygulama</h3>
-      <p data-i18n="sorun.s3.body">Kasa başka uygulama, stok başka, kurye başka, muhasebe başka. Hepsini açıp kapatmak, birinden diğerine geçmek zaman çalıyor.</p>
-    </div>
-  </div>
 </div>
 </section>
 
@@ -8144,8 +8139,27 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       </div>
     </div>
 
-    <!-- ÖN KATMAN: Koyu deniz (V klipiyle kaldırılır, çözüm alttan açılır) -->
-    <div id="bowFront"></div>
+    <!-- ÖN KATMAN: 3 sorun kartı — gemi tam bunların üzerinden geçip altlarındaki
+         çözüm panelini (bowBack) açığa çıkarıyor -->
+    <div id="bowFront">
+      <div class="sorun-grid bow-front-grid">
+        <div class="sorun-card c-red">
+          <span class="sorun-emoji" data-i18n="sorun.s1.icon">📡</span>
+          <h3 data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
+          <p data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
+        </div>
+        <div class="sorun-card c-blue">
+          <span class="sorun-emoji" data-i18n="sorun.s2.icon">🏪</span>
+          <h3 data-i18n="sorun.s2.title">Dükkanınız var ama online görünmüyorsunuz</h3>
+          <p data-i18n="sorun.s2.body">Müşteri sizi arayıp bulmak zorunda. Web siteniz yok, online mağazanız yok — rakibinizin var.</p>
+        </div>
+        <div class="sorun-card c-purple">
+          <span class="sorun-emoji" data-i18n="sorun.s3.icon">🔧</span>
+          <h3 data-i18n="sorun.s3.title">Her iş için ayrı uygulama</h3>
+          <p data-i18n="sorun.s3.body">Kasa başka uygulama, stok başka, kurye başka, muhasebe başka. Hepsini açıp kapatmak, birinden diğerine geçmek zaman çalıyor.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- GEMİ: tepeden bakış, düz renk, sivri pruva YUKARDA -->
     <div id="bowShipWrap">
