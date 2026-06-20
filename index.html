@@ -9245,9 +9245,9 @@ if(phone3d){
         // geri açmak kontrastı bozmuyor, sadece belli açılarda ince bir cam yansıması ekliyor.
         // roughness daha düşük + specular daha yüksek = daha keskin/görünür highlight
         // (emissive zaten parlak olduğu için zayıf bir specular ekranda fark edilmiyordu)
-        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.1);
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.05);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
-        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.85);
+        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(1);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
         // strength 3.2 iken beyaz UI pikselleri HDR'de kırpılıp kontrast/metin tamamen
@@ -9261,7 +9261,7 @@ if(phone3d){
       // Alpha'sını hafif artırıp bu kenar yansımasını biraz daha belirgin (ama abartısız) yapıyoruz.
       const glassMat=phone3d.model.materials.find(m=>m.name==='Glass');
       if(glassMat){
-        glassMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,0.4]);
+        glassMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,0.6]);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
