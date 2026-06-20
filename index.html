@@ -9255,10 +9255,17 @@ if(phone3d){
       }
       // "Glass" mesh'i ekranın hemen kenarında (OLED'den biraz daha geniş bbox) duruyor —
       // bu ince halka gerçek iPhone'daki yuvarlatılmış cam kenar hissini veriyor.
-      // Alpha'sını hafif artırıp bu kenar yansımasını biraz daha belirgin (ama abartısız) yapıyoruz.
+      // ÖNCEKİ ayar (metallic=1, roughness=0, siyah baseColor alpha=0.6) siyah/yarı saydam
+      // bir "metal" katmandı: ekranın TÜMÜNÜ kapladığı için tüm renkleri soluklaştırıyordu,
+      // gerçek bir cam yansıması üretmiyordu (metalik siyah yüzeyler ışığı neredeyse hiç
+      // yansıtmaz). Dielektrik (metallic=0) + düşük roughness + beyaz/düşük-alpha baseColor
+      // kombinasyonu environment ışığını Fresnel ile kenarlarda yakalıyor — ekranın orta
+      // kısmı solmadan, kenarlarda ince gerçekçi bir cam parıltısı oluşuyor.
       const glassMat=phone3d.model.materials.find(m=>m.name==='Glass');
       if(glassMat){
-        glassMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,0.6]);
+        glassMat.pbrMetallicRoughness.setMetallicFactor(0);
+        glassMat.pbrMetallicRoughness.setRoughnessFactor(0.06);
+        glassMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,0.12]);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
