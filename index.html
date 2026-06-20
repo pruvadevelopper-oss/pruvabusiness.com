@@ -9249,10 +9249,11 @@ if(phone3d){
       texture.sampler.setMagFilter(9729);
       const screenMat=phone3d.model.materials.find(m=>m.name==='OLED');
       if(screenMat){
+        // baseColor (lit/diffuse katman) ortam ışığıyla aydınlatılıp texture'ı griye/soluğa çeviriyordu —
+        // baseColorFactor'ı siyaha çekip ekranın rengini SADECE emissive'ten (ışıktan bağımsız) almasını sağlıyoruz,
+        // gerçek bir OLED panelin kendi ışığını yayması gibi
         screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
-        screenMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,1]);
-        // roughness düşük olunca ortam ışığı ekrana cam gibi yansıyıp renkleri soluk/beyazımsı gösteriyordu —
-        // tam mat yapıp specular yansımayı kapatınca emissive renkler ortam ışığından bağımsız, doygun kalıyor
+        screenMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,1]);
         screenMat.pbrMetallicRoughness.setRoughnessFactor(1);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
         if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0);
