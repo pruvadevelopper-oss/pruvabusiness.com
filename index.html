@@ -9238,9 +9238,13 @@ if(phone3d){
         // gerçek bir OLED panelin kendi ışığını yayması gibi
         screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
         screenMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,1]);
-        screenMat.pbrMetallicRoughness.setRoughnessFactor(1);
+        // Modeldeki ayrı "Glass" mesh'i ekranın arkasında/aynı seviyesinde durduğu için opak OLED
+        // onu hep kapatıyordu — ekrandaki cam yansımasını hep OLED'in KENDİ specular'ı veriyormuş.
+        // baseColor=0 olduğu için (diffuse/wash sorunu zaten orada çözüldü) roughness/specular'ı
+        // geri açmak kontrastı bozmuyor, sadece belli açılarda ince bir cam yansıması ekliyor.
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.2);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
-        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0);
+        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.5);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
         // strength 3.2 iken beyaz UI pikselleri HDR'de kırpılıp kontrast/metin tamamen
