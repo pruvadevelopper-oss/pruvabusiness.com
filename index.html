@@ -9251,8 +9251,11 @@ if(phone3d){
       if(screenMat){
         screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
         screenMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,1]);
-        screenMat.pbrMetallicRoughness.setRoughnessFactor(0.05);
+        // roughness düşük olunca ortam ışığı ekrana cam gibi yansıyıp renkleri soluk/beyazımsı gösteriyordu —
+        // tam mat yapıp specular yansımayı kapatınca emissive renkler ortam ışığından bağımsız, doygun kalıyor
+        screenMat.pbrMetallicRoughness.setRoughnessFactor(1);
         screenMat.pbrMetallicRoughness.setMetallicFactor(0);
+        if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
         // KHR_materials_emissive_strength — ekranı "canlı/parlak OLED" gibi göstermek için 1'in üzerine çık
