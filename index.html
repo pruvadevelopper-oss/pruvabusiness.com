@@ -7730,8 +7730,8 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       src="models/iphone_17_pro.glb"
       camera-orbit="180deg 80deg 145%"
       field-of-view="22deg"
-      min-camera-orbit="auto 80deg auto"
-      max-camera-orbit="auto 80deg auto"
+      min-camera-orbit="auto 65deg auto"
+      max-camera-orbit="auto 95deg auto"
       exposure="1.1"
       tone-mapping="neutral"
       shadow-intensity="0"
@@ -9236,9 +9236,11 @@ const phone3d=document.getElementById('phone3d');
 if(phone3d){
   const baseRadius=145;
   document.addEventListener('mousemove',e=>{
-    const cx=innerWidth/2;
+    const cx=innerWidth/2,cy=innerHeight/2;
     const theta=180+(e.clientX-cx)/cx*-22;
-    phone3d.cameraOrbit=`${theta}deg 80deg ${baseRadius}%`;
+    // dikey eksen de yataydaki gibi ±sınırlı: 80deg merkez, min/max-camera-orbit ile 65-95deg arası kelepçeli
+    const phi=80+(e.clientY-cy)/cy*-15;
+    phone3d.cameraOrbit=`${theta}deg ${phi}deg ${baseRadius}%`;
   });
 
   // Ekrana gerçek uygulama görüntüsünü "OLED" materyaline texture olarak bas
