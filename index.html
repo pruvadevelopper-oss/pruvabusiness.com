@@ -9474,6 +9474,14 @@ document.querySelectorAll('.pay-method').forEach(m=>{
       if(hint) hint.style.opacity = String(Math.max(0, 1 - prog * 6));
     }
   });
+
+  // Sayfa yüklenirken fontlar/görseller henüz hazır olmadan ScrollTrigger
+  // ölçüm alıyor; bu yanlış start/end değerlerine ve "scroll'a kadar donmuş"
+  // görünen pin/reveal bölümlerine yol açıyordu. Her şey hazır olunca yeniden ölç.
+  const refresh = () => ScrollTrigger.refresh();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+  window.addEventListener('load', refresh);
+  setTimeout(refresh, 1200);
 })();
 </script>
 </body>
