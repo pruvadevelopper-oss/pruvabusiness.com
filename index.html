@@ -9260,8 +9260,11 @@ if(phone3d){
         if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0);
         screenMat.emissiveTexture.setTexture(texture);
         screenMat.setEmissiveFactor([1,1,1]);
-        // KHR_materials_emissive_strength — ekranı "canlı/parlak OLED" gibi göstermek için 1'in üzerine çık
-        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(3.2);
+        // ÖNEMLİ: strength'i 1'in üzerine çıkarmak texture'ın parlak (beyaz UI) piksellerini
+        // HDR'de 1.0'ı aşırıp tone-mapping'in beyaza kırpmasına sebep oluyordu — bu da ekranın
+        // alt (açık temalı) kısmındaki yazı/kontrastın tamamen silinmesi olarak görünüyordu.
+        // 1.0 hiçbir pikseli kırpmadan texture'ı olduğu gibi (kontrastı bozulmadan) yayıyor.
+        if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.0);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
   });
