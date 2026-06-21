@@ -7597,7 +7597,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
 /* ── BOW SCENE (Dikey Yükseliş) ──────────────── */
 #bowScene{position:relative;height:320vh}
-.bow-shore{display:block;position:relative;width:100%;height:64px;margin-top:-2px;background:var(--bg);line-height:0;overflow:hidden}
+.bow-shore{display:block;position:relative;z-index:50;width:100%;height:64px;margin-top:-2px;background:var(--bg);line-height:0;overflow:hidden}
 .bow-shore svg{display:block;position:absolute;inset:0;width:100%;height:100%}
 /* TEK kat: dalga şekli (d) ve köpük çizgisi (foam) aynı animasyon zamanlamasını
    paylaşıyor, yani köpük her an dalganın gerçek kenarının tam üstünde duruyor —
@@ -7607,9 +7607,14 @@ html[dir="rtl"] .pc-feats{padding-right:0}
    (var(--bg), lacivert) hemen orada başlıyor; yeşil ile lacivert arada
    bulanık bir geçiş bandı olmadan tam dalga çizgisinde kesişiyor. Dolgu
    rengi (#061812) üstteki bowBack gradient'inin dış tonuyla birebir aynı,
-   o üst kenarda da görünür atlama olmasın. */
+   o üst kenarda da görünür atlama olmasın. z-index:50 — GSAP'ın pinlediği
+   gemi sahnesi (#bowFront z-index:4) scroll geçişinde tam zamanında
+   bırakmazsa bile bu ayraç onun koyu artığını kesin olarak örtsün.
+   Sallanma SADECE dikey (translateX yok): yatay kaysaydı, path konteyner
+   genişliğiyle birebir olduğu için en uca vardığında çizginin ucu/kenarı
+   görünürdü — sadece yukarı-aşağı nefes alıyor, ucu hiç açığa çıkmıyor. */
 .bow-shore .shore-wave{animation:shoreSway 9s ease-in-out infinite alternate}
-@keyframes shoreSway{0%{transform:translate(-1%,-1px)}100%{transform:translate(1%,1px)}}
+@keyframes shoreSway{0%{transform:translateY(-1px)}100%{transform:translateY(1.5px)}}
 @keyframes shoreFoamPulse{0%,100%{opacity:.35}50%{opacity:.7}}
 .bow-shore .shore-foam{animation:shoreFoamPulse 4.2s ease-in-out infinite}
 @media(max-width:640px){.bow-shore{height:36px}}
@@ -7919,7 +7924,10 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 </div>
 
 <!-- GELİŞME: OFFLİNE-FIRST SPOTLIGHT -->
-<section class="reveal-on" style="padding:80px 0 120px;position:relative;z-index:1">
+<!-- padding-top 80→160: dalganın hemen ardından offline-section'ın kendi koyu
+     gradient'i (#0d1117) çok yakın başlıyordu, lacivert "nefes alanı" çok ince
+     kalıp dalganın altında da koyu bir katman varmış gibi görünüyordu. -->
+<section class="reveal-on" style="padding:160px 0 120px;position:relative;z-index:1">
 <div class="offline-section">
   <div class="offline-inner">
     <div>
