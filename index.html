@@ -7540,7 +7540,11 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .sorun-fix::before{content:'✓';font-size:11px}
 
 /* ─── OFFLİNE-FİRST SPOTLIGHT ─── */
-.offline-section{position:relative;z-index:1;margin:0 60px 0;border-radius:32px;overflow:hidden;background:linear-gradient(135deg,#0d1117 0%,#0a0e1a 50%,#0d1117 100%);border:1px solid rgba(255,255,255,.07)}
+/* Üst kenar var(--bg) ile birebir aynı (dikey gradient, 135deg değil) —
+   dalgadan sonra tek ayıraç dalganın kendisi olsun; bu kart sayfanın
+   lacivertinden kaynayarak başlasın, üstünde ayrı bir çizgi/kenar
+   görünmesin, sadece kartın kendi border'ı (ince, şeffaf) belli olsun. */
+.offline-section{position:relative;z-index:1;margin:0 60px 0;border-radius:32px;overflow:hidden;background:linear-gradient(180deg,var(--bg) 0%,#0a0e1a 35%,#0d1117 100%);border:1px solid rgba(255,255,255,.07)}
 @media(max-width:900px){.offline-section{margin:0 20px}}
 .offline-inner{padding:100px 80px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
 @media(max-width:900px){.offline-inner{grid-template-columns:1fr;gap:48px;padding:60px 28px}}
