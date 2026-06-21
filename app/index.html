@@ -40,13 +40,12 @@ body {
 /* LOGIN */
 #login-screen {
   position:fixed; inset:0;
-  background: linear-gradient(160deg,#1A0D5C 0%,#2D1A8A 50%,#4A2ED4 100%);
+  background: linear-gradient(160deg,#0B1628 0%,#1A0D5C 45%,#4A2ED4 100%);
   display:flex; align-items:center; justify-content:center; z-index:1000;
 }
 #login-screen.hidden { display:none; }
 .login-box { width:380px; display:flex; flex-direction:column; align-items:center; }
-.login-logo { font-size:28px; font-weight:800; color:#fff; letter-spacing:-0.5px; margin-bottom:6px; }
-.login-logo span { color:#FBBF24; }
+.login-logo-img { height:34px; width:auto; margin-bottom:14px; }
 .login-tagline { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:36px; }
 .login-card {
   width:100%; background:rgba(255,255,255,0.07);
@@ -64,12 +63,13 @@ body {
 .input-group input:focus { border-color:rgba(255,255,255,0.4); }
 .btn-login {
   width:100%; padding:13px; margin-top:4px;
-  background:#FBBF24; border:none; border-radius:10px;
-  font-size:15px; font-weight:700; color:#1A0D5C; cursor:pointer; transition:opacity .15s;
+  background:linear-gradient(135deg,#6C47FF,#5538E8); border:none; border-radius:10px;
+  font-size:15px; font-weight:700; color:#fff; cursor:pointer; transition:opacity .15s,box-shadow .2s;
+  box-shadow:0 0 24px rgba(108,71,255,.4), 0 6px 16px rgba(85,56,232,.3);
 }
-.btn-login:hover { opacity:.9; }
+.btn-login:hover { opacity:.92; box-shadow:0 0 32px rgba(108,71,255,.55), 0 6px 16px rgba(85,56,232,.3); }
 #login-error { color:#FCA5A5; font-size:13px; text-align:center; margin-top:10px; min-height:18px; }
-.spinner { display:none; width:18px; height:18px; border:2px solid rgba(26,13,92,0.25); border-top-color:#1A0D5C; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto; }
+.spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* APP SHELL */
@@ -331,19 +331,80 @@ body {
 
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">Pruva <span>Business</span></div>
-    <div class="login-tagline">Akıllı POS · 24 Dil · Offline-First</div>
+    <img src="../pruva-logo-transparent.png" alt="Pruva Business" class="login-logo-img">
+    <div class="login-tagline" data-i18n="tagline">Akıllı POS · 24 Dil · Offline-First</div>
     <div class="login-card">
-      <div class="input-group"><label>E-posta</label><input type="email" id="login-email" placeholder="ornek@sirket.com" autocomplete="email"></div>
-      <div class="input-group"><label>Şifre</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="input-group"><label data-i18n="emailLabel">E-posta</label><input type="email" id="login-email" data-i18n-placeholder="emailPlaceholder" placeholder="ornek@sirket.com" autocomplete="email"></div>
+      <div class="input-group"><label data-i18n="passLabel">Şifre</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="btn-login" onclick="doLogin()">
-        <span id="login-btn-text">Giriş Yap</span>
+        <span id="login-btn-text" data-i18n="loginBtn">Giriş Yap</span>
         <div class="spinner" id="login-spinner"></div>
       </button>
       <div id="login-error"></div>
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  var LOGIN_I18N = {
+    en:{tagline:"Smart POS · 24 Languages · Offline-First",emailLabel:"Email",emailPlaceholder:"name@company.com",passLabel:"Password",loginBtn:"Sign In",errEmpty:"Email and password are required.",errInvalid:"Incorrect email or password.",errFailed:"Sign in failed."},
+    tr:{tagline:"Akıllı POS · 24 Dil · Offline-First",emailLabel:"E-posta",emailPlaceholder:"ornek@sirket.com",passLabel:"Şifre",loginBtn:"Giriş Yap",errEmpty:"E-posta ve şifre gerekli.",errInvalid:"E-posta veya şifre hatalı.",errFailed:"Giriş başarısız."},
+    de:{tagline:"Intelligente Kasse · 24 Sprachen · Offline-First",emailLabel:"E-Mail",emailPlaceholder:"name@firma.com",passLabel:"Passwort",loginBtn:"Anmelden",errEmpty:"E-Mail und Passwort erforderlich.",errInvalid:"E-Mail oder Passwort falsch.",errFailed:"Anmeldung fehlgeschlagen."},
+    fr:{tagline:"Caisse intelligente · 24 langues · Hors ligne",emailLabel:"E-mail",emailPlaceholder:"nom@entreprise.com",passLabel:"Mot de passe",loginBtn:"Se connecter",errEmpty:"E-mail et mot de passe requis.",errInvalid:"E-mail ou mot de passe incorrect.",errFailed:"Connexion échouée."},
+    es:{tagline:"TPV inteligente · 24 idiomas · Sin conexión",emailLabel:"Correo",emailPlaceholder:"nombre@empresa.com",passLabel:"Contraseña",loginBtn:"Iniciar sesión",errEmpty:"Correo y contraseña requeridos.",errInvalid:"Correo o contraseña incorrectos.",errFailed:"Error al iniciar sesión."},
+    pt:{tagline:"PDV inteligente · 24 idiomas · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nome@empresa.com",passLabel:"Senha",loginBtn:"Entrar",errEmpty:"E-mail e senha são obrigatórios.",errInvalid:"E-mail ou senha incorretos.",errFailed:"Falha ao entrar."},
+    it:{tagline:"POS intelligente · 24 lingue · Offline-First",emailLabel:"Email",emailPlaceholder:"nome@azienda.com",passLabel:"Password",loginBtn:"Accedi",errEmpty:"Email e password obbligatorie.",errInvalid:"Email o password errati.",errFailed:"Accesso non riuscito."},
+    nl:{tagline:"Slimme kassa · 24 talen · Offline-First",emailLabel:"E-mail",emailPlaceholder:"naam@bedrijf.com",passLabel:"Wachtwoord",loginBtn:"Inloggen",errEmpty:"E-mail en wachtwoord vereist.",errInvalid:"E-mail of wachtwoord onjuist.",errFailed:"Inloggen mislukt."},
+    pl:{tagline:"Inteligentny POS · 24 języki · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nazwa@firma.com",passLabel:"Hasło",loginBtn:"Zaloguj się",errEmpty:"Wymagany e-mail i hasło.",errInvalid:"Nieprawidłowy e-mail lub hasło.",errFailed:"Logowanie nie powiodło się."},
+    ru:{tagline:"Умная касса · 24 языка · Офлайн-режим",emailLabel:"Эл. почта",emailPlaceholder:"имя@компания.com",passLabel:"Пароль",loginBtn:"Войти",errEmpty:"Введите e-mail и пароль.",errInvalid:"Неверный e-mail или пароль.",errFailed:"Не удалось войти."},
+    ar:{tagline:"كاشير ذكي · 24 لغة · يعمل دون إنترنت",emailLabel:"البريد الإلكتروني",emailPlaceholder:"name@company.com",passLabel:"كلمة المرور",loginBtn:"تسجيل الدخول",errEmpty:"البريد الإلكتروني وكلمة المرور مطلوبان.",errInvalid:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",errFailed:"فشل تسجيل الدخول."},
+    fa:{tagline:"صندوق هوشمند · ۲۴ زبان · بدون اینترنت",emailLabel:"ایمیل",emailPlaceholder:"name@company.com",passLabel:"رمز عبور",loginBtn:"ورود",errEmpty:"ایمیل و رمز عبور الزامی است.",errInvalid:"ایمیل یا رمز عبور اشتباه است.",errFailed:"ورود ناموفق بود."},
+    ur:{tagline:"اسمارٹ POS · 24 زبانیں · آف لائن",emailLabel:"ای میل",emailPlaceholder:"name@company.com",passLabel:"پاس ورڈ",loginBtn:"لاگ ان کریں",errEmpty:"ای میل اور پاس ورڈ ضروری ہیں۔",errInvalid:"ای میل یا پاس ورڈ غلط ہے۔",errFailed:"لاگ ان ناکام ہوگیا۔"},
+    hi:{tagline:"स्मार्ट POS · 24 भाषाएं · ऑफ़लाइन-फ़र्स्ट",emailLabel:"ईमेल",emailPlaceholder:"naam@company.com",passLabel:"पासवर्ड",loginBtn:"लॉग इन करें",errEmpty:"ईमेल और पासवर्ड आवश्यक हैं।",errInvalid:"ईमेल या पासवर्ड गलत है।",errFailed:"लॉगिन विफल।"},
+    bn:{tagline:"স্মার্ট POS · ২৪ ভাষা · অফলাইন-ফার্স্ট",emailLabel:"ইমেইল",emailPlaceholder:"naam@company.com",passLabel:"পাসওয়ার্ড",loginBtn:"লগ ইন করুন",errEmpty:"ইমেইল এবং পাসওয়ার্ড আবশ্যক।",errInvalid:"ইমেইল বা পাসওয়ার্ড ভুল।",errFailed:"লগইন ব্যর্থ হয়েছে।"},
+    id:{tagline:"POS pintar · 24 bahasa · Offline-First",emailLabel:"Email",emailPlaceholder:"nama@perusahaan.com",passLabel:"Kata sandi",loginBtn:"Masuk",errEmpty:"Email dan kata sandi wajib diisi.",errInvalid:"Email atau kata sandi salah.",errFailed:"Gagal masuk."},
+    vi:{tagline:"POS thông minh · 24 ngôn ngữ · Offline-First",emailLabel:"Email",emailPlaceholder:"ten@congty.com",passLabel:"Mật khẩu",loginBtn:"Đăng nhập",errEmpty:"Cần nhập email và mật khẩu.",errInvalid:"Email hoặc mật khẩu không đúng.",errFailed:"Đăng nhập không thành công."},
+    th:{tagline:"POS อัจฉริยะ · 24 ภาษา · ทำงานออฟไลน์ได้",emailLabel:"อีเมล",emailPlaceholder:"name@company.com",passLabel:"รหัสผ่าน",loginBtn:"เข้าสู่ระบบ",errEmpty:"ต้องระบุอีเมลและรหัสผ่าน",errInvalid:"อีเมลหรือรหัสผ่านไม่ถูกต้อง",errFailed:"เข้าสู่ระบบไม่สำเร็จ"},
+    fil:{tagline:"Matalinong POS · 24 Wika · Offline-First",emailLabel:"Email",emailPlaceholder:"pangalan@kumpanya.com",passLabel:"Password",loginBtn:"Mag-login",errEmpty:"Kailangan ang email at password.",errInvalid:"Mali ang email o password.",errFailed:"Hindi matagumpay ang pag-login."},
+    sw:{tagline:"POS Mahiri · Lugha 24 · Hufanya Kazi Bila Mtandao",emailLabel:"Barua pepe",emailPlaceholder:"jina@kampuni.com",passLabel:"Nenosiri",loginBtn:"Ingia",errEmpty:"Barua pepe na nenosiri vinahitajika.",errInvalid:"Barua pepe au nenosiri si sahihi.",errFailed:"Kuingia kumeshindwa."},
+    ha:{tagline:"POS Mai Hikima · Harsuna 24 · Yana Aiki Ba Yanar Gizo",emailLabel:"Imel",emailPlaceholder:"suna@kamfani.com",passLabel:"Kalmar Sirri",loginBtn:"Shiga",errEmpty:"Ana bukatar imel da kalmar sirri.",errInvalid:"Imel ko kalmar sirri ba daidai ba.",errFailed:"Shiga ya kasa."},
+    kk:{tagline:"Ақылды POS · 24 тіл · Офлайн режим",emailLabel:"Электрондық пошта",emailPlaceholder:"name@company.com",passLabel:"Құпия сөз",loginBtn:"Кіру",errEmpty:"Электрондық пошта және құпия сөз қажет.",errInvalid:"Электрондық пошта немесе құпия сөз қате.",errFailed:"Кіру сәтсіз аяқталды."},
+    uz:{tagline:"Aqlli POS · 24 til · Offline-First",emailLabel:"Elektron pochta",emailPlaceholder:"ism@kompaniya.com",passLabel:"Parol",loginBtn:"Kirish",errEmpty:"Elektron pochta va parol talab qilinadi.",errInvalid:"Elektron pochta yoki parol xato.",errFailed:"Kirish amalga oshmadi."},
+    tk:{tagline:"Akylly POS · 24 dil · Onlaýnsyz işleýär",emailLabel:"E-poçta",emailPlaceholder:"ady@kompaniya.com",passLabel:"Parol",loginBtn:"Girmek",errEmpty:"E-poçta we parol gerek.",errInvalid:"E-poçta ýa-da parol nädogry.",errFailed:"Girmek başartmady."}
+  };
+  var SUPPORTED = Object.keys(LOGIN_I18N);
+
+  function detectLang(){
+    var p = new URLSearchParams(location.search).get('lang');
+    if(p && SUPPORTED.indexOf(p)>-1) return p;
+    var ls = localStorage.getItem('pruvaLang');
+    if(ls && SUPPORTED.indexOf(ls)>-1) return ls;
+    var navLangs = navigator.languages || [navigator.language || 'tr'];
+    for(var i=0;i<navLangs.length;i++){
+      var code = navLangs[i].toLowerCase().split('-')[0];
+      if(SUPPORTED.indexOf(code)>-1) return code;
+    }
+    return 'tr';
+  }
+
+  var lang = detectLang();
+  var t = LOGIN_I18N[lang] || LOGIN_I18N.tr;
+  window.PRUVA_LOGIN_LANG = lang;
+  window.PRUVA_LOGIN_T = t;
+  document.documentElement.lang = lang;
+  if(['ar','fa','ur'].indexOf(lang)>-1) document.documentElement.dir = 'rtl';
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(t[key]) el.textContent = t[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(t[key]) el.setAttribute('placeholder', t[key]);
+  });
+})();
+</script>
 
 <div id="app" class="hidden">
   <div class="sidebar">
@@ -634,15 +695,16 @@ window.doLogin = async () => {
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
   const err=document.getElementById('login-error');
+  const t = window.PRUVA_LOGIN_T || {};
   err.textContent='';
-  if(!email||!pass){err.textContent='E-posta ve şifre gerekli.';return;}
+  if(!email||!pass){err.textContent=t.errEmpty||'E-posta ve şifre gerekli.';return;}
   document.getElementById('login-btn-text').style.display='none';
   document.getElementById('login-spinner').style.display='block';
   try { await signInWithEmailAndPassword(auth,email,pass); }
   catch(e){
     document.getElementById('login-btn-text').style.display='block';
     document.getElementById('login-spinner').style.display='none';
-    err.textContent=e.code==='auth/invalid-credential'?'E-posta veya şifre hatalı.':'Giriş başarısız.';
+    err.textContent=e.code==='auth/invalid-credential'?(t.errInvalid||'E-posta veya şifre hatalı.'):(t.errFailed||'Giriş başarısız.');
   }
 };
 window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
