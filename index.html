@@ -7040,7 +7040,7 @@ nav.solid{background:rgba(3,7,18,0.8);backdrop-filter:blur(24px);border-bottom:1
 
 /* ─── HERO PHONE — gerçek 3D iPhone 17 Pro modeli (model-viewer) ─── */
 .phone-scene{margin-top:80px;position:relative;opacity:0;animation:up 1s .8s ease forwards}
-.phone-glow-outer{position:absolute;inset:-60px;background:radial-gradient(ellipse at 50% 70%,rgba(85,56,232,0.25) 0%,transparent 70%);filter:blur(20px);pointer-events:none}
+.phone-glow-outer{position:absolute;inset:-180px;background:radial-gradient(ellipse 55% 45% at 50% 62%,rgba(85,56,232,.22) 0%,rgba(85,56,232,.1) 40%,rgba(29,158,117,.05) 65%,transparent 85%);filter:blur(60px);pointer-events:none}
 
 .phone-mv{width:420px;height:592px;display:block;margin:0 auto;--poster-color:transparent;position:relative;opacity:0;transition:opacity .5s ease}
 .phone-mv.tex-ready{opacity:1}
@@ -7359,7 +7359,10 @@ h2.big em{font-style:normal;background:linear-gradient(135deg,#8B6FFF,#5538E8);-
 .pc-btn.out{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.1)}
 .pc-btn.out:hover{background:rgba(255,255,255,.1)}
 
-.cta-section{position:relative;z-index:1;text-align:center;padding:160px 40px;overflow:hidden}
+.cta-section{position:relative;z-index:1;text-align:center;padding:160px 40px}
+/* overflow:hidden idi — 600px'lik cta-orb1'in blur(80px) ile yumuşaması bölüm
+   kutusunun s覺n覺r覺na s覺臒mad覺臒覺 i癟in hala belirgin opaklikteyken sert kesiliyordu.
+   S覺n覺rs覺z b覺rak覺nca komşu bölümlerle ayn覺 zemin rengine do臒al şekilde s繹n羹yor. */
 .cta-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px)}
 .cta-orb1{width:600px;height:600px;background:rgba(85,56,232,.2);top:50%;left:50%;transform:translate(-50%,-50%)}
 .cta-orb2{width:300px;height:300px;background:rgba(16,185,129,.1);top:20%;right:10%}
@@ -7513,6 +7516,11 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
 /* ─── SORUN (GİRİŞ) ─── */
 .sorun-section{padding:120px 60px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+/* bölüm kendi yumuşak glow'unu taşımıyordu, global parçacık sistemindeki rastgele
+   orb'lar burada keyfi/rahatsız edici görünüyordu — diğer bölümler gibi (demo-bg,
+   hero-aurora) kasıtlı, üst kenardan yumuşakça açılan bir arka plan veriyoruz */
+.sorun-bg{position:absolute;inset:-80px 0 0 0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 65% 55% at 50% 0%,rgba(85,56,232,.1) 0%,rgba(85,56,232,.04) 45%,transparent 75%)}
 @media(max-width:768px){.sorun-section{padding:80px 20px}}
 .sorun-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
 @media(max-width:900px){.sorun-grid{grid-template-columns:1fr;gap:16px}}
@@ -7772,6 +7780,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 <!-- GİRİŞ: SORUN (başlık normal akışta; kartlar artık BOW SCENE'in ön katmanında — gemi tam bu kartların üzerinden geçiyor) -->
 <section class="reveal-on">
 <div class="sorun-section" style="padding-bottom:0">
+  <div class="sorun-bg"></div>
   <div class="sec-tag rv" data-i18n="sorun.tag">Neden Pruva?</div>
   <h2 class="big rv" data-i18n="sorun.title" data-i18n-html="true">Tanıdık <em>3 sorun.</em></h2>
   <p class="sec-sub rv" data-i18n="sorun.sub">Bunları yaşıyorsanız yalnız değilsiniz.</p>
@@ -7784,7 +7793,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
     <!-- ARKA KATMAN: 3 Çözüm (yeşil) -->
     <div id="bowBack">
-      <div style="text-align:center;max-width:780px;width:90%;padding:0 16px">
+      <div id="bowBackContent" style="text-align:center;max-width:780px;width:90%;padding:0 16px">
         <div style="font-size:11px;font-weight:700;color:#34D399;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px">Pruva'nın Cevabı</div>
         <h2 style="font-size:clamp(28px,4.5vw,56px);font-weight:900;letter-spacing:-2.5px;line-height:1.06;color:#fff;margin:0">
           Her soruna <em style="font-style:normal;color:#34D399">bir yanıt.</em>
@@ -7868,37 +7877,6 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 </section>
 
 <!-- STATS -->
-<div class="stats-strip rv">
-  <div class="stats-inner">
-    <div class="stat-item"><div class="stat-num" data-to="24">0</div><div class="stat-lbl" data-i18n="stats.langs">Languages Supported</div></div>
-    <div class="stat-sep"></div>
-    <div class="stat-item"><div class="stat-num g" style="-webkit-text-fill-color:initial;background:none;color:#34D399">3s</div><div class="stat-lbl" data-i18n="stats.barcode">Barcode to checkout</div></div>
-    <div class="stat-sep"></div>
-    <div class="stat-item"><div class="stat-num o" data-to="7">0</div><div class="stat-lbl" data-i18n="stats.trial">Days Free Trial</div></div>
-    <div class="stat-sep"></div>
-    <div class="stat-item">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">
-        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(85,56,232,.12);border:1px solid rgba(108,71,255,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#8B6FFF">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#8B6FFF"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg><span data-i18n="biz.tab0">Café &amp; Restaurant</span>
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#1D9E75">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#1D9E75"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg><span data-i18n="biz.tab1">Grocery &amp; Market</span>
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#BA7517">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#BA7517" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v4l2 2"/><path d="M9 11H5l-2 5h18l-2-5h-4"/></svg><span data-i18n="biz.tab2">Freelance Courier</span>
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#60A5FA">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#60A5FA"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span data-i18n="biz.tab3">Supplier</span>
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(236,72,153,.1);border:1px solid rgba(236,72,153,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#F472B6">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#F472B6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-i18n="biz.tab4">Multi-Branch</span>
-        </span>
-      </div>
-      <div class="stat-lbl" data-i18n="stats.bizModels">Business Models Supported</div>
-    </div>
-  </div>
-</div>
-
 <!-- GELİŞME: OFFLİNE-FIRST SPOTLIGHT -->
 <section class="reveal-on" style="padding:80px 0 120px;position:relative;z-index:1">
 <div class="offline-section">
@@ -8111,6 +8089,40 @@ html[dir="rtl"] .pc-feats{padding-right:0}
         </model-viewer>
       </div><!-- end biz-phone-outer -->
     </div><!-- end biz-body -->
+
+    <!-- istatistik şeridi buraya taşındı: önceden bow-scene/offline arasındaydı,
+         şimdi "Her sektöre özel çözüm" telefon+tanıtım alanının altında -->
+    <div class="stats-strip rv" style="margin-top:64px">
+      <div class="stats-inner">
+        <div class="stat-item"><div class="stat-num" data-to="24">0</div><div class="stat-lbl" data-i18n="stats.langs">Languages Supported</div></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item"><div class="stat-num g" style="-webkit-text-fill-color:initial;background:none;color:#34D399">3s</div><div class="stat-lbl" data-i18n="stats.barcode">Barcode to checkout</div></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item"><div class="stat-num o" data-to="7">0</div><div class="stat-lbl" data-i18n="stats.trial">Days Free Trial</div></div>
+        <div class="stat-sep"></div>
+        <div class="stat-item">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:10px">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(85,56,232,.12);border:1px solid rgba(108,71,255,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#8B6FFF">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#8B6FFF"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg><span data-i18n="biz.tab0">Café &amp; Restaurant</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#1D9E75">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#1D9E75"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg><span data-i18n="biz.tab1">Grocery &amp; Market</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#BA7517">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#BA7517" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v4l2 2"/><path d="M9 11H5l-2 5h18l-2-5h-4"/></svg><span data-i18n="biz.tab2">Freelance Courier</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#60A5FA">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#60A5FA"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span data-i18n="biz.tab3">Supplier</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(236,72,153,.1);border:1px solid rgba(236,72,153,.2);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:#F472B6">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#F472B6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span data-i18n="biz.tab4">Multi-Branch</span>
+            </span>
+          </div>
+          <div class="stat-lbl" data-i18n="stats.bizModels">Business Models Supported</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- end biz-inner -->
 </section>
 
@@ -9079,10 +9091,41 @@ document.querySelectorAll('.pay-method').forEach(m=>{
 
   const pin   = document.getElementById('bowPin'),
         front = document.getElementById('bowFront'),
+        back  = document.getElementById('bowBack'),
         ship  = document.getElementById('bowShipWrap'),
         wake  = document.getElementById('bowWakeSvg'),
         hint  = document.getElementById('bowScrollHint');
   if(!front||!ship) return;
+
+  // ── KIYI DALGASI: yeşil panelden sonraki bölüme sert kesim yerine, sahile vuran
+  // bir dalganın çekilmesi gibi yumuşak bir geçiş. Gemi tamamen ekran dışına
+  // çıkıp sönümlendikten sonra kalan scroll mesafesini bu çekiliş için kullanıyoruz —
+  // önceden bu aralıkta hiçbir şey olmuyordu (sahne sonunda ani renk kesimi vardı).
+  let tideProg = 0, tidePhase = 0;
+  function tidePolygon(progress, ph) {
+    const N = 28;
+    const baseY = progress * 118; // 0% (tam görünür, hiç çekilmemiş) → 118% (tamamen çekilmiş/gizli)
+    const growAmp = Math.min(1, progress * 3); // dalga genliği geçişin başında hızla büyür
+    const pts = ['0% 100%'];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      const x = t * 100;
+      const wob = Math.sin(t * Math.PI * 5 + ph) * 2.4 * growAmp
+                + Math.sin(t * Math.PI * 11 + ph * 1.7) * 0.9 * growAmp;
+      pts.push(`${x.toFixed(1)}% ${(baseY + wob).toFixed(1)}%`);
+    }
+    pts.push('100% 100%');
+    return `polygon(${pts.join(',')})`;
+  }
+  const backContent = document.getElementById('bowBackContent');
+  function drawTide() {
+    if (!back) return;
+    if (tideProg <= 0) { back.style.clipPath = ''; if(backContent) backContent.style.opacity = '1'; return; }
+    back.style.clipPath = tidePolygon(tideProg, tidePhase);
+    // metin/buton dalga tepesinde "havada kalmış" gibi durmasın — dalga başlar
+    // başlamaz hızlıca solup gitsin, geriye sadece yeşil tepe siluet çekilişi kalsın
+    if (backContent) backContent.style.opacity = String(Math.max(0, 1 - tideProg * 3.5));
+  }
 
   const SHIP_H = 170; // SVG viewBox yüksekliği
 
@@ -9198,6 +9241,13 @@ document.querySelectorAll('.pay-method').forEach(m=>{
       ship.style.opacity = String(fade);
 
       if(hint) hint.style.opacity = String(Math.max(0, 1 - prog * 6));
+
+      // Gemi tamamen sönümlendikten (fade=0) sonra kalan scroll mesafesi artık
+      // boşa gitmiyor — kıyı dalgası bu aralıkta yeşil paneli yumuşakça çekip
+      // sahnenin sonunda sert bir renk kesimi olmadan bir sonraki bölüme geçiyor.
+      const prog0 = Math.min(0.97, ((H + 120) + fadeDist) / totalTravel);
+      tideProg = prog <= prog0 ? 0 : Math.min(1, (prog - prog0) / (1 - prog0));
+      drawTide();
     }
   });
 
@@ -9220,11 +9270,17 @@ document.querySelectorAll('.pay-method').forEach(m=>{
     lastScrollY = sy;
     smoothVel += (instVel - smoothVel) * 0.3; // ani sıçramaları yumuşat ama gecikmeden tepki ver
 
-    if (!frame || frame.fade <= 0) return;
     const vel = Math.abs(smoothVel);
     const speed = 0.0006 + Math.min(0.005, vel * 0.000004); // taban hız + scroll'a göre boost
-    phase += speed * dt;
-    drawWake();
+
+    if (frame && frame.fade > 0) {
+      phase += speed * dt;
+      drawWake();
+    }
+    if (tideProg > 0) {
+      tidePhase += (speed * 1.4) * dt;
+      drawTide();
+    }
   })(performance.now());
 
   // Sayfa yüklenirken fontlar/görseller henüz hazır olmadan ScrollTrigger
