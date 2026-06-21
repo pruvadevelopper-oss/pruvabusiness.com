@@ -7597,9 +7597,12 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
 /* ── BOW SCENE (Dikey Yükseliş) ──────────────── */
 #bowScene{position:relative;height:320vh}
-.bow-shore{display:block;width:100%;height:64px;margin-top:-2px;background:var(--bg);line-height:0}
-.bow-shore svg{display:block;width:100%;height:100%}
+.bow-shore{display:block;width:100%;height:64px;margin-top:-2px;background:var(--bg);line-height:0;overflow:hidden}
+.bow-shore-track{display:flex;width:200%;height:100%;animation:bowShoreFlow 14s linear infinite}
+.bow-shore-track svg{display:block;width:50%;height:100%;flex-shrink:0}
+@keyframes bowShoreFlow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(max-width:640px){.bow-shore{height:36px}}
+@media(prefers-reduced-motion:reduce){.bow-shore-track{animation:none}}
 #bowPin{width:100%;height:100vh;overflow:hidden;position:relative}
 #bowBack{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(ellipse 90% 70% at 50% 50%,#0e2418,#061812);overflow:hidden}
@@ -7883,9 +7886,14 @@ html[dir="rtl"] .pc-feats{padding-right:0}
      arasında basit, statik bir dalga çizgisi — scroll'a/pin'e bağlı değil,
      sayfanın normal akış hızında geçip gidiyor. Sadece görsel bir ayraç. -->
 <div class="bow-shore" aria-hidden="true">
-  <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
-    <path d="M0,38 C180,70 340,8 520,34 C700,60 860,14 1040,36 C1180,54 1320,46 1440,30 L1440,0 L0,0 Z" fill="#0e2418"/>
-  </svg>
+  <div class="bow-shore-track">
+    <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+      <path d="M0,38 C180,70 340,8 520,34 C700,60 860,14 1040,36 C1180,54 1320,46 1440,30 L1440,0 L0,0 Z" fill="#0e2418"/>
+    </svg>
+    <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+      <path d="M0,38 C180,70 340,8 520,34 C700,60 860,14 1040,36 C1180,54 1320,46 1440,30 L1440,0 L0,0 Z" fill="#0e2418"/>
+    </svg>
+  </div>
 </div>
 
 <!-- GELİŞME: OFFLİNE-FIRST SPOTLIGHT -->
