@@ -7220,10 +7220,7 @@ h2.big em{font-style:normal;background:linear-gradient(135deg,#8B6FFF,#5538E8);-
 .demo-phone-side{flex-shrink:0;position:relative}
 
 /* Demo Phone */
-.demo-phone{width:310px;height:640px;border-radius:50px;background:#13072E;border:1px solid rgba(255,255,255,.13);box-shadow:0 60px 120px rgba(0,0,0,.75),0 0 80px rgba(85,56,232,.18);position:relative;overflow:hidden}
-.demo-phone::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,transparent 50%);pointer-events:none;z-index:20}
-.demo-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:116px;height:34px;background:#000;border-radius:50px;z-index:25;box-shadow:0 0 0 1.5px rgba(255,255,255,.07),0 4px 12px rgba(0,0,0,.6)}
-.demo-screen{position:absolute;inset:0;border-radius:50px;overflow:hidden;background:#0A0E1A}
+#demoPhone3d{width:310px;height:640px}
 
 .demo-panel{position:absolute;inset:0;transition:opacity .45s,transform .45s;background:#0A0E1A;z-index:1}
 .demo-panel.hidden{opacity:0;transform:translateY(24px);pointer-events:none;z-index:0}
@@ -7432,20 +7429,13 @@ footer{position:relative;z-index:1;padding:48px 60px;border-top:1px solid rgba(2
   .biz-title{font-size:clamp(26px,7vw,38px)}
   .biz-sub{font-size:14px}
   .biz-phone-outer{width:100%;display:flex;justify-content:center}
-  .biz-phone-case{width:260px;height:540px;--d:13px}
-  .biz-phone-frame{width:260px;height:540px;border-radius:42px}
-  .biz-phone-viewport{border-radius:42px}
-  .biz-phone-track{height:540px}
-  .biz-screen{width:260px;height:540px}
-  .biz-phone-notch{width:100px;height:30px}
+  #bizPhone3d{width:260px;height:540px}
 
   .demo-wrap{height:250vh}
   .demo-content{flex-direction:column;gap:36px;padding:0 20px;align-items:center}
   .demo-text{text-align:center}
   .demo-steps{align-items:center}
-  .demo-phone{width:260px;height:540px;border-radius:42px}
-  .demo-screen{border-radius:36px}
-  .demo-notch{width:100px;height:28px}
+  #demoPhone3d{width:260px;height:540px}
 
   .price-wrap{grid-template-columns:1fr;max-width:100%}
   .cta-section{padding:100px 20px}
@@ -7509,13 +7499,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .biz-dot.active{width:24px;border-radius:3px;background:#6C47FF}
 .biz-phone-outer{width:300px;position:relative;flex-shrink:0;perspective:1300px}
 .biz-phone-glow{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);width:200px;height:50px;background:radial-gradient(ellipse,rgba(85,56,232,.45),transparent 70%);filter:blur(20px);pointer-events:none;z-index:-1}
-.biz-phone-case{--d:15px;width:300px;height:620px;position:relative;transform-style:preserve-3d;transition:transform .12s ease-out;will-change:transform}
-.biz-phone-frame{width:300px;height:620px;border-radius:48px;background:#13072E;border:1px solid rgba(255,255,255,.13);box-shadow:0 50px 100px rgba(0,0,0,.75),0 0 0 1.5px rgba(225,215,255,.45),0 0 0 2.5px rgba(85,56,232,.2),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden;transform:translateZ(var(--d))}
-.biz-phone-frame::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,transparent 50%);pointer-events:none;z-index:20}
-.biz-phone-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:116px;height:34px;background:#000;border-radius:50px;z-index:25;box-shadow:0 0 0 1.5px rgba(255,255,255,.07),0 4px 12px rgba(0,0,0,.6)}
-.biz-phone-viewport{position:absolute;inset:0;border-radius:48px;overflow:hidden}
-.biz-phone-track{display:flex;height:620px;transition:transform .7s cubic-bezier(.22,1,.36,1)}
-.biz-screen{width:300px;flex-shrink:0;height:620px;background:#0A0E1A;overflow:hidden;position:relative}
+#bizPhone3d{width:300px;height:620px}
 
   /* price-location selector */
   .price-location{display:flex;align-items:center;gap:6px;justify-content:center;margin:18px auto 4px;opacity:.75;font-size:13px;color:var(--fg)}
@@ -7766,222 +7750,20 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       </div>
 
       <div class="demo-phone-side rv-r">
-        <div class="demo-phone">
-          <div class="demo-notch"></div>
-          <div class="demo-screen">
-
-            <!-- PANEL 0: BARCODE SCAN -->
-            <div class="demo-panel" id="panel0">
-              <div class="dp-ios-bar">
-                <div class="dp-ios-time">9:41</div>
-                <div class="dp-ios-ind">
-                  <div class="dp-bat-body"><div class="dp-bat-fill"></div></div>
-                </div>
-              </div>
-              <div class="scan-nav">
-                <div class="scan-nav-btn">
-                  <svg viewBox="0 0 16 16"><path d="M10 12L6 8l4-4" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-                </div>
-                <div class="scan-nav-title" data-i18n="dp.scanTitle">Scan Barcode</div>
-                <div class="scan-nav-btn">
-                  <svg viewBox="0 0 16 16" fill="rgba(255,255,255,.7)"><circle cx="8" cy="8" r="1"/><circle cx="13" cy="8" r="1"/><circle cx="3" cy="8" r="1"/></svg>
-                </div>
-              </div>
-
-              <!-- Camera View -->
-              <div class="camera-view">
-                <div class="camera-grid"></div>
-                <div class="scan-corners">
-                  <div class="scan-box">
-                    <div class="scan-corner-br"></div>
-                    <div class="scan-corner-tl-r"></div>
-                    <div class="scan-line"></div>
-                    <!-- Barcode lines -->
-                    <div class="scan-barcode">
-                      <span style="width:1.5px;height:22px"></span><span style="width:3px;height:18px"></span><span style="width:1.5px;height:22px"></span><span style="width:2px;height:20px"></span><span style="width:1.5px;height:22px"></span><span style="width:3px;height:16px"></span><span style="width:1.5px;height:22px"></span><span style="width:2px;height:20px"></span><span style="width:1.5px;height:22px"></span><span style="width:3px;height:18px"></span><span style="width:1.5px;height:22px"></span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Camera indicator -->
-                <div style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,.5);border-radius:8px;padding:4px 8px;display:flex;align-items:center;gap:4px">
-                  <div style="width:6px;height:6px;border-radius:50%;background:#EF4444;animation:blink 1.5s infinite"></div>
-                  <span style="font-size:9px;color:#fff;font-weight:600" data-i18n="dp.live">LIVE</span>
-                </div>
-              </div>
-
-              <!-- Product Found Card -->
-              <div class="product-card">
-                <div class="product-icon">
-                  <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-                </div>
-                <div class="product-info">
-                  <div class="product-name">Cola 1L</div>
-                  <div class="product-meta" data-i18n="dp.productMeta">Stock: 48 units · Shelf A-12</div>
-                </div>
-                <div class="product-price">₺35</div>
-              </div>
-
-              <!-- Added to cart -->
-              <div class="scan-added">
-                <svg viewBox="0 0 16 16"><path d="M13 4L6 11 3 8" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-                <span data-i18n="dp.added">1 item added to cart</span>
-              </div>
-
-              <!-- Cart summary -->
-              <div class="cart-row">
-                <div class="cart-mini">
-                  <div class="cart-mini-ico" style="background:rgba(85,56,232,.2)">
-                    <svg viewBox="0 0 16 16" fill="#6C47FF"><path d="M3 1h1.5l2 8h7l1.5-6H5m5 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-5 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
-                  </div>
-                  <div class="cart-mini-lbl" data-i18n="dp.cart">Cart</div>
-                  <div class="cart-mini-val" data-i18n="dp.cartCount">4 items</div>
-                </div>
-                <div class="cart-mini" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.15)">
-                  <div class="cart-mini-ico" style="background:rgba(16,185,129,.2)">
-                    <svg viewBox="0 0 16 16" fill="#1D9E75"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm1 10H7V7h2v4zm0-5H7V4h2v2z"/></svg>
-                  </div>
-                  <div class="cart-mini-lbl" data-i18n="dp.total">Total</div>
-                  <div class="cart-mini-val" style="color:#1D9E75">₺248</div>
-                </div>
-              </div>
-
-              <div class="scan-btn">
-                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-                <span data-i18n="dp.toPayment">Go to Payment</span>
-              </div>
-            </div>
-
-            <!-- PANEL 1: PAYMENT -->
-            <div class="demo-panel hidden" id="panel1">
-              <div class="dp-ios-bar">
-                <div class="dp-ios-time">9:41</div>
-                <div class="dp-ios-ind"><div class="dp-bat-body"><div class="dp-bat-fill"></div></div></div>
-              </div>
-              <div class="pay-header">
-                <div class="pay-back">
-                  <svg viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="rgba(255,255,255,.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span data-i18n="dp.back">Back</span>
-                </div>
-                <div class="pay-title" data-i18n="dp.payTitle">Payment Method</div>
-              </div>
-
-              <div class="pay-amount-card">
-                <div class="pay-total-lbl" data-i18n="dp.payDue">Amount Due</div>
-                <div class="pay-total-amt">₺248,50</div>
-                <div class="pay-item-count" data-i18n="dp.payItems">4 items · VAT included</div>
-              </div>
-
-              <div class="pay-methods-lbl" style="margin-top:12px" data-i18n="dp.payMethod">Payment Method</div>
-              <div class="pay-methods">
-                <div class="pay-method selected">
-                  <div class="pm-icon" style="background:rgba(16,185,129,.15)">
-                    <svg viewBox="0 0 24 24" fill="#1D9E75"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-4H7l5-5 5 5h-4v4z"/></svg>
-                  </div>
-                  <div class="pm-info">
-                    <div class="pm-name" data-i18n="dp.cash">Cash</div>
-                    <div class="pm-sub" data-i18n="dp.cashSub">Instant collection</div>
-                  </div>
-                  <div class="pm-check">
-                    <svg viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-                  </div>
-                </div>
-                <div class="pay-method">
-                  <div class="pm-icon" style="background:rgba(59,130,246,.15)">
-                    <svg viewBox="0 0 24 24" fill="#3B82F6"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  </div>
-                  <div class="pm-info">
-                    <div class="pm-name" data-i18n="dp.card">Credit / Debit Card</div>
-                    <div class="pm-sub" data-i18n="dp.cardSub">Contactless · Chip · Swipe</div>
-                  </div>
-                  <div class="pm-check"><svg viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-                </div>
-                <div class="pay-method">
-                  <div class="pm-icon" style="background:rgba(245,158,11,.15)">
-                    <svg viewBox="0 0 24 24" fill="#BA7517"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="17" y="17" width="4" height="4"/><rect x="14" y="14" width="3" height="3"/></svg>
-                  </div>
-                  <div class="pm-info">
-                    <div class="pm-name" data-i18n="dp.qr">QR Code</div>
-                    <div class="pm-sub" data-i18n="dp.qrSub">Mobile payment</div>
-                  </div>
-                  <div class="pm-check"><svg viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
-                </div>
-              </div>
-
-              <div class="pay-confirm-btn" style="margin-top:14px">
-                <div class="p-lbl" data-i18n="dp.cashCollect">Cash Collection</div>
-                <div class="p-amt" data-i18n="dp.collectAmt">₺248,50 Collect →</div>
-              </div>
-            </div>
-
-            <!-- PANEL 2: RECEIPT -->
-            <div class="demo-panel hidden" id="panel2">
-              <div class="dp-ios-bar">
-                <div class="dp-ios-time">9:41</div>
-                <div class="dp-ios-ind"><div class="dp-bat-body"><div class="dp-bat-fill"></div></div></div>
-              </div>
-              <div class="receipt-header">
-                <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.3px" data-i18n="dp.receipt">Transaction Summary</div>
-                <div class="receipt-close">
-                  <svg viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="rgba(255,255,255,.6)" stroke-width="1.5" stroke-linecap="round"/></svg>
-                </div>
-              </div>
-
-              <div class="receipt-success">
-                <div class="success-ring">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="success-title" data-i18n="dp.saleComplete">Sale Complete</div>
-                <div class="success-sub">#TXN-2847 · 09:41:23</div>
-              </div>
-
-              <div class="receipt-card">
-                <div class="receipt-merchant">
-                  <div class="r-merchant-logo">
-                    <svg viewBox="0 0 16 16" fill="none"><path d="M2 6h12a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V7a1 1 0 011-1z" stroke="#fff" stroke-width="1.3"/><path d="M5 6V4a3 3 0 016 0v2" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
-                  </div>
-                  <div>
-                    <div class="r-merchant-name">Pruva Business</div>
-                    <div class="r-merchant-id" data-i18n="dp.cashier">Cashier: Ahmet B.</div>
-                  </div>
-                </div>
-                <div class="receipt-lines">
-                  <div class="receipt-line">
-                    <span class="rl-label">Cola 1L × 3</span>
-                    <span class="rl-value">₺105,00</span>
-                  </div>
-                  <div class="receipt-line">
-                    <span class="rl-label">Ekmek</span>
-                    <span class="rl-value">₺18,50</span>
-                  </div>
-                  <div class="receipt-line">
-                    <span class="rl-label">Tereyağı</span>
-                    <span class="rl-value">₺85,00</span>
-                  </div>
-                  <div class="receipt-line">
-                    <span class="rl-label">Water 0.5L × 2</span>
-                    <span class="rl-value">₺40,00</span>
-                  </div>
-                  <div class="receipt-divider"></div>
-                  <div class="receipt-line">
-                    <span class="rl-label" style="font-size:10px" data-i18n="dp.vat">VAT (8%)</span>
-                    <span class="rl-value" style="font-size:10px;color:rgba(255,255,255,.5)">₺18,28</span>
-                  </div>
-                  <div class="receipt-total-line">
-                    <span class="rtl-label" data-i18n="dp.grand">TOTAL</span>
-                    <span class="rtl-value">₺248,50</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="receipt-actions">
-                <div class="ra-btn secondary" data-i18n="dp.sendReceipt">Send Receipt</div>
-                <div class="ra-btn primary" data-i18n="dp.print">Print</div>
-              </div>
-              <div class="receipt-next-btn" data-i18n="dp.newSale">New Sale →</div>
-            </div>
-
-          </div>
-        </div>
+        <model-viewer id="demoPhone3d" class="phone-mv"
+          src="models/iphone_17_pro.glb"
+          loading="eager"
+          camera-orbit="180deg 80deg 145%"
+          field-of-view="22deg"
+          min-camera-orbit="auto 65deg auto"
+          max-camera-orbit="auto 95deg auto"
+          exposure="1.1"
+          tone-mapping="neutral"
+          shadow-intensity="0"
+          environment-image="studio-lights-v2.jpg"
+          interaction-prompt="none"
+          disable-zoom disable-pan disable-tap>
+        </model-viewer>
       </div>
     </div>
   </div>
@@ -8313,199 +8095,20 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       <!-- RIGHT: Sliding phone -->
       <div class="biz-phone-outer rv-r">
         <div class="biz-phone-glow"></div>
-        <div class="biz-phone-case" id="bizPhone3d">
-        <div class="biz-phone-frame">
-          <div class="biz-phone-notch"></div>
-          <div class="biz-phone-viewport">
-            <div class="biz-phone-track" id="bizTrack">
-
-              <!-- SCREEN 0: KAFE - Masa Planı -->
-              <div class="biz-screen">
-                <div class="ios-bar"><div class="ios-time">9:41</div><div class="ios-indicators"><div class="ios-signal"><span></span><span></span><span></span></div><div class="ios-battery"><div class="ios-battery-body"><div class="ios-battery-fill"></div></div><div class="ios-battery-tip"></div></div></div></div>
-                <div style="padding:2px 16px 10px;display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px" data-i18n="sc0.sub">5 occupied · 2 requesting bill</div><div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px" data-i18n="sc0.title">Table Plan</div></div>
-                  <div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);border-radius:10px;padding:4px 9px;display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;border-radius:50%;background:#EF4444;animation:blink 1s infinite"></div><span style="font-size:10px;color:#EF4444;font-weight:700" data-i18n="sc0.bill">2 Bill</span></div>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:0 12px">
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.25);font-weight:700">T-1</div><div style="font-size:8px;color:rgba(255,255,255,.25);margin-top:3px" data-i18n="sc0.empty">Empty</div></div>
-                  <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:#BA7517;font-weight:700">T-2</div><div style="font-size:8px;color:rgba(245,158,11,.7);margin-top:2px" data-i18n="sc0.4pax">4 guests</div><div style="font-size:8px;color:rgba(245,158,11,.5)" data-i18n="sc0.12min">12 min</div></div>
-                  <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:#BA7517;font-weight:700">T-3</div><div style="font-size:8px;color:rgba(245,158,11,.7);margin-top:2px" data-i18n="sc0.2pax">2 guests</div><div style="font-size:8px;color:rgba(245,158,11,.5)" data-i18n="sc0.8min">8 min</div></div>
-                  <div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.5);border-radius:12px;padding:9px 6px;text-align:center;box-shadow:0 0 10px rgba(239,68,68,.12)"><div style="font-size:9px;color:#EF4444;font-weight:700">T-4</div><div style="font-size:7px;color:#EF4444;margin-top:2px;font-weight:800" data-i18n="sc0.billReq">BILL</div><div style="font-size:8px;color:rgba(239,68,68,.6)">₺340</div></div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.25);font-weight:700">T-5</div><div style="font-size:8px;color:rgba(255,255,255,.25);margin-top:3px" data-i18n="sc0.empty">Empty</div></div>
-                  <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:#BA7517;font-weight:700">T-6</div><div style="font-size:8px;color:rgba(245,158,11,.7);margin-top:2px" data-i18n="sc0.6pax">6 guests</div><div style="font-size:8px;color:rgba(245,158,11,.5)" data-i18n="sc0.45min">45 min</div></div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.25);font-weight:700">T-7</div><div style="font-size:8px;color:rgba(255,255,255,.25);margin-top:3px" data-i18n="sc0.empty">Empty</div></div>
-                  <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:9px 6px;text-align:center"><div style="font-size:9px;color:#1D9E75;font-weight:700">T-8</div><div style="font-size:8px;color:rgba(16,185,129,.7);margin-top:2px" data-i18n="sc0.2pax">2 guests</div><div style="font-size:8px;color:rgba(16,185,129,.5)" data-i18n="sc0.3min">3 min</div></div>
-                  <div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.5);border-radius:12px;padding:9px 6px;text-align:center;box-shadow:0 0 10px rgba(239,68,68,.12)"><div style="font-size:9px;color:#EF4444;font-weight:700">T-9</div><div style="font-size:7px;color:#EF4444;margin-top:2px;font-weight:800" data-i18n="sc0.billReq">BILL</div><div style="font-size:8px;color:rgba(239,68,68,.6)">₺185</div></div>
-                </div>
-                <div style="display:flex;gap:8px;padding:7px 14px;justify-content:center">
-                  <span style="display:flex;align-items:center;gap:3px;font-size:8px;color:rgba(255,255,255,.3)"><div style="width:7px;height:7px;border-radius:2px;background:rgba(255,255,255,.1)"></div><span data-i18n="sc0.legEmpty">Empty</span></span>
-                  <span style="display:flex;align-items:center;gap:3px;font-size:8px;color:rgba(245,158,11,.6)"><div style="width:7px;height:7px;border-radius:2px;background:rgba(245,158,11,.3)"></div><span data-i18n="sc0.legFull">Occupied</span></span>
-                  <span style="display:flex;align-items:center;gap:3px;font-size:8px;color:rgba(16,185,129,.6)"><div style="width:7px;height:7px;border-radius:2px;background:rgba(16,185,129,.2)"></div><span data-i18n="sc0.legNew">New</span></span>
-                  <span style="display:flex;align-items:center;gap:3px;font-size:8px;color:rgba(239,68,68,.7)"><div style="width:7px;height:7px;border-radius:2px;background:rgba(239,68,68,.3)"></div><span data-i18n="sc0.legBill">Bill</span></span>
-                </div>
-                <div style="margin:4px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:10px 14px;display:flex;justify-content:space-between">
-                  <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">₺3.840</div><div style="font-size:8px;color:rgba(255,255,255,.35)" data-i18n="sc0.today">Today</div></div>
-                  <div style="width:1px;background:rgba(255,255,255,.07)"></div>
-                  <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#BA7517">5</div><div style="font-size:8px;color:rgba(255,255,255,.35)" data-i18n="sc0.activeTables">Active Tables</div></div>
-                  <div style="width:1px;background:rgba(255,255,255,.07)"></div>
-                  <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">₺128</div><div style="font-size:8px;color:rgba(255,255,255,.35)" data-i18n="sc0.avg">Average</div></div>
-                </div>
-                <div class="ios-tabbar">
-                  <div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div><div class="tab-lbl" data-i18n="sc0.tabOrders">Orders</div></div>
-                  <div class="tab active"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="#6C47FF" stroke-width="2" width="17" height="17"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div class="tab-lbl" style="color:#6C47FF" data-i18n="sc0.tabTables">Tables</div></div>
-                  <div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></div><div class="tab-lbl" data-i18n="sc0.tabKitchen">Kitchen</div></div>
-                  <div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-lbl" data-i18n="tab.reports">Reports</div></div>
-                </div>
-              </div>
-
-              <!-- SCREEN 1: MARKET -->
-              <div class="biz-screen">
-                <div class="ios-bar"><div class="ios-time">9:41</div><div class="ios-indicators"><div class="ios-battery"><div class="ios-battery-body"><div class="ios-battery-fill"></div></div><div class="ios-battery-tip"></div></div></div></div>
-                <div style="padding:2px 14px 10px;display:flex;justify-content:space-between;align-items:center">
-                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px" data-i18n="sc1.title">Quick Sale</div>
-                  <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:4px 10px;font-size:10px;font-weight:700;color:#1D9E75" data-i18n="sc1.offline">Offline ✓</div>
-                </div>
-                <div style="margin:0 12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <span style="font-size:11px;color:rgba(255,255,255,.3)" data-i18n="sc1.search">Search product or scan barcode...</span>
-                </div>
-                <div style="display:flex;gap:5px;padding:0 12px;margin-bottom:8px;overflow-x:auto">
-                  <span style="background:rgba(85,56,232,.2);border:1px solid rgba(108,71,255,.4);color:#8B6FFF;padding:4px 10px;border-radius:100px;font-size:9px;font-weight:700;white-space:nowrap" data-i18n="sc1.catAll">All</span>
-                  <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:4px 10px;border-radius:100px;font-size:9px;font-weight:600;white-space:nowrap" data-i18n="sc1.catDrink">Beverages</span>
-                  <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:4px 10px;border-radius:100px;font-size:9px;font-weight:600;white-space:nowrap" data-i18n="sc1.catFood">Food</span>
-                  <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);padding:4px 10px;border-radius:100px;font-size:9px;font-weight:600;white-space:nowrap" data-i18n="sc1.catClean">Cleaning</span>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px">
-                  <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px"><div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px">Cola 1L</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px" data-i18n="sc1.stock48">Stock: 48</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:800;color:#6C47FF">₺35</span><div style="width:20px;height:20px;background:rgba(85,56,232,.3);border-radius:6px;display:grid;place-items:center"><svg viewBox="0 0 12 12" fill="#6C47FF" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></div></div></div>
-                  <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px"><div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px" data-i18n="sc1.bread">Bread</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px" data-i18n="sc1.stock22">Stock: 22</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:800;color:#6C47FF">₺18</span><div style="width:20px;height:20px;background:rgba(85,56,232,.3);border-radius:6px;display:grid;place-items:center"><svg viewBox="0 0 12 12" fill="#6C47FF" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></div></div></div>
-                  <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:14px;padding:10px"><div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px">Water 0.5L</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:6px" data-i18n="sc1.stock120">Stock: 120</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:800;color:#1D9E75">₺20</span><div style="width:20px;height:20px;background:rgba(16,185,129,.2);border-radius:6px;display:grid;place-items:center"><svg viewBox="0 0 12 12" fill="#1D9E75" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></div></div></div>
-                  <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px"><div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px" data-i18n="sc1.butter">Butter</div><div style="font-size:9px;color:rgba(245,158,11,.6);margin-bottom:6px" data-i18n="sc1.critical3">⚠ Critical: 3</div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:800;color:#6C47FF">₺85</span><div style="width:20px;height:20px;background:rgba(85,56,232,.3);border-radius:6px;display:grid;place-items:center"><svg viewBox="0 0 12 12" fill="#6C47FF" width="10" height="10"><path d="M6 2v8M2 6h8"/></svg></div></div></div>
-                </div>
-                <div style="position:absolute;bottom:68px;left:12px;right:12px;background:linear-gradient(135deg,#6C47FF,#5538E8);border-radius:16px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 24px rgba(109,40,217,.4)">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.7)" data-i18n="sc1.cartCount">3 items in cart</div><div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.5px">₺248</div></div>
-                  <div style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#fff"><span data-i18n="sc1.collect">Collect</span> <svg viewBox="0 0 16 16" fill="#fff" width="14" height="14"><path d="M8 2l6 6-6 6M2 8h12"/></svg></div>
-                </div>
-                <div class="ios-tabbar"><div class="tab active"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="#6C47FF" stroke-width="2" width="17" height="17"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8M12 12v4"/></svg></div><div class="tab-lbl" style="color:#6C47FF" data-i18n="tab.sales">Sales</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div class="tab-lbl" data-i18n="tab.stock">Stock</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-lbl" data-i18n="tab.reports">Reports</div></div></div>
-              </div>
-
-              <!-- SCREEN 2: KURYE -->
-              <div class="biz-screen">
-                <div class="ios-bar"><div class="ios-time">9:41</div><div class="ios-indicators"><div class="ios-battery"><div class="ios-battery-body"><div class="ios-battery-fill"></div></div><div class="ios-battery-tip"></div></div></div></div>
-                <div style="padding:2px 14px 8px;display:flex;justify-content:space-between;align-items:center">
-                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px" data-i18n="sc2.title">My Deliveries</div>
-                  <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:4px 10px;font-size:10px;font-weight:700;color:#1D9E75" data-i18n="sc2.active">Active</div>
-                </div>
-                <div style="margin:0 12px 8px;background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(217,119,6,.1));border:1px solid rgba(245,158,11,.3);border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:2px" data-i18n="sc2.todayEarnings">Today's Earnings</div><div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-1.5px">₺840</div></div>
-                  <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:#BA7517">7</div><div style="font-size:9px;color:rgba(255,255,255,.4)" data-i18n="sc2.deliveries">deliveries</div></div>
-                </div>
-                <div style="margin:0 12px 6px;background:rgba(255,255,255,.05);border:1px solid rgba(85,56,232,.3);border-radius:16px;padding:12px">
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                    <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px" data-i18n="sc2.activeDel">Active Delivery</span>
-                    <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#1D9E75;font-size:9px;font-weight:800;padding:3px 8px;border-radius:8px;animation:blink 1.5s infinite" data-i18n="sc2.enRoute">● EN ROUTE</span>
-                  </div>
-                  <div style="display:flex;flex-direction:column;gap:7px">
-                    <div style="display:flex;align-items:center;gap:8px">
-                      <div style="width:24px;height:24px;border-radius:8px;background:rgba(245,158,11,.2);display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 16 16" fill="#BA7517" width="11" height="11"><path d="M8 1a5 5 0 100 10A5 5 0 008 1z"/><path d="M8 11v4"/></svg></div>
-                      <div><div style="font-size:11px;font-weight:700;color:#fff">Pizza House Kadıköy</div><div style="font-size:9px;color:rgba(255,255,255,.35)" data-i18n="sc2.pickup">Pickup point</div></div>
-                    </div>
-                    <div style="border-left:1px dashed rgba(255,255,255,.1);margin-left:11px;height:10px"></div>
-                    <div style="display:flex;align-items:center;gap:8px">
-                      <div style="width:24px;height:24px;border-radius:8px;background:rgba(16,185,129,.15);display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 16 16" fill="#1D9E75" width="11" height="11"><circle cx="8" cy="6" r="3"/><path d="M8 1a8 8 0 018 8c0 5.4-8 8-8 8S0 14.4 0 9A8 8 0 018 1z" opacity=".4"/></svg></div>
-                      <div><div style="font-size:11px;font-weight:700;color:#fff">Ahmet S. — Kadıköy</div><div style="font-size:9px;color:rgba(255,255,255,.35)" data-i18n="sc2.dropoff">Drop-off point</div></div>
-                    </div>
-                  </div>
-                  <div style="display:flex;gap:6px;margin-top:10px">
-                    <div style="flex:1;background:rgba(255,255,255,.04);border-radius:10px;padding:7px;text-align:center"><div style="font-size:11px;font-weight:800;color:#fff">1.8 km</div><div style="font-size:8px;color:rgba(255,255,255,.35)" data-i18n="sc2.distance">Distance</div></div>
-                    <div style="flex:1;background:rgba(255,255,255,.04);border-radius:10px;padding:7px;text-align:center"><div style="font-size:11px;font-weight:800;color:#fff">~8 min</div><div style="font-size:8px;color:rgba(255,255,255,.35)" data-i18n="sc2.eta">ETA</div></div>
-                    <div style="flex:1;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:7px;text-align:center"><div style="font-size:11px;font-weight:800;color:#1D9E75">₺55</div><div style="font-size:8px;color:rgba(16,185,129,.5)" data-i18n="sc2.earn">Earnings</div></div>
-                  </div>
-                </div>
-                <div style="margin:0 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-                  <div style="font-size:11px;color:rgba(255,255,255,.5)" data-i18n="sc2.nearby">2 new orders nearby</div>
-                  <div style="background:rgba(85,56,232,.2);border:1px solid rgba(108,71,255,.3);border-radius:8px;padding:3px 8px;font-size:9px;font-weight:700;color:#6C47FF" data-i18n="sc2.view">View →</div>
-                </div>
-                <div class="ios-tabbar"><div class="tab active"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="#6C47FF" stroke-width="2" width="17" height="17"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div class="tab-lbl" style="color:#6C47FF" data-i18n="sc2.active">Active</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="tab-lbl" data-i18n="sc2.earnings">Earnings</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div class="tab-lbl" data-i18n="sc2.history">History</div></div></div>
-              </div>
-
-              <!-- SCREEN 3: TEDARİKÇİ -->
-              <div class="biz-screen">
-                <div class="ios-bar"><div class="ios-time">9:41</div><div class="ios-indicators"><div class="ios-battery"><div class="ios-battery-body"><div class="ios-battery-fill"></div></div><div class="ios-battery-tip"></div></div></div></div>
-                <div style="padding:2px 14px 8px;display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px" data-i18n="sc3.sub">Today · 4 pending orders</div><div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px" data-i18n="sc3.title">Order Management</div></div>
-                </div>
-                <div style="margin:0 12px 8px;display:flex;gap:8px">
-                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:900;color:#fff">₺8.640</div><div style="font-size:9px;color:rgba(255,255,255,.35)" data-i18n="sc3.today">Today</div></div>
-                  <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:900;color:#BA7517">4</div><div style="font-size:9px;color:rgba(255,255,255,.35)" data-i18n="sc3.pending">Pending</div></div>
-                  <div style="flex:1;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:14px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:900;color:#1D9E75">3</div><div style="font-size:9px;color:rgba(255,255,255,.35)" data-i18n="sc3.enRoute">En Route</div></div>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:6px;padding:0 12px">
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Cafe Merhaba</span><span style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#BA7517;font-size:8px;font-weight:700;padding:2px 6px;border-radius:6px" data-i18n="sc3.awaiting">AWAITING</span></div>
-                    <div style="display:flex;gap:10px;font-size:9px;color:rgba(255,255,255,.4)"><span data-i18n="sc3.24items">24 items</span><span>•</span><span style="color:#fff;font-weight:600">₺2.840</span><span>•</span><span data-i18n="sc3.deliver15">15:00 delivery</span></div>
-                    <div style="display:flex;gap:5px;margin-top:8px"><div style="flex:1;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:9px;padding:5px;text-align:center;font-size:9px;font-weight:700;color:#EF4444" data-i18n="sc3.reject">Reject</div><div style="flex:2;background:linear-gradient(135deg,#6C47FF,#5538E8);border-radius:9px;padding:5px;text-align:center;font-size:9px;font-weight:800;color:#fff" data-i18n="sc3.accept">Accept</div></div>
-                  </div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(59,130,246,.25);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Market Plus</span><span style="background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60A5FA;font-size:8px;font-weight:700;padding:2px 6px;border-radius:6px" data-i18n="sc3.preparing">PREPARING</span></div>
-                    <div style="display:flex;gap:10px;font-size:9px;color:rgba(255,255,255,.4)"><span data-i18n="sc3.12items">12 items</span><span>•</span><span style="color:#fff;font-weight:600">₺1.200</span><span>•</span><span data-i18n="sc3.tmw9">Tomorrow 09:00</span></div>
-                  </div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Büfe Merkez</span><span style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#1D9E75;font-size:8px;font-weight:700;padding:2px 6px;border-radius:6px" data-i18n="sc3.dispatched">DISPATCHED</span></div>
-                    <div style="display:flex;gap:10px;font-size:9px;color:rgba(255,255,255,.4)"><span data-i18n="sc3.8items">8 items</span><span>•</span><span style="color:#fff;font-weight:600">₺680</span><span>•</span><span data-i18n="sc3.deliver1630">16:30 delivery</span></div>
-                  </div>
-                </div>
-                <div class="ios-tabbar"><div class="tab active"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="#6C47FF" stroke-width="2" width="17" height="17"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg></div><div class="tab-lbl" style="color:#6C47FF" data-i18n="sc0.tabOrders">Orders</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div class="tab-lbl" data-i18n="sc3.tabCatalogue">Catalogue</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-lbl" data-i18n="tab.reports">Reports</div></div></div>
-              </div>
-
-              <!-- SCREEN 4: ŞUBE -->
-              <div class="biz-screen">
-                <div class="ios-bar"><div class="ios-time">9:41</div><div class="ios-indicators"><div class="ios-battery"><div class="ios-battery-body"><div class="ios-battery-fill"></div></div><div class="ios-battery-tip"></div></div></div></div>
-                <div style="padding:2px 14px 10px;display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px" data-i18n="sc4.sub">3 branches active · Today</div><div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px" data-i18n="sc4.title">Branch Performance</div></div>
-                </div>
-                <div style="margin:0 12px 10px;background:linear-gradient(135deg,rgba(236,72,153,.2),rgba(108,71,255,.1));border:1px solid rgba(236,72,153,.25);border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:2px" data-i18n="sc4.totalRev">Total Revenue</div><div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-1.5px">₺42.840</div></div>
-                  <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:5px 10px;text-align:center"><div style="font-size:11px;font-weight:800;color:#1D9E75">+12%</div><div style="font-size:8px;color:rgba(16,185,129,.6)" data-i18n="sc4.vsYest">vs yesterday</div></div>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px;padding:0 12px">
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Kadıköy</span><span style="font-size:12px;font-weight:800;color:#F472B6">₺18.200</span></div>
-                    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:6px;overflow:hidden"><div style="width:43%;height:100%;background:linear-gradient(90deg,#EC4899,#F472B6);border-radius:4px"></div></div>
-                    <div style="font-size:8px;color:rgba(255,255,255,.3);margin-top:3px" data-i18n="sc4.k43">43% · 124 sales</div>
-                  </div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Beşiktaş</span><span style="font-size:12px;font-weight:800;color:#6C47FF">₺13.840</span></div>
-                    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:6px;overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#6C47FF,#6C47FF);border-radius:4px"></div></div>
-                    <div style="font-size:8px;color:rgba(255,255,255,.3);margin-top:3px" data-i18n="sc4.k32">32% · 97 sales</div>
-                  </div>
-                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px 12px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff">Üsküdar</span><span style="font-size:12px;font-weight:800;color:#60A5FA">₺10.800</span></div>
-                    <div style="background:rgba(255,255,255,.07);border-radius:4px;height:6px;overflow:hidden"><div style="width:25%;height:100%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:4px"></div></div>
-                    <div style="font-size:8px;color:rgba(255,255,255,.3);margin-top:3px" data-i18n="sc4.k25">17% · 78 sales</div>
-                  </div>
-                </div>
-                <div style="margin:8px 12px 0;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px">
-                  <svg viewBox="0 0 16 16" fill="#EF4444" width="12" height="12"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3v4m0 2v1.5"/></svg>
-                  <span style="font-size:10px;color:rgba(239,68,68,.8);font-weight:600" data-i18n="sc4.alert">Kadıköy — 3 products critical stock</span>
-                </div>
-                <div class="ios-tabbar"><div class="tab active"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="#6C47FF" stroke-width="2" width="17" height="17"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div class="tab-lbl" style="color:#6C47FF" data-i18n="sc4.tabBranches">Branches</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/></svg></div><div class="tab-lbl" data-i18n="sc4.tabTransfer">Transfer</div></div><div class="tab"><div class="tab-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" width="17" height="17"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="tab-lbl" data-i18n="sc4.tabRoles">Roles</div></div></div>
-              </div>
-
-            </div><!-- end biz-phone-track -->
-          </div><!-- end biz-phone-viewport -->
-        </div><!-- end biz-phone-frame -->
-        <div class="phone-edge phone-edge-r">
-          <span class="phone-btn phone-btn-power"></span>
-          <span class="phone-btn phone-btn-camctrl"></span>
-        </div>
-        <div class="phone-edge phone-edge-l">
-          <span class="phone-btn phone-btn-action"></span>
-          <span class="phone-btn phone-btn-vol phone-btn-vol-up"></span>
-          <span class="phone-btn phone-btn-vol phone-btn-vol-down"></span>
-        </div>
-        <div class="phone-edge phone-edge-t"></div>
-        <div class="phone-edge phone-edge-b"></div>
-        </div><!-- end biz-phone-case -->
+        <model-viewer id="bizPhone3d" class="phone-mv"
+          src="models/iphone_17_pro.glb"
+          loading="eager"
+          camera-orbit="180deg 80deg 145%"
+          field-of-view="22deg"
+          min-camera-orbit="auto 65deg auto"
+          max-camera-orbit="auto 95deg auto"
+          exposure="1.1"
+          tone-mapping="neutral"
+          shadow-intensity="0"
+          environment-image="studio-lights-v2.jpg"
+          interaction-prompt="none"
+          disable-zoom disable-pan disable-tap>
+        </model-viewer>
       </div><!-- end biz-phone-outer -->
     </div><!-- end biz-body -->
   </div><!-- end biz-inner -->
@@ -9276,18 +8879,89 @@ if(phone3d){
   });
 }
 
-// ── BIZ DEMO PHONE 3D TILT (mouse üzerine gelince kasa gerçekten dönüyor)
-const bizPhone3d=document.getElementById('bizPhone3d');
-if(bizPhone3d){
-  bizPhone3d.addEventListener('mousemove',e=>{
-    const r=bizPhone3d.getBoundingClientRect();
-    const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-    bizPhone3d.style.transform=`perspective(1300px) rotateX(${-y*10}deg) rotateY(${x*16}deg)`;
+// ── MOCKUP TELEFONLAR (Sektörler + Demo) — hero'daki ile AYNI 3D model/cam/ışık kurulumu,
+// tek fark ekran içeriği: gerçek ekran görüntüsü gelene kadar mevcut mockup tasarımlarının
+// statik görüntüsü (mockup-textures/) placeholder texture olarak kullanılıyor. SS'ler hazır
+// olunca sadece bu dizideki dosya adlarını gerçek görüntülerle değiştirmek yeterli.
+function setupMockupPhone(viewerEl, textureUrls){
+  if(!viewerEl) return null;
+  let screenMat=null, glassMat=null, ready=false;
+  const texCache={};
+  async function ensureMaterials(){
+    if(ready) return;
+    screenMat=viewerEl.model.materials.find(m=>m.name==='OLED');
+    glassMat=viewerEl.model.materials.find(m=>m.name==='Glass');
+    if(glassMat){
+      // hero'daki Fresnel cam ayarıyla birebir aynı — düz ekran ortası solmuyor,
+      // kavisli kenarlarda telefon döndükçe gerçek bir cam parıltısı oluşuyor
+      glassMat.pbrMetallicRoughness.setMetallicFactor(0);
+      glassMat.pbrMetallicRoughness.setRoughnessFactor(0.02);
+      glassMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,0.22]);
+    }
+    if(screenMat){
+      screenMat.pbrMetallicRoughness.setRoughnessFactor(0.15);
+      screenMat.pbrMetallicRoughness.setMetallicFactor(0);
+      if(screenMat.setSpecularFactor)screenMat.setSpecularFactor(0.7);
+      screenMat.setEmissiveFactor([1,1,1]);
+      if(screenMat.setEmissiveStrength)screenMat.setEmissiveStrength(1.4);
+    }
+    ready=true;
+  }
+  async function setTexture(url){
+    if(!url) return;
+    await ensureMaterials();
+    if(!screenMat) return;
+    try{
+      if(!texCache[url]){
+        const tex=await viewerEl.createTexture(url);
+        tex.sampler.setMinFilter(9729);
+        tex.sampler.setMagFilter(9729);
+        texCache[url]=tex;
+      }
+      screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texCache[url]);
+      screenMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,1]);
+      screenMat.emissiveTexture.setTexture(texCache[url]);
+    }catch(err){console.warn('Mockup phone texture swap failed',err)}
+  }
+  viewerEl.addEventListener('load',async()=>{
+    await setTexture(textureUrls[0]);
+    viewerEl.classList.add('tex-ready');
   });
-  bizPhone3d.addEventListener('mouseleave',()=>{
-    bizPhone3d.style.transform='perspective(1300px) rotateX(0deg) rotateY(0deg)';
+  return {setTexture};
+}
+
+// telefon yerel mousemove ile hafifçe dönüyor (hero'daki global parallax değil,
+// kart içinde dururken sadece üzerine gelince — orijinal biz-phone tilt davranışı)
+function attachLocalTilt(viewerEl, baseRadius){
+  if(!viewerEl) return;
+  viewerEl.addEventListener('mousemove',e=>{
+    const r=viewerEl.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    const theta=180+x*-26, phi=80+y*-16;
+    viewerEl.cameraOrbit=`${theta}deg ${phi}deg ${baseRadius}%`;
+  });
+  viewerEl.addEventListener('mouseleave',()=>{
+    viewerEl.cameraOrbit=`180deg 80deg ${baseRadius}%`;
   });
 }
+
+const bizPhone3d=document.getElementById('bizPhone3d');
+const bizPhoneCtrl=setupMockupPhone(bizPhone3d,[
+  'mockup-textures/biz-cafe-tex.jpg',
+  'mockup-textures/biz-market-tex.jpg',
+  'mockup-textures/biz-courier-tex.jpg',
+  'mockup-textures/biz-supplier-tex.jpg',
+  'mockup-textures/biz-branch-tex.jpg',
+]);
+attachLocalTilt(bizPhone3d,145);
+
+const demoPhone3d=document.getElementById('demoPhone3d');
+const demoPhoneCtrl=setupMockupPhone(demoPhone3d,[
+  'mockup-textures/demo-scan-tex.jpg',
+  'mockup-textures/demo-payment-tex.jpg',
+  'mockup-textures/demo-receipt-tex.jpg',
+]);
+attachLocalTilt(demoPhone3d,145);
 
 // ── SCROLL REVEAL (yalnızca observer destekleniyorsa; aksi halde içerik zaten görünür)
 const rvEls=document.querySelectorAll('.rv,.rv-l,.rv-r');
@@ -9317,14 +8991,21 @@ document.querySelectorAll('.stats-inner').forEach(el=>counterObs.observe(el));
 // ── DEMO SCROLL
 const demoWrap=document.getElementById('demo');
 const steps=[0,1,2].map(i=>document.getElementById('step'+i));
-const panels=[0,1,2].map(i=>document.getElementById('panel'+i));
+let demoIdx=-1;
 window.addEventListener('scroll',()=>{
   const rect=demoWrap.getBoundingClientRect();
   const total=demoWrap.offsetHeight-innerHeight;
   const progress=Math.max(0,Math.min(1,-rect.top/total));
   const idx=progress<.33?0:progress<.66?1:2;
   steps.forEach((s,i)=>s.classList.toggle('active',i===idx));
-  panels.forEach((p,i)=>p.classList.toggle('hidden',i!==idx));
+  if(idx!==demoIdx){
+    demoIdx=idx;
+    if(demoPhoneCtrl)demoPhoneCtrl.setTexture([
+      'mockup-textures/demo-scan-tex.jpg',
+      'mockup-textures/demo-payment-tex.jpg',
+      'mockup-textures/demo-receipt-tex.jpg',
+    ][idx]);
+  }
 });
 
 // ── FEAT CARD TILT
@@ -9339,15 +9020,19 @@ document.querySelectorAll('.feat-card').forEach(card=>{
 
 // ── BUSINESS MODELS SLIDER
 let bizIdx = 0, bizTimer;
-const bizTrack = document.getElementById('bizTrack');
 const bizTabs = document.querySelectorAll('.biz-tab');
 const bizPanels = document.querySelectorAll('.biz-panel');
 const bizDots = document.querySelectorAll('.biz-dot');
 
 function bizGoTo(idx, restart = true) {
   bizIdx = idx;
-  const sw = bizTrack.children[0] ? bizTrack.children[0].offsetWidth : 300;
-  bizTrack.style.transform = `translateX(-${idx * sw}px)`;
+  if(bizPhoneCtrl)bizPhoneCtrl.setTexture([
+    'mockup-textures/biz-cafe-tex.jpg',
+    'mockup-textures/biz-market-tex.jpg',
+    'mockup-textures/biz-courier-tex.jpg',
+    'mockup-textures/biz-supplier-tex.jpg',
+    'mockup-textures/biz-branch-tex.jpg',
+  ][idx]);
   bizTabs.forEach((t, i) => {
     t.classList.toggle('active', i === idx);
     // restart animation by cloning node trick
