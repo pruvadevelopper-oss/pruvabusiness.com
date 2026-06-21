@@ -7729,7 +7729,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       exposure="1.1"
       tone-mapping="neutral"
       shadow-intensity="0"
-      environment-image="studio-lights.jpg"
+      environment-image="studio-lights-v2.jpg"
       interaction-prompt="none"
       disable-zoom disable-pan disable-tap>
     </model-viewer>
@@ -9258,14 +9258,16 @@ if(phone3d){
       // ÖNCEKİ ayar (metallic=1, roughness=0, siyah baseColor alpha=0.6) siyah/yarı saydam
       // bir "metal" katmandı: ekranın TÜMÜNÜ kapladığı için tüm renkleri soluklaştırıyordu,
       // gerçek bir cam yansıması üretmiyordu (metalik siyah yüzeyler ışığı neredeyse hiç
-      // yansıtmaz). Dielektrik (metallic=0) + düşük roughness + beyaz/düşük-alpha baseColor
-      // kombinasyonu environment ışığını Fresnel ile kenarlarda yakalıyor — ekranın orta
-      // kısmı solmadan, kenarlarda ince gerçekçi bir cam parıltısı oluşuyor.
+      // yansıtmaz). Dielektrik (metallic=0) ile gerçek Fresnel davranışı elde ediyoruz:
+      // kameraya dik bakan DÜZ orta ekranda yansıma doğal olarak az olur (solmaz), kavisli
+      // kenar/köşelerde ise açı arttıkça Fresnel yansımayı güçlendirir — gerçek bir cam gibi
+      // ortam ışığını (environment-image) kenarlarda yakalar. roughness çok düşük tutuluyor
+      // ki yansıma net/parlak bir "çizgi" gibi görünsün, bulanık bir leke değil.
       const glassMat=phone3d.model.materials.find(m=>m.name==='Glass');
       if(glassMat){
         glassMat.pbrMetallicRoughness.setMetallicFactor(0);
-        glassMat.pbrMetallicRoughness.setRoughnessFactor(0.06);
-        glassMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,0.12]);
+        glassMat.pbrMetallicRoughness.setRoughnessFactor(0.02);
+        glassMat.pbrMetallicRoughness.setBaseColorFactor([1,1,1,0.22]);
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
