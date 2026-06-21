@@ -7826,6 +7826,11 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       </div>
     </div>
 
+    <!-- KIYI DALGASI köpük çizgisi: bowBack'in clip-path'inden bağımsız, üstünde
+         duran ayrı bir katman — dalga tepesi gerçek bir köpük gibi parlasın -->
+    <svg id="bowTideSvg" preserveAspectRatio="none" viewBox="0 0 100 100"
+         style="position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none"></svg>
+
     <!-- ÖN KATMAN: 3 sorun kartı — gemi tam bunların üzerinden geçip altlarındaki
          çözüm panelini (bowBack) açığa çıkarıyor -->
     <div id="bowFront">
@@ -9097,16 +9102,21 @@ document.querySelectorAll('.pay-method').forEach(m=>{
         hint  = document.getElementById('bowScrollHint');
   if(!front||!ship) return;
 
-  // ── KIYI DALGASI: yeşil panelden sonraki bölüme sert kesim yerine, sahile vuran
-  // bir dalganın çekilmesi gibi yumuşak bir geçiş. Gemi tamamen ekran dışına
-  // çıkıp sönümlendikten sonra kalan scroll mesafesini bu çekiliş için kullanıyoruz —
-  // önceden bu aralıkta hiçbir şey olmuyordu (sahne sonunda ani renk kesimi vardı).
+  // ── SAHİLE VURAN DALGA: yeşil panelden sonraki bölüme sert kesim yerine,
+  // denizden sahile vuran dalgalar gibi AŞAĞIDAN YUKARIYA yükselen bir geçiş.
+  // Gemi tamamen ekran dışına çıkıp sönümlendikten sonra kalan scroll mesafesini
+  // bu efekt için kullanıyoruz — önceden bu aralıkta hiçbir şey olmuyordu
+  // (sahne sonunda ani renk kesimi vardı). Dalga çizgisi (baseY) ekranın
+  // altından (100%) üstüne (0%'in biraz altına) doğru yükselir; üstünde kalan
+  // (0..baseY) yeşil görünür kalır, altı (baseY..100) bir sonraki bölümün
+  // zeminine açılır — yani su alttan yükselip yeşili yutar.
   let tideProg = 0, tidePhase = 0;
+  function tideBaseY(progress) { return 100 - progress * 118; }
   function tidePolygon(progress, ph) {
     const N = 28;
-    const baseY = progress * 118; // 0% (tam görünür, hiç çekilmemiş) → 118% (tamamen çekilmiş/gizli)
+    const baseY = tideBaseY(progress);
     const growAmp = Math.min(1, progress * 3); // dalga genliği geçişin başında hızla büyür
-    const pts = ['0% 100%'];
+    const pts = ['0% 0%'];
     for (let i = 0; i <= N; i++) {
       const t = i / N;
       const x = t * 100;
@@ -9114,17 +9124,47 @@ document.querySelectorAll('.pay-method').forEach(m=>{
                 + Math.sin(t * Math.PI * 11 + ph * 1.7) * 0.9 * growAmp;
       pts.push(`${x.toFixed(1)}% ${(baseY + wob).toFixed(1)}%`);
     }
-    pts.push('100% 100%');
+    pts.push('100% 0%');
     return `polygon(${pts.join(',')})`;
   }
   const backContent = document.getElementById('bowBackContent');
+  const tideSvg = document.getElementById('bowTideSvg');
+  function tideWaveLine(baseY, ph2, yOff, amp, grow) {
+    const N = 40;
+    let d = `M 0,${(baseY + yOff).toFixed(2)}`;
+    for (let i = 1; i <= N; i++) {
+      const t = i / N, x = t * 100;
+      const wob = Math.sin(t * Math.PI * 5 + ph2) * amp * grow
+                + Math.sin(t * Math.PI * 11 + ph2 * 1.6) * amp * 0.4 * grow;
+      d += ` L ${x.toFixed(2)},${(baseY + yOff + wob).toFixed(2)}`;
+    }
+    return d;
+  }
   function drawTide() {
     if (!back) return;
-    if (tideProg <= 0) { back.style.clipPath = ''; if(backContent) backContent.style.opacity = '1'; return; }
+    if (tideProg <= 0) {
+      back.style.clipPath = '';
+      if (backContent) backContent.style.opacity = '1';
+      if (tideSvg) tideSvg.innerHTML = '';
+      return;
+    }
     back.style.clipPath = tidePolygon(tideProg, tidePhase);
-    // metin/buton dalga tepesinde "havada kalmış" gibi durmasın — dalga başlar
-    // başlamaz hızlıca solup gitsin, geriye sadece yeşil tepe siluet çekilişi kalsın
+    // metin/buton dalganın hemen altında "boğuluyormuş" gibi durmasın — dalga
+    // başlar başlamaz hızlıca solup gitsin, geriye sadece yükselen su kalsın
     if (backContent) backContent.style.opacity = String(Math.max(0, 1 - tideProg * 3.5));
+
+    // dalga tepesine gerçek bir "köpük" çizgisi: ana parlak hat + arkasında
+    // soluk ikinci hat + hemen altında ince bir köpük yıkanması
+    if (tideSvg) {
+      const baseY = tideBaseY(tideProg);
+      const grow = Math.min(1, tideProg * 3);
+      const foam = Math.min(1, tideProg * 4);
+      tideSvg.innerHTML = `
+        <path d="${tideWaveLine(baseY, tidePhase, 2.6, 1.6, grow)}" stroke="rgba(180,225,255,${(0.35*foam).toFixed(2)})" stroke-width="0.5" fill="none"/>
+        <path d="${tideWaveLine(baseY, tidePhase, 0, 2.6, grow)}" stroke="rgba(225,248,255,${(0.9*foam).toFixed(2)})" stroke-width="0.55" fill="none"/>
+        <path d="${tideWaveLine(baseY, tidePhase, -1.6, 2, grow)} L 100,140 L 0,140 Z" fill="rgba(180,225,255,${(0.07*foam).toFixed(2)})"/>
+      `;
+    }
   }
 
   const SHIP_H = 170; // SVG viewBox yüksekliği
