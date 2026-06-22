@@ -7497,8 +7497,13 @@ tk: {
   --bg:#0B1628;--dark:#0D1B2E;--card:#112040;
   --t:#F1F5FF;--m:rgba(241,245,255,0.45);
 }
-html{scroll-behavior:smooth;overflow-x:hidden;max-width:100%}
-body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;overflow-x:hidden}
+/* overflow-x:hidden DEĞİL — html/body'de bu, Safari/Chrome'da position:sticky'yi
+   kırıyor (sticky'nin "en yakın scroll container"ı artık viewport değil, bu kutu
+   oluyor). #demo bölümündeki .demo-sticky bu yüzden scroll'un ortasında erkenden
+   kayıp gidiyor, geri kalan 300vh'lik alan bomboş görünüyordu. overflow-x:clip
+   aynı yatay-taşma kesmesini yapar ama scroll container oluşturmaz, sticky bozulmaz. */
+html{scroll-behavior:smooth;overflow-x:clip;max-width:100%}
+body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;overflow-x:clip}
 
 #canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
 
