@@ -7512,7 +7512,7 @@ nav .logo{justify-self:start}
 nav .nav-links{justify-self:center}
 nav .nav-pill{justify-self:end}
 nav.solid{background:rgba(3,7,18,0.8);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.05)}
-.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:800;letter-spacing:2px}
+.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:800;letter-spacing:2px;text-decoration:none;color:inherit;cursor:pointer}
 .logo-sq{width:38px;height:38px;border-radius:11px;overflow:hidden;flex-shrink:0}
 .nav-links{display:flex;gap:36px;list-style:none}
 .nav-links a{color:rgba(241,245,255,.65);text-decoration:none;font-size:15px;font-weight:500;letter-spacing:.1px;transition:color .2s}
@@ -8204,9 +8204,9 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
 <!-- NAV -->
 <nav id="nav">
-  <div class="logo">
+  <a href="#hero" class="logo" aria-label="Pruva — back to home">
     <img src="pruva-logo-transparent.png" alt="Pruva" style="height:36px;width:auto;display:block">
-  </div>
+  </a>
   <ul class="nav-links">
     <li><a href="#models" data-i18n="nav.sectors">Industries</a></li>
     <li><a href="#pazaryeri" data-i18n="nav.market">Pazaryeri</a></li>
@@ -8247,7 +8247,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="hero">
   <div class="hero-noise"></div>
   <div class="hero-aurora"></div>
   <div class="badge"><span class="badge-dot"></span> <span data-i18n="hero.badge">iOS · Mac · 7 days offline</span></div>
@@ -9005,9 +9005,9 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 
 <!-- FOOTER -->
 <footer>
-  <div class="logo">
+  <a href="#hero" class="logo" aria-label="Pruva — back to home">
     <img src="pruva-logo-transparent.png" alt="Pruva" style="height:36px;width:auto;display:block">
-  </div>
+  </a>
   <div class="footer-copy" data-i18n="footer.copy">© 2026 Pruva Business. All rights reserved.</div>
   <div style="font-size:11px;color:rgba(241,245,255,.3);margin-top:-8px">"iPhone 17 Pro" model by <a href="https://sketchfab.com/Ranguel" target="_blank" rel="noopener" style="color:rgba(241,245,255,.45)">Ranguel</a> (<a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:rgba(241,245,255,.45)">CC BY 4.0</a>)</div>
   <div class="footer-links">
@@ -9473,8 +9473,16 @@ if(phone3d){
       }
     }catch(err){console.warn('Phone screen texture swap failed',err)}
     // texture basılana kadar model-viewer'ın kendi varsayılan duvar kağıdı bir an görünüyordu —
-    // swap bitene (ya da hata alana) kadar gizli tutup ancak o zaman fade-in yapıyoruz
-    phone3d.classList.add('tex-ready');
+    // swap bitene (ya da hata alana) kadar gizli tutup ancak o zaman fade-in yapıyoruz.
+    // ÖNEMLİ: material.set* çağrıları senkron dönse de GPU'nun yeni texture'ı asıl
+    // render etmesi bir sonraki compositor frame'ine kadar gecikebiliyor — tex-ready'i
+    // hemen eklersek opacity 0→1 geçişi, GPU henüz eski (siyah/varsayılan) kareyi
+    // boyarken yakalanıyor ve üstte kısa bir siyah dikdörtgen/çizgi parlıyor.
+    // Çift rAF ile en az bir compositor frame'i bekleyip GPU'nun textured kareyi
+    // gerçekten boyamasına izin veriyoruz, ancak sonra görünür yapıyoruz.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      phone3d.classList.add('tex-ready');
+    }));
   });
 }
 
@@ -9524,7 +9532,11 @@ function setupMockupPhone(viewerEl, textureUrls){
   }
   viewerEl.addEventListener('load',async()=>{
     await setTexture(textureUrls[0]);
-    viewerEl.classList.add('tex-ready');
+    // bkz. hero phone3d'deki aynı not — GPU'nun textured kareyi boyaması için
+    // bir compositor frame'i bekleyip ondan sonra görünür yapıyoruz.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      viewerEl.classList.add('tex-ready');
+    }));
   });
   return {setTexture};
 }
