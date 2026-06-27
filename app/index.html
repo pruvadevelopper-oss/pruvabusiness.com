@@ -84,8 +84,8 @@ body {
 .sidebar-store { padding:14px 12px 8px; }
 .sidebar-store-name { font-size:11px; font-weight:600; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
 .sidebar-store-val { font-size:14px; font-weight:600; color:rgba(255,255,255,0.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.sidebar-clock-wrap { display:flex; justify-content:center; padding:18px 0 14px; }
-.sidebar-clock { width:92px; height:92px; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+.sidebar-clock-wrap { display:flex; justify-content:center; padding:20px 0 16px; }
+.sidebar-clock { width:128px; height:128px; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5)); }
 .sidebar-clock .clock-tick { stroke:rgba(255,255,255,0.55); }
 .sidebar-clock .clock-tick.major { stroke:rgba(255,255,255,0.85); stroke-width:1.6; }
 .sidebar-clock .clock-hand { stroke-linecap:round; transform-origin:50px 50px; }
@@ -422,12 +422,17 @@ body {
       <svg class="sidebar-clock" viewBox="0 0 100 100">
         <defs>
           <linearGradient id="bezelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#5A5A5E"/>
-            <stop offset="22%" stop-color="#EDEDED"/>
-            <stop offset="45%" stop-color="#9A9A9E"/>
-            <stop offset="60%" stop-color="#3A3A3D"/>
-            <stop offset="80%" stop-color="#C9C9CC"/>
-            <stop offset="100%" stop-color="#6A6A6E"/>
+            <stop offset="0%" stop-color="#7A7A7E"/>
+            <stop offset="18%" stop-color="#F2F2F2"/>
+            <stop offset="40%" stop-color="#A6A6AA"/>
+            <stop offset="55%" stop-color="#4A4A4D"/>
+            <stop offset="78%" stop-color="#D8D8DA"/>
+            <stop offset="100%" stop-color="#838387"/>
+          </linearGradient>
+          <linearGradient id="bezelGradInner" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#3A3A3D"/>
+            <stop offset="50%" stop-color="#9E9EA2"/>
+            <stop offset="100%" stop-color="#2E2E30"/>
           </linearGradient>
           <radialGradient id="faceGrad" cx="38%" cy="32%" r="75%">
             <stop offset="0%" stop-color="#2A2A2E"/>
@@ -435,16 +440,51 @@ body {
             <stop offset="100%" stop-color="#0E0E10"/>
           </radialGradient>
         </defs>
-        <circle cx="50" cy="50" r="48" fill="url(#bezelGrad)"/>
-        <circle cx="50" cy="50" r="41.5" fill="url(#faceGrad)"/>
-        <circle cx="50" cy="50" r="41.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <rect x="3" y="3" width="94" height="94" rx="14" fill="url(#bezelGrad)"/>
+        <rect x="8" y="8" width="84" height="84" rx="11" fill="url(#bezelGradInner)"/>
+        <circle cx="50" cy="50" r="38" fill="url(#faceGrad)"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
         <g id="clockTicks"></g>
-        <line id="handHour" class="clock-hand hand-hour" x1="50" y1="50" x2="50" y2="28"/>
-        <line id="handMin" class="clock-hand hand-min" x1="50" y1="50" x2="50" y2="18"/>
-        <line id="handSec" class="clock-hand hand-sec" x1="50" y1="58" x2="50" y2="15"/>
-        <circle cx="50" cy="50" r="2.4" class="clock-cap"/>
+        <text x="50" y="20" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">12</text>
+        <text x="80" y="53" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">3</text>
+        <text x="50" y="86" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">6</text>
+        <text x="20" y="53" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">9</text>
+        <line id="handHour" class="clock-hand hand-hour" x1="50" y1="50" x2="50" y2="27"/>
+        <line id="handMin" class="clock-hand hand-min" x1="50" y1="50" x2="50" y2="16"/>
+        <line id="handSec" class="clock-hand hand-sec" x1="50" y1="59" x2="50" y2="13"/>
+        <circle cx="50" cy="50" r="2.6" class="clock-cap"/>
       </svg>
     </div>
+    <script>
+    (function(){
+      function build(){
+        var ticksEl=document.getElementById('clockTicks');
+        if(!ticksEl)return false;
+        var html='';
+        for(var i=0;i<60;i++){
+          var major=i%5===0;
+          var ang=i*6*Math.PI/180;
+          var rOuter=36, rInner=major?30.5:33;
+          var x1=50+rOuter*Math.sin(ang), y1=50-rOuter*Math.cos(ang);
+          var x2=50+rInner*Math.sin(ang), y2=50-rInner*Math.cos(ang);
+          html+='<line class="clock-tick'+(major?' major':'')+'" x1="'+x1.toFixed(2)+'" y1="'+y1.toFixed(2)+'" x2="'+x2.toFixed(2)+'" y2="'+y2.toFixed(2)+'" stroke-width="'+(major?1.8:0.8)+'"/>';
+        }
+        ticksEl.innerHTML=html;
+        var hHour=document.getElementById('handHour'), hMin=document.getElementById('handMin'), hSec=document.getElementById('handSec');
+        function tick(){
+          var d=new Date();
+          var h=d.getHours()%12, m=d.getMinutes(), s=d.getSeconds();
+          hHour.setAttribute('transform','rotate('+(h*30+m*0.5)+',50,50)');
+          hMin.setAttribute('transform','rotate('+(m*6+s*0.1)+',50,50)');
+          hSec.setAttribute('transform','rotate('+(s*6)+',50,50)');
+        }
+        tick();
+        setInterval(tick,1000);
+        return true;
+      }
+      if(!build()) document.addEventListener('DOMContentLoaded',build);
+    })();
+    </script>
     <div class="sidebar-store">
       <div class="sidebar-store-name">Mağaza</div>
       <div class="sidebar-store-val" id="sidebar-store-name">—</div>
@@ -1098,32 +1138,6 @@ let toastT;
 window.showToast=msg=>{const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);};
 
 document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
-
-/* ── Sidebar analog clock ────────── */
-(function(){
-  const ticksEl=document.getElementById('clockTicks');
-  if(!ticksEl)return;
-  let html='';
-  for(let i=0;i<60;i++){
-    const major=i%5===0;
-    const ang=i*6*Math.PI/180;
-    const rOuter=39.5, rInner=major?34:36.5;
-    const x1=50+rOuter*Math.sin(ang), y1=50-rOuter*Math.cos(ang);
-    const x2=50+rInner*Math.sin(ang), y2=50-rInner*Math.cos(ang);
-    html+=`<line class="clock-tick${major?' major':''}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke-width="${major?1.6:0.8}"/>`;
-  }
-  ticksEl.innerHTML=html;
-  const hHour=document.getElementById('handHour'), hMin=document.getElementById('handMin'), hSec=document.getElementById('handSec');
-  function tick(){
-    const d=new Date();
-    const h=d.getHours()%12, m=d.getMinutes(), s=d.getSeconds();
-    hHour.setAttribute('transform',`rotate(${h*30+m*0.5},50,50)`);
-    hMin.setAttribute('transform',`rotate(${m*6+s*0.1},50,50)`);
-    hSec.setAttribute('transform',`rotate(${s*6},50,50)`);
-  }
-  tick();
-  setInterval(tick,1000);
-})();
 </script>
 </body>
 </html>
