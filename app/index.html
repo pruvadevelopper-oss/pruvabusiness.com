@@ -863,7 +863,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc,
-         collection, query, orderBy, limit, where, increment, serverTimestamp }
+         collection, query, orderBy, limit, where, increment, serverTimestamp, documentId }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp({
@@ -1046,19 +1046,27 @@ async function loadDailySummaries(){
   try{
     const today=new Date(),days30=[];
     for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days30.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
-    const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy('__name__','desc'),limit(31)));
+    const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy(documentId(),'desc'),limit(31)));
     const m={};snap.docs.forEach(d=>{m[d.id]=d.data();});
     dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.saleCount||0}));
     renderHomeStats();renderReports();renderForecast();
-  }catch{renderHomeStats();renderReports();renderForecast();}
+  }catch(e){
+    console.error('loadDailySummaries failed:',e);
+    if(!dailySummaries.length){
+      const today=new Date(),days30=[];
+      for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days30.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
+      dailySummaries=days30.map(k=>({date:k,revenue:0,orders:0}));
+    }
+    renderHomeStats();renderReports();renderForecast();
+  }
 }
 async function loadMonthlySummaries(){
   if(!storeId)return;
   try{
-    const snap=await getDocs(query(collection(db,'stores',storeId,'monthlySummaries'),orderBy('__name__','asc'),limit(13)));
+    const snap=await getDocs(query(collection(db,'stores',storeId,'monthlySummaries'),orderBy(documentId(),'asc'),limit(13)));
     monthlySummaries=snap.docs.map(d=>({month:d.id,revenue:d.data().totalRevenue||0,orders:d.data().saleCount||0}));
     renderHomeStats();renderReports();renderForecast();
-  }catch{}
+  }catch(e){console.error('loadMonthlySummaries failed:',e);}
 }
 function renderHomeStats(){
   if(!dailySummaries.length)return;
