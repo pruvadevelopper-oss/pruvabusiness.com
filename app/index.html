@@ -44,6 +44,13 @@ body {
   display:flex; align-items:center; justify-content:center; z-index:1000;
 }
 #login-screen.hidden { display:none; }
+#auth-loading {
+  position:fixed; inset:0; z-index:1001;
+  background: linear-gradient(160deg,#0B1628 0%,#1A0D5C 45%,#4A2ED4 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+#auth-loading.hidden { display:none; }
+#auth-loading .spinner { display:block; width:28px; height:28px; border-width:3px; margin:0; }
 .login-box { width:380px; display:flex; flex-direction:column; align-items:center; }
 .login-logo-img { height:34px; width:auto; margin-bottom:14px; }
 .login-tagline { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:36px; }
@@ -359,7 +366,9 @@ body {
 </head>
 <body>
 
-<div id="login-screen">
+<div id="auth-loading"><div class="spinner"></div></div>
+
+<div id="login-screen" class="hidden">
   <div class="login-box">
     <img src="../pruva-logo-transparent.png" alt="Pruva Business" class="login-logo-img">
     <div class="login-tagline" data-i18n="tagline">Akıllı POS · 24 Dil · Offline-First</div>
@@ -895,9 +904,10 @@ window.doLogin = async () => {
   }
 };
 window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
-function showLogin(){document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');}
+function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');}
 
 async function initApp(user){
+  document.getElementById('auth-loading').classList.add('hidden');
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   const now=new Date();
