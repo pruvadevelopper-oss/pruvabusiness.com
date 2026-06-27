@@ -1118,8 +1118,7 @@ function renderBarChart(id,data,type){
 function renderForecast(){
   if(!dailySummaries.length)return;
   const last30=dailySummaries.filter(d=>d.revenue>0);
-  if(!last30.length)return;
-  const avgDaily=last30.reduce((s,d)=>s+d.revenue,0)/last30.length;
+  const avgDaily=last30.length?last30.reduce((s,d)=>s+d.revenue,0)/last30.length:0;
   document.getElementById('fc-avg').textContent=fcs(avgDaily);
   document.getElementById('fc-week').textContent=fcs(avgDaily*7);
   document.getElementById('fc-month').textContent=fcs(avgDaily*30);
