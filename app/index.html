@@ -554,7 +554,16 @@ body {
         buildReel(yEl, yyyy, 6, 140);
         return true;
       }
-      if(!buildDateCards()) document.addEventListener('DOMContentLoaded',buildDateCards);
+      function whenAppVisible(cb){
+        var appEl=document.getElementById('app');
+        if(!appEl){ setTimeout(function(){ whenAppVisible(cb); }, 50); return; }
+        if(!appEl.classList.contains('hidden')){ cb(); return; }
+        var mo=new MutationObserver(function(){
+          if(!appEl.classList.contains('hidden')){ cb(); mo.disconnect(); }
+        });
+        mo.observe(appEl, {attributes:true, attributeFilter:['class']});
+      }
+      whenAppVisible(buildDateCards);
     })();
     </script>
     <script>
