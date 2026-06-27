@@ -945,7 +945,7 @@ function renderProductList(list){
   el.innerHTML=list.map(p=>`<div class="product-row" onclick="addToCart('${esc(p.id)}')">
     <div class="product-emoji">${pEmoji(p)}</div>
     <div class="product-info"><div class="product-name">${esc(p.name||p.id)}</div><div class="product-stock">Stok: ${p.stockQuantity??'?'}</div></div>
-    <div class="product-price">${fc(p.price||0)}</div>
+    <div class="product-price">${fc(p.salePrice||0)}</div>
     <button class="product-add-btn" onclick="event.stopPropagation();addToCart('${esc(p.id)}')">+</button>
   </div>`).join('');
 }
@@ -955,7 +955,7 @@ window.filterProducts=q=>{const f=q.toLowerCase();renderProductList(f?allProduct
 window.addToCart=id=>{
   const p=allProducts.find(x=>x.id===id);if(!p)return;
   const ex=cart.find(i=>i.id===id);
-  if(ex)ex.qty++;else cart.push({id,name:p.name||id,price:p.price||0,qty:1});
+  if(ex)ex.qty++;else cart.push({id,name:p.name||id,price:p.salePrice||0,taxRate:p.taxRate||0,qty:1});
   renderCart();showToast(`${p.name||id} eklendi`);
 };
 window.changeQty=(id,d)=>{
@@ -979,22 +979,40 @@ function renderCart(){
 }
 window.openCheckout=()=>{if(!cart.length)return;document.getElementById('modal-total').textContent=fc(cartTotal());document.getElementById('checkout-modal').classList.add('show');};
 window.selectPayment=m=>{selectedPay=m;document.getElementById('pay-cash').classList.toggle('selected',m==='cash');document.getElementById('pay-card').classList.toggle('selected',m==='card');};
+function lineTax(price,qty,taxRate){
+  const lineTotal=price*qty;
+  if(!taxRate)return 0;
+  return Math.round((lineTotal*taxRate/(1+taxRate))*100)/100;
+}
+async function bumpSummary(path,total,taxTotal,payMethod,saleDelta){
+  const ref=doc(db,...path);
+  const payField=payMethod==='cash'?'cashTotal':payMethod==='card'?'cardTotal':'otherTotal';
+  const inc={totalRevenue:increment(total),taxTotal:increment(taxTotal),saleCount:increment(saleDelta),[payField]:increment(total),lastUpdated:serverTimestamp()};
+  await updateDoc(ref,inc).catch(()=>setDoc(ref,{totalRevenue:total,taxTotal,saleCount:saleDelta,cashTotal:0,cardTotal:0,otherTotal:0,[payField]:total,lastUpdated:serverTimestamp()},{merge:true}));
+}
 window.confirmSale=async()=>{
   const total=cartTotal();
   document.getElementById('checkout-modal').classList.remove('show');
   try{
     if(storeId){
-      await addDoc(collection(db,'stores',storeId,'transactions'),{
-        items:cart.map(i=>({productId:i.id,name:i.name,price:i.price,qty:i.qty})),
-        totalPrice:total,paymentMethod:selectedPay,date:serverTimestamp(),isRefund:false,source:'web'
-      });
+      const taxTotal=cart.reduce((s,i)=>s+lineTax(i.price,i.qty,i.taxRate),0);
       const td=new Date();
       const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
-      const sr=doc(db,'stores',storeId,'dailySummaries',dk);
-      await updateDoc(sr,{totalRevenue:increment(total),transactionCount:increment(1)}).catch(()=>setDoc(sr,{totalRevenue:total,transactionCount:1,date:dk},{merge:true}));
+      const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
+      await addDoc(collection(db,'stores',storeId,'receipts'),{
+        date:serverTimestamp(),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,
+        staffName:auth.currentUser?.email||'web',
+        items:cart.map(i=>({productId:i.id,name:i.name,qty:i.qty,unitPrice:i.price,total:i.price*i.qty,taxRate:i.taxRate||0})),
+        expireAt:new Date(td.getTime()+365*24*3600*1000),isRefund:false,source:'web'
+      });
+      await Promise.all(cart.map(i=>
+        updateDoc(doc(db,'stores',storeId,'products',i.id),{stockQuantity:increment(-i.qty),updatedAt:serverTimestamp()}).catch(()=>{})
+      ));
+      await bumpSummary(['stores',storeId,'dailySummaries',dk],total,taxTotal,selectedPay,1);
+      await bumpSummary(['stores',storeId,'monthlySummaries',mk],total,taxTotal,selectedPay,1);
     }
   }catch(e){console.error(e);}
-  cart=[];renderCart();loadDailySummaries();
+  cart=[];renderCart();loadProducts();loadDailySummaries();loadMonthlySummaries();
   showToast(`✓ ${fc(total)} — satış tamamlandı`);switchTab('home');
 };
 
@@ -1009,7 +1027,7 @@ function renderInventory(list){
     else if(m>0&&s<=m){cls='stock-crit';txt=`${s} — Kritik`;}
     else if(m>0&&s<=m*2){cls='stock-low';txt=`${s} — Az`;}
     else{cls='stock-ok';txt=`${s} adet`;}
-    return `<div class="inv-card"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.price||0)}</div><span class="stock-badge ${cls}">${txt}</span></div>`;
+    return `<div class="inv-card"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.salePrice||0)}</div><span class="stock-badge ${cls}">${txt}</span></div>`;
   }).join('');
 }
 window.filterInventory=q=>{const f=q.toLowerCase();renderInventory(f?allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)):allProducts);};
@@ -1030,7 +1048,7 @@ async function loadDailySummaries(){
     for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days30.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
     const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy('__name__','desc'),limit(31)));
     const m={};snap.docs.forEach(d=>{m[d.id]=d.data();});
-    dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.transactionCount||0}));
+    dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.saleCount||0}));
     renderHomeStats();renderReports();renderForecast();
   }catch{renderHomeStats();renderReports();renderForecast();}
 }
@@ -1038,7 +1056,7 @@ async function loadMonthlySummaries(){
   if(!storeId)return;
   try{
     const snap=await getDocs(query(collection(db,'stores',storeId,'monthlySummaries'),orderBy('__name__','asc'),limit(13)));
-    monthlySummaries=snap.docs.map(d=>({month:d.id,revenue:d.data().totalRevenue||0,orders:d.data().transactionCount||0}));
+    monthlySummaries=snap.docs.map(d=>({month:d.id,revenue:d.data().totalRevenue||0,orders:d.data().saleCount||0}));
     renderHomeStats();renderReports();renderForecast();
   }catch{}
 }
@@ -1118,7 +1136,7 @@ async function loadRefundList(){
   if(!storeId)return;
   document.getElementById('refund-list').innerHTML='<div class="loading-dots"><span></span><span></span><span></span></div>';
   try{
-    const snap=await getDocs(query(collection(db,'stores',storeId,'transactions'),orderBy('date','desc'),limit(50)));
+    const snap=await getDocs(query(collection(db,'stores',storeId,'receipts'),orderBy('date','desc'),limit(50)));
     recentTransactions=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderRefundList();
   }catch(e){document.getElementById('refund-list').innerHTML=`<div class="empty-state"><div class="empty-icon">↩️</div><div class="empty-text">Yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;}
@@ -1134,7 +1152,7 @@ function renderRefundList(){
     return `<div class="refund-row${isRef?' is-refund':''}">
       <div class="refund-icon">${isRef?'↩️':'🧾'}</div>
       <div class="refund-info">
-        <div class="refund-amount">${isRef?'-':''}${fc(tx.totalPrice||0)}</div>
+        <div class="refund-amount">${isRef?'-':''}${fc(tx.total||0)}</div>
         <div class="refund-meta">${dateStr} · ${tx.paymentMethod==='card'?'Kart':'Nakit'} · ${items}</div>
       </div>
       <span class="refund-tag ${isRef?'refunded':'sale'}">${isRef?'İade':'Satış'}</span>
@@ -1145,28 +1163,34 @@ function renderRefundList(){
 window.openRefundModal=id=>{
   const tx=recentTransactions.find(t=>t.id===id);if(!tx)return;
   pendingRefundTx=tx;
-  const items=(tx.items||[]).map(i=>`${esc(i.name||i.productId)} ×${i.qty} = ${fc((i.price||0)*i.qty)}`).join('<br>');
+  const items=(tx.items||[]).map(i=>`${esc(i.name||i.productId)} ×${i.qty} = ${fc(i.total??(i.unitPrice||0)*i.qty)}`).join('<br>');
   document.getElementById('refund-modal-detail').innerHTML=`${items}<br><br><b>Ödeme yöntemi:</b> ${tx.paymentMethod==='card'?'Kart':'Nakit'}`;
-  document.getElementById('refund-modal-total').textContent=fc(tx.totalPrice||0);
+  document.getElementById('refund-modal-total').textContent=fc(tx.total||0);
   document.getElementById('refund-modal').classList.add('show');
 };
 window.confirmRefund=async()=>{
   if(!pendingRefundTx||!storeId)return;
   document.getElementById('refund-modal').classList.remove('show');
   try{
-    await addDoc(collection(db,'stores',storeId,'transactions'),{
-      items:pendingRefundTx.items||[],totalPrice:pendingRefundTx.totalPrice||0,
-      paymentMethod:pendingRefundTx.paymentMethod,date:serverTimestamp(),
-      isRefund:true,originalTransactionId:pendingRefundTx.id,source:'web'
-    });
     const td=new Date();
     const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
-    const sr=doc(db,'stores',storeId,'dailySummaries',dk);
-    const amt=pendingRefundTx.totalPrice||0;
-    await updateDoc(sr,{totalRevenue:increment(-amt),transactionCount:increment(1)}).catch(()=>setDoc(sr,{totalRevenue:-amt,transactionCount:1,date:dk},{merge:true}));
+    const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
+    const amt=pendingRefundTx.total||0;
+    const taxAmt=pendingRefundTx.taxTotal||0;
+    await addDoc(collection(db,'stores',storeId,'receipts'),{
+      date:serverTimestamp(),monthKey:mk,total:amt,taxTotal:taxAmt,
+      paymentMethod:pendingRefundTx.paymentMethod,staffName:auth.currentUser?.email||'web',
+      items:pendingRefundTx.items||[],expireAt:new Date(td.getTime()+365*24*3600*1000),
+      isRefund:true,linkedSaleId:pendingRefundTx.id,source:'web'
+    });
+    await Promise.all((pendingRefundTx.items||[]).filter(i=>i.productId).map(i=>
+      updateDoc(doc(db,'stores',storeId,'products',i.productId),{stockQuantity:increment(i.qty),updatedAt:serverTimestamp()}).catch(()=>{})
+    ));
+    await bumpSummary(['stores',storeId,'dailySummaries',dk],-amt,-taxAmt,pendingRefundTx.paymentMethod,1);
+    await bumpSummary(['stores',storeId,'monthlySummaries',mk],-amt,-taxAmt,pendingRefundTx.paymentMethod,1);
     showToast(`↩ ${fc(amt)} iade edildi`);
     pendingRefundTx=null;
-    loadRefundList();loadDailySummaries();
+    loadRefundList();loadProducts();loadDailySummaries();loadMonthlySummaries();
   }catch(e){showToast('İade başarısız: '+e.message);}
 };
 
