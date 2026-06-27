@@ -514,13 +514,18 @@ body {
       function buildReel(holeEl, finalStr, rowCount, startDelay){
         holeEl.innerHTML='';
         var h = holeEl.clientHeight || 28;
+        var len = finalStr.length;
+        var mod = Math.pow(10, len);
+        var finalNum = parseInt(finalStr,10);
         var track=document.createElement('div');
         track.style.position='absolute'; track.style.left='0'; track.style.top='0'; track.style.width='100%'; track.style.willChange='transform';
         for(var i=0;i<rowCount-1;i++){
+          var stepsBack = rowCount-1-i;
+          var val = ((finalNum - stepsBack) % mod + mod) % mod;
           var row=document.createElement('div');
           row.style.height=h+'px'; row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='center';
           row.className='date-reel-val';
-          row.textContent = randDigits(finalStr.length);
+          row.textContent = String(val).padStart(len,'0');
           track.appendChild(row);
         }
         var finalRow=document.createElement('div');
@@ -529,6 +534,7 @@ body {
         finalRow.textContent=finalStr;
         track.appendChild(finalRow);
         holeEl.appendChild(track);
+        void track.offsetHeight;
         setTimeout(function(){
           requestAnimationFrame(function(){
             track.style.transition='transform .4s cubic-bezier(0.15,0.75,0.2,1)';
