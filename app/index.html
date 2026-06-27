@@ -89,9 +89,9 @@ body {
 .sidebar-clock .clock-tick { stroke:rgba(255,255,255,0.55); }
 .sidebar-clock .clock-tick.major { stroke:rgba(255,255,255,0.85); stroke-width:1.6; }
 .sidebar-clock .clock-hand { stroke-linecap:round; }
-.sidebar-clock .hand-hour { stroke:#EDEDED; stroke-width:3.4; }
-.sidebar-clock .hand-min { stroke:#FFFFFF; stroke-width:2.4; }
-.sidebar-clock .hand-sec { stroke:#FBBF24; stroke-width:1.1; }
+.sidebar-clock .hand-hour { fill:#EDEDED; stroke:rgba(0,0,0,0.3); stroke-width:0.4; }
+.sidebar-clock .hand-min { fill:#FFFFFF; stroke:rgba(0,0,0,0.3); stroke-width:0.4; }
+.sidebar-clock .hand-sec { stroke:#FBBF24; stroke-width:0.8; }
 .sidebar-clock .clock-cap { fill:#FBBF24; }
 .sidebar-nav { flex:1; padding:4px 8px; overflow-y:auto; }
 .nav-section-label { font-size:10px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:0.7px; padding:10px 8px 4px; }
@@ -445,22 +445,27 @@ body {
             <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
           </linearGradient>
           <clipPath id="faceClip">
-            <circle cx="50" cy="50" r="38"/>
+            <circle cx="50" cy="50" r="34.5"/>
           </clipPath>
         </defs>
-        <rect x="3" y="3" width="94" height="94" rx="14" fill="url(#bezelGrad)"/>
-        <rect x="8" y="8" width="84" height="84" rx="11" fill="url(#bezelGradInner)"/>
-        <circle cx="50" cy="50" r="38" fill="url(#faceGrad)"/>
-        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+        <rect x="1.5" y="1.5" width="97" height="97" rx="17" fill="url(#bezelGrad)"/>
+        <rect x="11" y="11" width="78" height="78" rx="9" fill="url(#bezelGradInner)"/>
+        <circle cx="50" cy="50" r="36.5" fill="#050506"/>
+        <circle cx="50" cy="50" r="34.5" fill="url(#faceGrad)"/>
+        <circle cx="50" cy="50" r="34.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.7"/>
         <g id="clockTicks"></g>
-        <text x="50" y="20" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">12</text>
-        <text x="80" y="53" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">3</text>
-        <text x="50" y="86" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">6</text>
-        <text x="20" y="53" text-anchor="middle" font-size="7" font-weight="700" fill="rgba(255,255,255,0.55)" font-family="-apple-system,sans-serif">9</text>
-        <line id="handHour" class="clock-hand hand-hour" x1="50" y1="50" x2="50" y2="27"/>
-        <line id="handMin" class="clock-hand hand-min" x1="50" y1="50" x2="50" y2="16"/>
-        <line id="handSec" class="clock-hand hand-sec" x1="50" y1="59" x2="50" y2="13"/>
-        <circle cx="50" cy="50" r="2.6" class="clock-cap"/>
+        <text x="50" y="24" text-anchor="middle" font-size="6.4" font-weight="700" fill="rgba(255,255,255,0.6)" font-family="Georgia,'Times New Roman',serif">12</text>
+        <text x="76" y="53" text-anchor="middle" font-size="6.4" font-weight="700" fill="rgba(255,255,255,0.6)" font-family="Georgia,'Times New Roman',serif">3</text>
+        <text x="50" y="81" text-anchor="middle" font-size="6.4" font-weight="700" fill="rgba(255,255,255,0.6)" font-family="Georgia,'Times New Roman',serif">6</text>
+        <text x="24" y="53" text-anchor="middle" font-size="6.4" font-weight="700" fill="rgba(255,255,255,0.6)" font-family="Georgia,'Times New Roman',serif">9</text>
+        <polygon id="handHour" class="clock-hand hand-hour" points="50,53.5 48.4,38 50,21 51.6,38"/>
+        <polygon id="handMin" class="clock-hand hand-min" points="50,55 48.2,33 50,13.5 51.8,33"/>
+        <g id="handSec" class="hand-sec-group">
+          <line x1="50" y1="57" x2="50" y2="16" class="clock-hand hand-sec"/>
+          <circle cx="50" cy="57" r="2.6" fill="#FBBF24"/>
+        </g>
+        <circle cx="50" cy="50" r="3.2" fill="#0E0E10" stroke="#FBBF24" stroke-width="1"/>
+        <circle cx="50" cy="50" r="1.1" class="clock-cap"/>
         <g clip-path="url(#faceClip)">
           <ellipse cx="34" cy="30" rx="34" ry="22" fill="url(#glassGrad)" transform="rotate(-18,34,30)"/>
           <ellipse cx="64" cy="76" rx="20" ry="9" fill="#FFFFFF" opacity="0.06" transform="rotate(-18,64,76)"/>
@@ -477,7 +482,7 @@ body {
         for(var i=0;i<60;i++){
           var major=i%5===0;
           var ang=i*6*Math.PI/180;
-          var rOuter=36, rInner=major?30.5:33;
+          var rOuter=32.5, rInner=major?27:29.3;
           var x1=50+rOuter*Math.sin(ang), y1=50-rOuter*Math.cos(ang);
           var x2=50+rInner*Math.sin(ang), y2=50-rInner*Math.cos(ang);
           html+='<line class="clock-tick'+(major?' major':'')+'" x1="'+x1.toFixed(2)+'" y1="'+y1.toFixed(2)+'" x2="'+x2.toFixed(2)+'" y2="'+y2.toFixed(2)+'" stroke-width="'+(major?1.8:0.8)+'"/>';
