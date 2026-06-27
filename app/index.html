@@ -531,7 +531,7 @@ body {
         holeEl.appendChild(track);
         setTimeout(function(){
           requestAnimationFrame(function(){
-            track.style.transition='transform 1.15s cubic-bezier(0.15,0.75,0.2,1)';
+            track.style.transition='transform .4s cubic-bezier(0.15,0.75,0.2,1)';
             track.style.transform='translateY(-'+((rowCount-1)*h)+'px)';
           });
         }, startDelay||0);
@@ -543,9 +543,9 @@ body {
         var dd=String(now.getDate()).padStart(2,'0');
         var mm=String(now.getMonth()+1).padStart(2,'0');
         var yyyy=String(now.getFullYear());
-        buildReel(dEl, dd, 14, 0);
-        buildReel(mEl, mm, 16, 200);
-        buildReel(yEl, yyyy, 18, 400);
+        buildReel(dEl, dd, 4, 0);
+        buildReel(mEl, mm, 5, 70);
+        buildReel(yEl, yyyy, 6, 140);
         return true;
       }
       if(!buildDateCards()) document.addEventListener('DOMContentLoaded',buildDateCards);
