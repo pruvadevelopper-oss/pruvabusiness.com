@@ -492,15 +492,15 @@ body {
     </div>
     <div class="date-cards">
       <div class="date-card">
-        <div class="date-card-frame"><div class="date-card-hole"><span class="date-reel-val" id="reelDay">--</span></div></div>
+        <div class="date-card-frame"><div class="date-card-hole" id="holeDay"></div></div>
         <div class="date-card-label">Gün</div>
       </div>
       <div class="date-card">
-        <div class="date-card-frame"><div class="date-card-hole"><span class="date-reel-val" id="reelMonth">--</span></div></div>
+        <div class="date-card-frame"><div class="date-card-hole" id="holeMonth"></div></div>
         <div class="date-card-label">Ay</div>
       </div>
       <div class="date-card">
-        <div class="date-card-frame is-year"><div class="date-card-hole"><span class="date-reel-val" id="reelYear">----</span></div></div>
+        <div class="date-card-frame is-year"><div class="date-card-hole" id="holeYear"></div></div>
         <div class="date-card-label">Yıl</div>
       </div>
     </div>
@@ -511,40 +511,41 @@ body {
         for(var i=0;i<len;i++) s+=Math.floor(Math.random()*10);
         return s;
       }
-      function spinTo(el, finalStr, totalTicks, startDelay){
-        var count=0;
-        function tick(){
-          var isLast = count===totalTicks-1;
-          var val = isLast ? finalStr : randDigits(finalStr.length);
-          el.style.transition='transform .12s ease-in, opacity .12s ease-in';
-          el.style.transform='translateY(-60%)';
-          el.style.opacity='0';
-          setTimeout(function(){
-            el.textContent=val;
-            el.style.transition='none';
-            el.style.transform='translateY(60%)';
-            el.style.opacity='0';
-            requestAnimationFrame(function(){
-              el.style.transition='transform .12s ease-out, opacity .12s ease-out';
-              el.style.transform='translateY(0)';
-              el.style.opacity='1';
-            });
-          },120);
-          count++;
-          if(count<totalTicks) setTimeout(tick,150);
+      function buildReel(holeEl, finalStr, rowCount, startDelay){
+        holeEl.innerHTML='';
+        var h = holeEl.clientHeight || 28;
+        var track=document.createElement('div');
+        track.style.position='absolute'; track.style.left='0'; track.style.top='0'; track.style.width='100%'; track.style.willChange='transform';
+        for(var i=0;i<rowCount-1;i++){
+          var row=document.createElement('div');
+          row.style.height=h+'px'; row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='center';
+          row.className='date-reel-val';
+          row.textContent = randDigits(finalStr.length);
+          track.appendChild(row);
         }
-        setTimeout(tick, startDelay||0);
+        var finalRow=document.createElement('div');
+        finalRow.style.height=h+'px'; finalRow.style.display='flex'; finalRow.style.alignItems='center'; finalRow.style.justifyContent='center';
+        finalRow.className='date-reel-val';
+        finalRow.textContent=finalStr;
+        track.appendChild(finalRow);
+        holeEl.appendChild(track);
+        setTimeout(function(){
+          requestAnimationFrame(function(){
+            track.style.transition='transform 1.15s cubic-bezier(0.15,0.75,0.2,1)';
+            track.style.transform='translateY(-'+((rowCount-1)*h)+'px)';
+          });
+        }, startDelay||0);
       }
       function buildDateCards(){
-        var dEl=document.getElementById('reelDay'), mEl=document.getElementById('reelMonth'), yEl=document.getElementById('reelYear');
+        var dEl=document.getElementById('holeDay'), mEl=document.getElementById('holeMonth'), yEl=document.getElementById('holeYear');
         if(!dEl||!mEl||!yEl) return false;
         var now=new Date();
         var dd=String(now.getDate()).padStart(2,'0');
         var mm=String(now.getMonth()+1).padStart(2,'0');
         var yyyy=String(now.getFullYear());
-        spinTo(dEl, dd, 8, 0);
-        spinTo(mEl, mm, 9, 250);
-        spinTo(yEl, yyyy, 11, 500);
+        buildReel(dEl, dd, 14, 0);
+        buildReel(mEl, mm, 16, 200);
+        buildReel(yEl, yyyy, 18, 400);
         return true;
       }
       if(!buildDateCards()) document.addEventListener('DOMContentLoaded',buildDateCards);
