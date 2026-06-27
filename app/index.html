@@ -439,6 +439,14 @@ body {
             <stop offset="70%" stop-color="#171719"/>
             <stop offset="100%" stop-color="#0E0E10"/>
           </radialGradient>
+          <linearGradient id="glassGrad" x1="15%" y1="5%" x2="60%" y2="55%">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+            <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.10"/>
+            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+          </linearGradient>
+          <clipPath id="faceClip">
+            <circle cx="50" cy="50" r="38"/>
+          </clipPath>
         </defs>
         <rect x="3" y="3" width="94" height="94" rx="14" fill="url(#bezelGrad)"/>
         <rect x="8" y="8" width="84" height="84" rx="11" fill="url(#bezelGradInner)"/>
@@ -453,6 +461,11 @@ body {
         <line id="handMin" class="clock-hand hand-min" x1="50" y1="50" x2="50" y2="16"/>
         <line id="handSec" class="clock-hand hand-sec" x1="50" y1="59" x2="50" y2="13"/>
         <circle cx="50" cy="50" r="2.6" class="clock-cap"/>
+        <g clip-path="url(#faceClip)">
+          <ellipse cx="34" cy="30" rx="34" ry="22" fill="url(#glassGrad)" transform="rotate(-18,34,30)"/>
+          <ellipse cx="64" cy="76" rx="20" ry="9" fill="#FFFFFF" opacity="0.06" transform="rotate(-18,64,76)"/>
+        </g>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.6"/>
       </svg>
     </div>
     <script>
