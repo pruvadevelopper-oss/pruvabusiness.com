@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Pruva Business</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
 :root {
   /* Pruva marka rengi: koyu lacivert (logodan) + CTA için royal mavi */
@@ -321,6 +322,12 @@ body {
 .stock-low { background:#FEF3C7; color:#92400E; }
 .stock-crit { background:var(--red-light); color:#991B1B; }
 .stock-out { background:var(--bg); color:var(--muted); }
+.inv-barcode-btn { width:100%; margin-top:9px; padding:6px; border-radius:7px; border:1px solid var(--border); background:var(--bg); font-size:11px; font-weight:600; color:var(--text2); cursor:pointer; transition:background .12s; }
+.inv-barcode-btn:hover { background:#e9ecf5; }
+.barcode-modal-body { text-align:center; padding:8px 0 4px; }
+.barcode-modal-body svg { max-width:100%; }
+.barcode-product-name { font-size:15px; font-weight:800; margin-bottom:2px; }
+.barcode-product-price { font-size:13px; color:var(--muted); margin-bottom:14px; }
 
 /* REPORTS */
 .reports-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
@@ -758,7 +765,7 @@ body {
       <div class="nav-item" id="nav-loss" onclick="switchTab('loss')"><div class="nav-icon">🗑️</div><div class="nav-label">Fire &amp; Kayıp</div></div>
       <div class="nav-item" id="nav-veresiye" onclick="switchTab('veresiye')"><div class="nav-icon">📋</div><div class="nav-label">Veresiye</div></div>
       <div class="nav-item" id="nav-staff" onclick="switchTab('staff')"><div class="nav-icon">👥</div><div class="nav-label">Personel</div></div>
-      <div class="nav-item" onclick="showToast('Tedarikçi bağlantısı iOS uygulamasında kullanılabilir')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçi</div></div>
+      <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçi</div></div>
       <div class="nav-section-label">Hesap</div>
       <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Ayarlar</div></div>
     </nav>
@@ -899,6 +906,25 @@ body {
           <span><span class="ts-status-dot" style="background:#FBBF24"></span>Sipariş var</span>
           <span><span class="ts-status-dot" style="background:#EF4444"></span>Hesap bekliyor</span>
           <span><span class="ts-status-dot" style="background:#34D399"></span>Teslim edildi</span>
+        </div>
+      </div>
+
+      <!-- SUPPLIER -->
+      <div class="tab-panel" id="tab-supplier">
+        <div id="sup-requests-section" style="display:none;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px">Bağlantı İstekleri</div>
+          <div id="sup-requests-list" class="ver-grid"></div>
+        </div>
+        <div style="margin-bottom:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:13px;font-weight:800;color:var(--text)">Bağlı Tedarikçiler</div>
+            <div class="section-sub" id="sup-connected-count"></div>
+          </div>
+          <div id="sup-connected-list" class="ver-grid"><div class="loading-dots" style="grid-column:span 3"><span></span><span></span><span></span></div></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px">Sipariş Geçmişi</div>
+          <div id="sup-orders-list" class="refund-list"></div>
         </div>
       </div>
 
@@ -1122,6 +1148,21 @@ body {
       <button class="btn-danger-ghost" id="pr-delete-btn" style="display:none" onclick="deleteProduct()">Sil</button>
       <button class="btn-cancel" onclick="document.getElementById('product-modal').classList.remove('show')">İptal</button>
       <button class="btn-confirm" onclick="saveProduct()">✓ Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Barcode Modal -->
+<div class="modal-overlay" id="barcode-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <div class="barcode-modal-body" id="barcode-print-area">
+      <div class="barcode-product-name" id="bc-name">—</div>
+      <div class="barcode-product-price" id="bc-price">—</div>
+      <svg id="bc-svg"></svg>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('barcode-modal').classList.remove('show')">Kapat</button>
+      <button class="btn-confirm" onclick="printBarcode()">🖨️ Yazdır</button>
     </div>
   </div>
 </div>
@@ -1770,6 +1811,84 @@ window.tsSaveFloor=async()=>{
   }catch(e){showToast('Kat kaydedilemedi: '+e.message);}
 };
 
+/* ── Tedarikçi (Supplier) — StoreSupplierManager ile aynı Firestore şeması ── */
+let supRequests=[],supApproved=[],supOrders=[],supListeners=[];
+const SUP_STATUS_LABEL={pending:{t:'Sipariş Bekleniyor',c:'#B45309',bg:'#FEF3C7'},preparing:{t:'Hazırlanıyor',c:'#1D4ED8',bg:'#DBEAFE'},dispatched:{t:'Yola Çıktı',c:'#6D28D9',bg:'#EDE9FE'},confirmed:{t:'Teslim Edildi',c:'#065F46',bg:'#D1FAE5'},rejected:{t:'Reddedildi',c:'#991B1B',bg:'#FEE2E2'}};
+
+function supStopListening(){supListeners.forEach(u=>u&&u());supListeners=[];}
+
+function supInit(){
+  if(!storeId)return;
+  supStopListening();
+  const reqUnsub=onSnapshot(collection(db,'stores',storeId,'supplierRequests'),snap=>{
+    const all=snap.docs.map(d=>({supplierId:d.id,...d.data()}));
+    supRequests=all.filter(r=>!r.approved);
+    supApproved=all.filter(r=>r.approved);
+    supRenderRequests();supRenderApproved();
+  },()=>{});
+  const ordUnsub=onSnapshot(query(collection(db,'stores',storeId,'supplierTransactions'),orderBy('createdAt','desc'),limit(50)),snap=>{
+    supOrders=snap.docs.map(d=>d.data());
+    supRenderOrders();
+  },()=>{document.getElementById('sup-orders-list').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Sipariş yok</div></div>';});
+  supListeners=[reqUnsub,ordUnsub];
+}
+
+function supRenderRequests(){
+  const sec=document.getElementById('sup-requests-section');
+  if(!supRequests.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  document.getElementById('sup-requests-list').innerHTML=supRequests.map(r=>`
+    <div class="ver-card" style="cursor:default">
+      <div class="ver-name">${esc(r.supplierName||r.companyName||'Tedarikçi')}</div>
+      <div class="ver-phone">${esc(r.companyName||'')}${r.phone?' · '+esc(r.phone):''}</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn-confirm" style="flex:1;padding:8px;font-size:12px" onclick="supApprove('${esc(r.supplierId)}')">✓ Onayla</button>
+        <button class="btn-cancel" style="flex:1;padding:8px;font-size:12px" onclick="supReject('${esc(r.supplierId)}')">Reddet</button>
+      </div>
+    </div>`).join('');
+}
+function supRenderApproved(){
+  document.getElementById('sup-connected-count').textContent=supApproved.length?supApproved.length+' tedarikçi':'';
+  document.getElementById('sup-connected-list').innerHTML=supApproved.length?supApproved.map(r=>`
+    <div class="ver-card" style="cursor:default">
+      <div class="ver-name">${esc(r.supplierName||r.companyName||'Tedarikçi')}</div>
+      <div class="ver-phone">${esc(r.companyName||'')}${r.phone?' · '+esc(r.phone):''}</div>
+      <div style="margin-top:8px"><span class="stock-badge stock-ok">Bağlı</span>${r.canViewCritical?' <span class="stock-badge" style="background:var(--violet-light);color:var(--violet)">Kritik stok görebilir</span>':''}</div>
+    </div>`).join(''):'<div class="empty-state" style="grid-column:span 3"><div class="empty-icon">🚚</div><div class="empty-text">Bağlı tedarikçi yok</div><div class="empty-sub">Tedarikçi, sizi Pruva üzerinden kodla bulup bağlantı isteği gönderebilir</div></div>';
+}
+function supRenderOrders(){
+  const el=document.getElementById('sup-orders-list');
+  if(!supOrders.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Henüz sipariş yok</div></div>';return;}
+  el.innerHTML=supOrders.map(o=>{
+    const st=SUP_STATUS_LABEL[o.status]||SUP_STATUS_LABEL.pending;
+    const dt=o.createdAt?new Date(o.createdAt*1000):null;
+    const dateStr=dt?dt.toLocaleDateString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    return `<div class="refund-row" style="cursor:default">
+      <div class="refund-icon">🚚</div>
+      <div class="refund-info">
+        <div class="refund-amount">${esc(o.supplierName||'Tedarikçi')} — ${fc(o.totalAmount||0)}</div>
+        <div class="refund-meta">${(o.items||[]).length} kalem · ${dateStr}</div>
+      </div>
+      <span class="refund-tag" style="background:${st.bg};color:${st.c}">${st.t}</span>
+    </div>`;
+  }).join('');
+}
+window.supApprove=async supplierId=>{
+  try{
+    await updateDoc(doc(db,'stores',storeId,'supplierRequests',supplierId),{approved:true,canViewCritical:false});
+    await updateDoc(doc(db,'suppliers',supplierId,'storeConnections',storeId),{approved:true,canViewCritical:false}).catch(()=>{});
+    showToast('Tedarikçi onaylandı');
+  }catch(e){showToast('Hata: '+e.message);}
+};
+window.supReject=async supplierId=>{
+  if(!await askConfirm('Bu bağlantı isteğini reddetmek istiyor musun?'))return;
+  try{
+    await deleteDoc(doc(db,'stores',storeId,'supplierRequests',supplierId));
+    await deleteDoc(doc(db,'suppliers',supplierId,'storeConnections',storeId)).catch(()=>{});
+    showToast('İstek reddedildi');
+  }catch(e){showToast('Hata: '+e.message);}
+};
+
 /* ── Inventory ───────────────────── */
 function renderInventory(list){
   const el=document.getElementById('inv-grid');
@@ -1781,9 +1900,30 @@ function renderInventory(list){
     else if(m>0&&s<=m){cls='stock-crit';txt=`${s} — Kritik`;}
     else if(m>0&&s<=m*2){cls='stock-low';txt=`${s} — Az`;}
     else{cls='stock-ok';txt=`${s} adet`;}
-    return `<div class="inv-card" onclick="openProductModal('${esc(p.id)}')"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.salePrice||0)}</div><span class="stock-badge ${cls}">${txt}</span></div>`;
+    return `<div class="inv-card">
+      <div onclick="openProductModal('${esc(p.id)}')"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.salePrice||0)}</div><span class="stock-badge ${cls}">${txt}</span></div>
+      <button class="inv-barcode-btn" onclick="event.stopPropagation();openBarcodeModal('${esc(p.id)}')">🏷️ Barkod</button>
+    </div>`;
   }).join('');
 }
+
+/* ── Barkod Oluşturucu ────────────── */
+window.openBarcodeModal=id=>{
+  const p=allProducts.find(x=>x.id===id);if(!p)return;
+  document.getElementById('bc-name').textContent=p.name||p.id;
+  document.getElementById('bc-price').textContent=fc(p.salePrice||0);
+  try{
+    JsBarcode('#bc-svg',p.barcode||p.id,{format:'CODE128',width:2,height:70,fontSize:14,margin:8});
+  }catch(e){document.getElementById('bc-svg').innerHTML='';showToast('Barkod oluşturulamadı — geçersiz karakter');}
+  document.getElementById('barcode-modal').classList.add('show');
+};
+window.printBarcode=()=>{
+  const html=document.getElementById('barcode-print-area').innerHTML;
+  const w=window.open('','_blank','width=400,height=300');
+  w.document.write(`<html><head><title>Barkod</title><style>body{font-family:-apple-system,sans-serif;text-align:center;padding:24px}</style></head><body>${html}</body></html>`);
+  w.document.close();
+  w.onload=()=>{w.focus();w.print();};
+};
 
 /* ── Product CRUD (iOS ProductSyncManager şemasıyla birebir uyumlu) ── */
 window.openProductModal=id=>{
@@ -2308,7 +2448,7 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',tables:'Masa Servisi',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',tables:'Masa Servisi',supplier:'Tedarikçi',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
 window.switchTab=tab=>{
@@ -2328,6 +2468,7 @@ window.switchTab=tab=>{
     if(tab==='staff')loadStaff();
     if(tab==='zreport')loadZReport();
     if(tab==='tables')tsInit();
+    if(tab==='supplier')supInit();
   }
 };
 
