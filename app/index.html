@@ -353,6 +353,15 @@ body {
 .chat-input-row { display:flex; gap:10px; padding:14px 20px; border-top:1px solid var(--border); background:var(--card); flex-shrink:0; }
 .chat-input-row input { flex:1; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; }
 .chat-input-row input:focus { border-color:var(--purple); }
+.ai-chips { display:flex; gap:8px; padding:0 20px 12px; flex-wrap:wrap; }
+.ai-chip { padding:7px 14px; border-radius:16px; border:1px solid var(--border); background:var(--card); font-size:12px; font-weight:600; color:var(--purple-mid); cursor:pointer; transition:background .12s; }
+.ai-chip:hover { background:var(--purple-light); }
+.ai-bubble-row { display:flex; flex-direction:column; max-width:70%; }
+.ai-bubble-row.user { align-self:flex-end; align-items:flex-end; }
+.ai-bubble { padding:10px 14px; border-radius:14px; background:var(--card); box-shadow:var(--shadow); font-size:13.5px; color:var(--text); line-height:1.5; white-space:pre-line; }
+.ai-bubble-row.user .ai-bubble { background:linear-gradient(135deg,var(--purple),#1E3A8A); color:#fff; border-bottom-right-radius:4px; }
+.ai-bubble-row:not(.user) .ai-bubble { border-bottom-left-radius:4px; }
+.ai-bubble-row.user .ai-bubble { border-bottom-right-radius:4px; }
 .inv-barcode-btn:hover { background:#e9ecf5; }
 .barcode-modal-body { text-align:center; padding:8px 0 4px; }
 .barcode-modal-body svg { max-width:100%; }
@@ -789,6 +798,7 @@ body {
     <nav class="sidebar-nav">
       <div class="nav-section-label">Ana</div>
       <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><div class="nav-icon">🏠</div><div class="nav-label">Ana Sayfa</div></div>
+      <div class="nav-item" id="nav-ai" onclick="switchTab('ai')"><div class="nav-icon">✨</div><div class="nav-label">Pruva AI</div></div>
       <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon">💳</div><div class="nav-label">Satış</div></div>
       <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon">📦</div><div class="nav-label">Stok</div></div>
       <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
@@ -972,6 +982,20 @@ body {
       <div class="tab-panel" id="tab-invoices">
         <div style="margin-bottom:14px;font-size:12.5px;color:var(--muted)">Taranmış faturalar (sadece görüntüleme — tarama iOS uygulamasından yapılır)</div>
         <div id="invoice-list" class="ver-grid"><div class="loading-dots" style="grid-column:span 3"><span></span><span></span><span></span></div></div>
+      </div>
+
+      <!-- PRUVA AI -->
+      <div class="tab-panel" id="tab-ai" style="padding:0;display:flex;flex-direction:column">
+        <div class="chat-messages" id="ai-messages"></div>
+        <div class="ai-chips" id="ai-chips">
+          <button class="ai-chip" onclick="aiAsk('Bugünkü satışlarım')">Bugünkü satış özeti</button>
+          <button class="ai-chip" onclick="aiAsk('Kritik stoktakiler')">Kritik stok</button>
+          <button class="ai-chip" onclick="aiAsk('Ne yapabilirsin')">Ne yapabilirsin?</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="ai-input" placeholder="Dükkanınla konuşur gibi yaz… (ör: Süt kaç para?)" onkeydown="if(event.key==='Enter')aiSend()">
+          <button class="btn-confirm" style="width:auto;padding:10px 18px" onclick="aiSend()">Gönder</button>
+        </div>
       </div>
 
       <!-- STAFF CHAT -->
@@ -2285,6 +2309,164 @@ function renderInventory(list){
   }).join('');
 }
 
+/* ── Pruva AI — basitleştirilmiş kural tabanlı niyet motoru (iOS'un keyword fallback mantığı) ── */
+let aiLastProduct=null,aiHistory=[];
+function aiTurkishLower(s){return (s||'').toLocaleLowerCase('tr-TR');}
+function aiLevenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++)dp[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  }
+  return dp[m][n];
+}
+function aiFindProduct(query){
+  if(!query)return aiLastProduct;
+  const q=aiTurkishLower(query).trim();
+  if(!q)return aiLastProduct;
+  let best=null,bestScore=0;
+  for(const p of allProducts){
+    const name=aiTurkishLower(p.name||'');
+    if(name===q)return p;
+    if(name.includes(q)||q.includes(name)){
+      const score=Math.min(name.length,q.length)/Math.max(name.length,q.length);
+      if(score>bestScore){bestScore=score;best=p;}
+    }
+  }
+  if(best)return bestScore>0.3?best:null;
+  // Türkçe ünsüz yumuşaması / ek kırpma sonrası kalan küçük farklar için (ekmeğ → ekmek)
+  let bestDist=Infinity,bestByDist=null;
+  for(const p of allProducts){
+    const name=aiTurkishLower(p.name||'');
+    const dist=aiLevenshtein(q,name);
+    if(dist<bestDist){bestDist=dist;bestByDist=p;}
+  }
+  const threshold=Math.max(1,Math.floor(Math.min(q.length,(bestByDist?.name||'').length)*0.34));
+  return bestDist<=threshold?bestByDist:null;
+}
+function aiExtractAmount(text){
+  const m=text.replace(/,/g,'.').match(/(\d+(\.\d+)?)/);
+  return m?parseFloat(m[1]):null;
+}
+async function aiLogAudit(action,target,detail){
+  if(!storeId)return;
+  try{await addDoc(collection(db,'stores',storeId,'aiAuditLog'),{action,target,performedBy:auth.currentUser?.email||'web',source:'pruvaAI',detail:detail||'',createdAt:serverTimestamp()});}catch(e){}
+}
+async function aiRespond(text){
+  const raw=text.trim();
+  const t=aiTurkishLower(raw);
+  if(!t)return 'Bir şey yazmadın 🙂';
+
+  // Yardım
+  if(/yardım|ne yapabilir|neler yapabilir|komut/.test(t)){
+    return 'Şunları yapabilirim:\n• "Süt fiyatı ne kadar" — fiyat sorgula\n• "Sütün fiyatını 30 yap" — fiyat güncelle\n• "Ekmek stoğu kaç" — stok sorgula\n• "Ekmeğin stoğunu 50 yap" — stok güncelle\n• "Bugünkü satışlarım" — satış özeti\n• "Kritik stoktakiler" — az kalan ürünler';
+  }
+
+  // Bugünkü satış özeti
+  if(/bugün.*(satış|ciro|kazan)|satış özet/.test(t)){
+    if(!dailySummaries.length)return 'Bugüne ait satış verisi henüz yok.';
+    const today=dailySummaries[dailySummaries.length-1];
+    return `Bugün ${fc(today.revenue||0)} ciro, ${today.orders||0} işlem yaptın.`;
+  }
+
+  // Kritik stok
+  if(/kritik stok|azalan ürün|stoğu azalan|az kalan/.test(t)){
+    const crit=allProducts.filter(p=>{const s=p.stockQuantity??0,m=p.minStockThreshold??0;return m>0&&s<=m;});
+    if(!crit.length)return 'Kritik stokta ürün yok, her şey yolunda ✅';
+    return 'Kritik stoktakiler:\n'+crit.slice(0,10).map(p=>`• ${p.name} — ${p.stockQuantity} adet`).join('\n');
+  }
+
+  // Fiyat güncelleme — "X fiyatını Y yap"
+  let m=t.match(/(.+?)\s*(?:nın|nin|nun|nün|ın|in|un|ün)?\s*fiyat[ıi]?[nı]?[ıi]?\s*(\d+[.,]?\d*)\s*(?:yap|olsun|güncelle)/);
+  if(m){
+    const p=aiFindProduct(m[1]);
+    const amount=aiExtractAmount(m[2]);
+    if(!p)return `"${m[1].trim()}" adında bir ürün bulamadım.`;
+    if(amount==null)return 'Yeni fiyatı anlayamadım.';
+    try{
+      await updateDoc(doc(db,'stores',storeId,'products',p.id),{salePrice:amount,updatedAt:serverTimestamp()});
+      p.salePrice=amount;aiLastProduct=p;
+      aiLogAudit('setPrice',p.name,`${fc(amount)}`);
+      return `✓ ${p.name} fiyatı ${fc(amount)} olarak güncellendi.`;
+    }catch(e){return 'Güncellenemedi: '+e.message;}
+  }
+
+  // Fiyat sorgulama — "X fiyatı ne kadar / X ne kadar"
+  m=t.match(/(.+?)\s*(?:nın|nin|nun|nün|ın|in|un|ün)?\s*fiyat[ıi]?\s*(?:ne kadar|kaç)/) || t.match(/(.+?)\s*ne kadar\??$/);
+  if(m){
+    const p=aiFindProduct(m[1]);
+    if(!p)return `"${m[1].trim()}" adında bir ürün bulamadım.`;
+    aiLastProduct=p;
+    return `${p.name}: ${fc(p.salePrice||0)}`;
+  }
+
+  // Stok güncelleme — "X stoğunu Y yap"
+  m=t.match(/(.+?)\s*(?:nın|nin|nun|nün|ın|in|un|ün)?\s*stoğ?u?n?u?\s*(\d+)\s*(?:yap|olsun|güncelle)/);
+  if(m){
+    const p=aiFindProduct(m[1]);
+    const amount=aiExtractAmount(m[2]);
+    if(!p)return `"${m[1].trim()}" adında bir ürün bulamadım.`;
+    if(amount==null)return 'Yeni stok miktarını anlayamadım.';
+    try{
+      await updateDoc(doc(db,'stores',storeId,'products',p.id),{stockQuantity:Math.round(amount),updatedAt:serverTimestamp()});
+      p.stockQuantity=Math.round(amount);aiLastProduct=p;
+      aiLogAudit('adjustStock',p.name,`${Math.round(amount)} adet`);
+      return `✓ ${p.name} stoğu ${Math.round(amount)} adet olarak güncellendi.`;
+    }catch(e){return 'Güncellenemedi: '+e.message;}
+  }
+
+  // Stok ekleme/çıkarma — "X'e Y ekle" / "X'ten Y çıkar"
+  m=t.match(/(.+?)\s*(?:e|a|ye|ya)?\s*(\d+)\s*(?:tane|adet)?\s*ekle/);
+  if(m){
+    const p=aiFindProduct(m[1]);
+    const delta=aiExtractAmount(m[2]);
+    if(!p)return `"${m[1].trim()}" adında bir ürün bulamadım.`;
+    const newStock=Math.max(0,(p.stockQuantity||0)+Math.round(delta));
+    try{
+      await updateDoc(doc(db,'stores',storeId,'products',p.id),{stockQuantity:newStock,updatedAt:serverTimestamp()});
+      p.stockQuantity=newStock;aiLastProduct=p;
+      aiLogAudit('adjustStock',p.name,`+${Math.round(delta)} → ${newStock}`);
+      return `✓ ${p.name} stoğuna ${Math.round(delta)} eklendi. Yeni stok: ${newStock} adet.`;
+    }catch(e){return 'Güncellenemedi: '+e.message;}
+  }
+
+  // Stok sorgulama — "X stoğu kaç / ne kadar"
+  m=t.match(/(.+?)\s*(?:nın|nin|nun|nün|ın|in|un|ün)?\s*stoğ?u?\s*(?:ne kadar|kaç)/);
+  if(m){
+    const p=aiFindProduct(m[1]);
+    if(!p)return `"${m[1].trim()}" adında bir ürün bulamadım.`;
+    aiLastProduct=p;
+    return `${p.name}: ${p.stockQuantity||0} adet`;
+  }
+
+  return 'Tam anlayamadım 🤔 "Süt fiyatı ne kadar" veya "Ekmeğin stoğunu 50 yap" gibi yazmayı deneyebilirsin. "Yardım" yaz, komutları göstereyim.';
+}
+window.aiAsk=async text=>{
+  document.getElementById('ai-input').value='';
+  aiHistory.push({role:'user',text});
+  aiRenderMessages();
+  const reply=await aiRespond(text);
+  aiHistory.push({role:'ai',text:reply});
+  aiRenderMessages();
+};
+window.aiSend=()=>{
+  const input=document.getElementById('ai-input');
+  const text=input.value.trim();
+  if(!text)return;
+  aiAsk(text);
+};
+function aiRenderMessages(){
+  const el=document.getElementById('ai-messages');
+  if(!aiHistory.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-text">Pruva AI</div><div class="empty-sub">Dükkanınla konuşur gibi yaz — fiyat, stok, satış özeti sor</div></div>';
+    return;
+  }
+  el.innerHTML=aiHistory.map(m=>`<div class="ai-bubble-row${m.role==='user'?' user':''}"><div class="ai-bubble">${esc(m.text)}</div></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function aiInit(){aiRenderMessages();}
+
 /* ── Kurye Çağır — iOS CourierManager.createDeliveryRequest ile aynı şema (top-level deliveryRequests) ── */
 const CR_STATUS={open:{t:'Bekleniyor',c:'#B45309',bg:'#FEF3C7'},accepted:{t:'Kurye Yolda',c:'#1D4ED8',bg:'#DBEAFE'},cancelled:{t:'İptal',c:'#991B1B',bg:'#FEE2E2'},expired:{t:'Süresi Doldu',c:'#6B7280',bg:'#F3F4F6'}};
 let courierRequests=[],courierListener=null;
@@ -3081,7 +3263,7 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',ai:'Pruva AI',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
 window.switchTab=tab=>{
@@ -3107,6 +3289,7 @@ window.switchTab=tab=>{
     if(tab==='menu')loadMenuItems();
     if(tab==='supplier')supInit();
     if(tab==='courier')courierInit();
+    if(tab==='ai')aiInit();
     if(tab==='campaigns')campInit();
   }
 };
