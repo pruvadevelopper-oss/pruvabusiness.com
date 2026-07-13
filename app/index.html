@@ -2554,9 +2554,12 @@ Mevcut ürünler: ${productList}
 
 Yalnızca stok, fiyat, satış ve işletme durumu ile ilgili konularda yardımcı ol. Alakasız konularda (siyaset, tarif, kişisel tavsiye, görsel/müzik üretme vb.) kibarca reddet: "Bu konuda yardımcı olamıyorum. Stok, satış veya işletme hakkında bir sorunuz varsa yanınızdayım."`;
 
+    console.log('[PruvaAI][debug] calling gemini…');
     const model=getGenerativeModel(ai,{model:'gemini-2.5-flash',systemInstruction:system});
     const result=await model.generateContent(text);
+    console.log('[PruvaAI][debug] raw result:',result);
     const reply=(result.response.text()||'').trim();
+    console.log('[PruvaAI][debug] reply text:',JSON.stringify(reply));
     if(!reply)return null;
     if(reply.startsWith('CMD:'))return await aiRespond(reply.slice(4).trim());
     return reply;
