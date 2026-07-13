@@ -20,6 +20,14 @@
   --blue: #3B82F6;
   --amber: #D97706;
   --gold: #FBBF24;
+  /* İkincil vurgu renkleri — kartlarda çeşitlilik için, marka lacivertinin yanında */
+  --teal: #0D9488;
+  --teal-light: #CCFBF1;
+  --violet: #7C3AED;
+  --violet-light: #EDE9FE;
+  --amber-light: #FEF3C7;
+  --rose: #E11D48;
+  --rose-light: #FFE4E6;
   --sidebar-w: 236px;
   --topbar-h: 58px;
   --bg: #F1F4FB;
@@ -161,6 +169,14 @@ body {
 .stat-card:not(.primary)::before { opacity:0.55; }
 .stat-card.primary { background:linear-gradient(140deg,#2B4CC9 0%,#1E3A8A 48%,#152C63 100%); box-shadow:0 10px 30px rgba(30,58,138,0.35); border:none; }
 .stat-card.primary::after { content:''; position:absolute; top:-40%; right:-20%; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%); }
+/* İkincil stat kartları — her biri farklı vurgu rengiyle ayrışır */
+.stat-card.acc-teal::before { background:linear-gradient(180deg,#14B8A6,var(--teal)); }
+.stat-card.acc-amber::before { background:linear-gradient(180deg,#F59E0B,var(--amber)); }
+.stat-card.acc-violet::before { background:linear-gradient(180deg,#8B5CF6,var(--violet)); }
+.stat-icon { position:absolute; top:14px; right:15px; width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.stat-card.acc-teal .stat-icon { background:var(--teal-light); }
+.stat-card.acc-amber .stat-icon { background:var(--amber-light); }
+.stat-card.acc-violet .stat-icon { background:var(--violet-light); }
 .stat-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
 .stat-card.primary .stat-label { color:rgba(255,255,255,0.75); }
 .stat-value { font-size:25px; font-weight:800; color:var(--text); letter-spacing:-0.6px; }
@@ -181,12 +197,51 @@ body {
 .section-title { font-size:13.5px; font-weight:800; color:var(--text); letter-spacing:-0.2px; }
 .section-sub { font-size:12px; color:var(--muted); }
 .chart-area { padding:12px 14px; }
+.period-header { padding:10px 10px 10px 14px; }
+.period-tabs { display:flex; gap:2px; background:var(--bg); border-radius:8px; padding:3px; }
+.period-tab { border:none; background:transparent; padding:5px 12px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--muted); cursor:pointer; transition:background .12s,color .12s; }
+.period-tab:hover { color:var(--text2); }
+.period-tab.active { background:var(--card); color:var(--purple-mid); box-shadow:0 1px 3px rgba(14,24,56,0.12); }
+.period-panel { display:none; }
+.period-panel.active { display:block; }
+
+/* TABLE SERVICE */
+.ts-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.ts-floor-tab { padding:7px 16px; border-radius:18px; background:var(--card); border:1px solid var(--border); font-size:13px; font-weight:600; cursor:pointer; color:var(--text2); transition:all .12s; }
+.ts-floor-tab.active { background:var(--purple); color:#fff; border-color:var(--purple); }
+.ts-stats { margin-left:auto; display:flex; gap:14px; font-size:12px; color:var(--muted); }
+.ts-stats b { color:var(--text); }
+.ts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.ts-table-card { border-radius:var(--radius); padding:14px; cursor:pointer; border:2px solid transparent; transition:transform .12s, box-shadow .12s; box-shadow:var(--shadow); min-height:104px; display:flex; flex-direction:column; }
+.ts-table-card:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,0.10); }
+.ts-table-num { font-size:15px; font-weight:800; display:flex; align-items:center; gap:6px; }
+.ts-status-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.ts-table-meta { font-size:11.5px; color:var(--muted); margin-top:auto; }
+.ts-table-total { font-size:16px; font-weight:800; margin-top:2px; }
+.ts-status-label { font-size:10.5px; font-weight:700; margin-top:5px; text-transform:uppercase; letter-spacing:0.4px; }
+.ts-legend { display:flex; gap:14px; margin-top:16px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+.ts-legend span { display:flex; align-items:center; gap:5px; }
+.ts-order-items { max-height:230px; overflow-y:auto; margin-bottom:10px; }
+.ts-order-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.ts-order-row:last-child { border:none; }
+.ts-kitchen-badge { font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:4px; text-transform:uppercase; letter-spacing:0.3px; }
+.ts-add-product-list { max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; margin-top:6px; }
+.ts-add-product-row { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--border); }
+.ts-add-product-row:hover { background:var(--bg); }
+.ts-add-product-row:last-child { border-bottom:none; }
+.ts-action-row { display:flex; gap:6px; margin:12px 0; flex-wrap:wrap; }
+.ts-action-btn { flex:1; padding:9px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); font-size:12px; font-weight:600; cursor:pointer; color:var(--text2); transition:all .12s; min-width:100px; }
+.ts-action-btn.warn { background:#FEF2F2; color:#B91C1C; border-color:#FECACA; }
+.ts-action-btn.ok { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
+.ts-action-btn.active-state { outline:2px solid currentColor; }
+.modal-box-wide { width:520px; max-width:96vw; }
+.modal-box-scroll { max-height:82vh; overflow-y:auto; }
 .bar-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
 .bar-row:last-child { margin-bottom:0; }
 .bar-day { font-size:10px; color:var(--muted); width:18px; flex-shrink:0; }
 .bar-day.wide { width:54px; }
 .bar-track { flex:1; height:13px; background:var(--bg); border-radius:4px; overflow:hidden; }
-.bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--purple) 0%,#8B6AFF 100%); transition:width .5s ease; }
+.bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#0D9488 0%,#2DD4BF 100%); transition:width .5s ease; }
 .bar-val { font-size:10px; font-weight:600; width:46px; text-align:right; flex-shrink:0; }
 /* Hızlı Satış (home mini cart) */
 .qs-search { padding:10px 12px 6px; }
@@ -270,6 +325,7 @@ body {
 /* REPORTS */
 .reports-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
 .report-stat-card { background:var(--card); border-radius:var(--radius); padding:19px; box-shadow:var(--shadow); border:1px solid var(--border); border-left:3px solid var(--purple); }
+.report-stat-card.acc-teal { border-left-color:var(--teal); }
 .report-stat-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
 .report-stat-val { font-size:27px; font-weight:800; letter-spacing:-0.6px; color:var(--purple-mid); }
 .report-stat-sub { font-size:12px; color:var(--muted); margin-top:3px; }
@@ -278,6 +334,8 @@ body {
 /* FORECAST */
 .forecast-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
 .forecast-card { background:var(--card); border-radius:var(--radius); padding:19px; box-shadow:var(--shadow); border:1px solid var(--border); border-left:3px solid var(--purple); }
+.forecast-card.acc-teal { border-left-color:var(--teal); }
+.forecast-card.acc-amber { border-left-color:var(--amber); }
 .forecast-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
 .forecast-val { font-size:23px; font-weight:800; letter-spacing:-0.5px; color:var(--purple-mid); }
 .forecast-sub { font-size:12px; color:var(--muted); margin-top:3px; }
@@ -693,6 +751,7 @@ body {
       <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon">📦</div><div class="nav-label">Stok</div></div>
       <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
       <div class="nav-item" id="nav-zreport" onclick="switchTab('zreport')"><div class="nav-icon">🧾</div><div class="nav-label">Z Raporu</div></div>
+      <div class="nav-item" id="nav-tables" onclick="switchTab('tables')"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
       <div class="nav-section-label">İşletme</div>
       <div class="nav-item" id="nav-forecast" onclick="switchTab('forecast')"><div class="nav-icon">📈</div><div class="nav-label">Tahmin</div></div>
       <div class="nav-item" id="nav-refund" onclick="switchTab('refund')"><div class="nav-icon">↩️</div><div class="nav-label">İade</div></div>
@@ -732,17 +791,20 @@ body {
             <div class="stat-value" id="stat-revenue">₺0,00</div>
             <div class="stat-change" id="stat-change"></div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card acc-teal">
+            <div class="stat-icon">🧾</div>
             <div class="stat-label">Sipariş Sayısı</div>
             <div class="stat-value" id="stat-orders">0</div>
             <div class="stat-change neutral">Bugün</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card acc-amber">
+            <div class="stat-icon">🛒</div>
             <div class="stat-label">Ort. Sepet</div>
             <div class="stat-value" id="stat-avg">₺0</div>
             <div class="stat-change neutral">Bugün</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card acc-violet">
+            <div class="stat-icon">📅</div>
             <div class="stat-label">Bu Ay</div>
             <div class="stat-value" id="stat-monthly">₺0</div>
             <div class="stat-change neutral" id="stat-monthly-sub">—</div>
@@ -771,6 +833,7 @@ body {
                 <div class="action-item" onclick="switchTab('inv')"><div class="action-icon" style="background:#D1FAE5">📦</div><div class="action-label">Stok</div></div>
                 <div class="action-item" onclick="switchTab('reports')"><div class="action-icon" style="background:#DBEAFE">📊</div><div class="action-label">Raporlar</div></div>
                 <div class="action-item" onclick="switchTab('zreport')"><div class="action-icon" style="background:#FFE4E6">🧾</div><div class="action-label">Z Raporu</div></div>
+                <div class="action-item" onclick="switchTab('tables')"><div class="action-icon" style="background:var(--teal-light)">🍽️</div><div class="action-label">Masa Servisi</div></div>
                 <div class="action-item" onclick="switchTab('forecast')"><div class="action-icon" style="background:#FEF3C7">📈</div><div class="action-label">Tahmin</div></div>
                 <div class="action-item" onclick="switchTab('refund')"><div class="action-icon" style="background:#FEE2E2">↩️</div><div class="action-label">İade</div></div>
                 <div class="action-item" onclick="switchTab('veresiye')"><div class="action-icon" style="background:#F0FDF4">📋</div><div class="action-label">Veresiye</div></div>
@@ -779,16 +842,26 @@ body {
               </div>
             </div>
             <div class="section-card">
-              <div class="section-header"><div class="section-title">Son 7 Gün</div><div class="section-sub" id="week-total">—</div></div>
-              <div class="chart-area" id="week-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-            </div>
-            <div class="section-card">
-              <div class="section-header"><div class="section-title">Son 1 Ay</div><div class="section-sub" id="month-total">—</div></div>
-              <div class="chart-area" id="month-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-            </div>
-            <div class="section-card">
-              <div class="section-header"><div class="section-title">Son 1 Yıl</div><div class="section-sub" id="year-total">—</div></div>
-              <div class="chart-area" id="year-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+              <div class="section-header period-header">
+                <div class="period-tabs">
+                  <button class="period-tab active" id="ptab-week" onclick="homePeriodTab('week')">7 Gün</button>
+                  <button class="period-tab" id="ptab-month" onclick="homePeriodTab('month')">1 Ay</button>
+                  <button class="period-tab" id="ptab-year" onclick="homePeriodTab('year')">1 Yıl</button>
+                </div>
+                <div class="section-sub" id="period-total-active">—</div>
+              </div>
+              <div class="period-panel active" id="period-week">
+                <div class="chart-area" id="week-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+                <span id="week-total" style="display:none"></span>
+              </div>
+              <div class="period-panel" id="period-month">
+                <div class="chart-area" id="month-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+                <span id="month-total" style="display:none"></span>
+              </div>
+              <div class="period-panel" id="period-year">
+                <div class="chart-area" id="year-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+                <span id="year-total" style="display:none"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -813,6 +886,22 @@ body {
         </div>
       </div>
 
+      <!-- TABLE SERVICE -->
+      <div class="tab-panel" id="tab-tables">
+        <div class="ts-toolbar">
+          <div id="ts-floor-tabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          <button class="btn-add" style="padding:6px 12px;font-size:12px" onclick="tsAddFloor()">+ Kat</button>
+          <div class="ts-stats"><span>Dolu: <b id="ts-occupied">0</b></span><span>Açık Hesap: <b id="ts-open-revenue">₺0</b></span></div>
+        </div>
+        <div class="ts-grid" id="ts-grid"><div class="loading-dots" style="grid-column:span 4"><span></span><span></span><span></span></div></div>
+        <div class="ts-legend">
+          <span><span class="ts-status-dot" style="background:#60A5FA"></span>Boş</span>
+          <span><span class="ts-status-dot" style="background:#FBBF24"></span>Sipariş var</span>
+          <span><span class="ts-status-dot" style="background:#EF4444"></span>Hesap bekliyor</span>
+          <span><span class="ts-status-dot" style="background:#34D399"></span>Teslim edildi</span>
+        </div>
+      </div>
+
       <!-- INVENTORY -->
       <div class="tab-panel" id="tab-inv">
         <div class="inv-toolbar">
@@ -826,7 +915,7 @@ body {
       <div class="tab-panel" id="tab-reports">
         <div class="reports-grid">
           <div class="report-stat-card"><div class="report-stat-label">Bu Ay Ciro</div><div class="report-stat-val" id="rep-monthly-rev">—</div><div class="report-stat-sub" id="rep-monthly-sub">— işlem</div></div>
-          <div class="report-stat-card"><div class="report-stat-label">Bu Yıl Ciro</div><div class="report-stat-val" id="rep-yearly-rev">—</div><div class="report-stat-sub">Yıllık toplam</div></div>
+          <div class="report-stat-card acc-teal"><div class="report-stat-label">Bu Yıl Ciro</div><div class="report-stat-val" id="rep-yearly-rev">—</div><div class="report-stat-sub">Yıllık toplam</div></div>
         </div>
         <div class="reports-charts">
           <div class="section-card"><div class="section-header"><div class="section-title">Son 7 Gün</div></div><div class="chart-area" id="rep-week-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div></div>
@@ -864,8 +953,8 @@ body {
       <div class="tab-panel" id="tab-forecast">
         <div class="forecast-grid">
           <div class="forecast-card"><div class="forecast-label">Bu Hafta Tahmini</div><div class="forecast-val" id="fc-week">—</div><div class="forecast-sub">7 günlük projeksiyon</div></div>
-          <div class="forecast-card"><div class="forecast-label">Bu Ay Tahmini</div><div class="forecast-val" id="fc-month">—</div><div class="forecast-sub">Aylık projeksiyon</div></div>
-          <div class="forecast-card"><div class="forecast-label">Günlük Ortalama</div><div class="forecast-val" id="fc-avg">—</div><div class="forecast-sub">Son 30 gün ortalaması</div></div>
+          <div class="forecast-card acc-teal"><div class="forecast-label">Bu Ay Tahmini</div><div class="forecast-val" id="fc-month">—</div><div class="forecast-sub">Aylık projeksiyon</div></div>
+          <div class="forecast-card acc-amber"><div class="forecast-label">Günlük Ortalama</div><div class="forecast-val" id="fc-avg">—</div><div class="forecast-sub">Son 30 gün ortalaması</div></div>
         </div>
         <div class="forecast-cols">
           <div class="section-card">
@@ -1128,6 +1217,74 @@ body {
   </div>
 </div>
 
+<!-- Table Order Modal -->
+<div class="modal-overlay" id="ts-order-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box modal-box-wide modal-box-scroll">
+    <div class="modal-title" id="ts-order-title">Masa</div>
+    <div class="ts-order-items" id="ts-order-items"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--border);margin-bottom:4px">
+      <span style="font-size:13px;color:var(--muted);font-weight:600">Toplam</span>
+      <span style="font-size:20px;font-weight:800" id="ts-order-total">₺0,00</span>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Ürün Ekle</label>
+      <input type="text" id="ts-add-search" placeholder="Ürün ara…" oninput="tsFilterAddList(this.value)">
+      <div class="ts-add-product-list" id="ts-add-list"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:6px"><label>Masa Notu</label><input type="text" id="ts-note" placeholder="Not (ör: az şekerli)" onchange="tsSaveNote()"></div>
+    <div class="ts-action-row">
+      <button class="ts-action-btn warn" id="ts-btn-bill" onclick="tsSetBilling('waiting_bill')">🧾 Hesap İstendi</button>
+      <button class="ts-action-btn ok" id="ts-btn-served" onclick="tsSetBilling('served')">✓ Teslim Edildi</button>
+      <button class="ts-action-btn" onclick="tsClearTable()" style="color:var(--red)">🗑 Masayı Temizle</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('ts-order-modal').classList.remove('show')">Kapat</button>
+      <button class="btn-confirm" id="ts-pay-btn" onclick="tsOpenPayment()">💰 Ödeme Al</button>
+    </div>
+  </div>
+</div>
+
+<!-- Table Payment Modal -->
+<div class="modal-overlay" id="ts-pay-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <div class="modal-title">Masa Ödemesi</div>
+    <div class="payment-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="payment-btn selected" id="ts-pay-cash" onclick="tsSelectPay('cash')"><span class="payment-icon">💵</span>Nakit</div>
+      <div class="payment-btn" id="ts-pay-card" onclick="tsSelectPay('card')"><span class="payment-icon">💳</span>Kart</div>
+      <div class="payment-btn" id="ts-pay-qr" onclick="tsSelectPay('qr')"><span class="payment-icon">📲</span><span style="font-size:12px">QR/Havale</span></div>
+    </div>
+    <div class="modal-total" id="ts-pay-total">₺0,00</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('ts-pay-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" onclick="tsConfirmPayment()">✓ Tahsil Et &amp; Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Floor Modal -->
+<div class="modal-overlay" id="ts-floor-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <div class="modal-title">Kat / Alan Ekle</div>
+    <div class="form-group"><label>Ad</label><input type="text" id="ts-floor-name" placeholder="Bahçe, Teras, 2. Kat…"></div>
+    <div class="form-group"><label>Masa Sayısı</label><input type="number" id="ts-floor-count" placeholder="8" min="1" max="60"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('ts-floor-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" onclick="tsSaveFloor()">Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box">
+    <div class="modal-title" style="font-size:15px" id="confirm-msg">Emin misiniz?</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="confirm-cancel">İptal</button>
+      <button class="btn-confirm" id="confirm-ok">Evet</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -1135,7 +1292,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
-         collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp }
+         collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app  = initializeApp({
@@ -1357,6 +1514,262 @@ window.confirmSale=async()=>{
   showToast(`✓ ${fc(total)} — satış tamamlandı`);switchTab('home');
 };
 
+/* ── Confirm helper ──────────────── */
+function askConfirm(msg){
+  return new Promise(res=>{
+    document.getElementById('confirm-msg').textContent=msg;
+    const m=document.getElementById('confirm-modal');
+    m.classList.add('show');
+    const ok=document.getElementById('confirm-ok'),no=document.getElementById('confirm-cancel');
+    const done=v=>{m.classList.remove('show');ok.onclick=no.onclick=null;res(v);};
+    ok.onclick=()=>done(true);no.onclick=()=>done(false);
+  });
+}
+
+/* ── Table Service (Masa Servisi) — iOS TableOrder şemasıyla birebir ── */
+let tsFloors=[],tsOrders={},tsActiveFloor=null,tsListener=null,tsCurrentKey=null,tsPayMethod='cash';
+const TS_STATUS={
+  empty:{color:'#60A5FA',bg:'#EFF6FF',label:'Boş'},
+  ordering:{color:'#FBBF24',bg:'#FFFBEB',label:'Sipariş var'},
+  waiting_bill:{color:'#EF4444',bg:'#FEF2F2',label:'Hesap bekliyor'},
+  served:{color:'#34D399',bg:'#F0FDF4',label:'Teslim edildi'}
+};
+const KS_LABEL={waiting:{t:'Bekliyor',c:'#6B7280',bg:'#F3F4F6'},preparing:{t:'Hazırlanıyor',c:'#B45309',bg:'#FEF3C7'},ready:{t:'Hazır',c:'#065F46',bg:'#D1FAE5'},delivered:{t:'Teslim',c:'#6B7280',bg:'#F3F4F6'}};
+const tsKey=(f,t)=>f+'_'+t;
+const tsOrderTotal=o=>Math.round((o.items||[]).reduce((s,i)=>s+i.price*i.quantity,0)*100)/100;
+const tsStatusOf=o=>{
+  if(!o||!(o.items||[]).length)return 'empty';
+  if(o.billingStatus==='waiting_bill')return 'waiting_bill';
+  if(o.billingStatus==='served')return 'served';
+  return 'ordering';
+};
+
+async function tsInit(){
+  if(!storeId)return;
+  try{
+    const sd=await getDoc(doc(db,'stores',storeId));
+    const arr=sd.exists()?(sd.data().floors||[]):[];
+    tsFloors=arr.filter(f=>f&&f.id&&f.name).map(f=>({id:f.id,name:f.name,tableCount:Math.max(1,f.tableCount||8)}));
+  }catch{}
+  if(!tsFloors.length)tsFloors=[{id:'WEB-FLOOR-1',name:'1. Kat',tableCount:8}];
+  if(!tsActiveFloor||!tsFloors.find(f=>f.id===tsActiveFloor))tsActiveFloor=tsFloors[0].id;
+  if(tsListener)tsListener();
+  tsListener=onSnapshot(collection(db,'stores',storeId,'tableOrders'),snap=>{
+    snap.docChanges().forEach(ch=>{
+      const d=ch.doc.data();
+      if(ch.type==='removed'){delete tsOrders[ch.doc.id];}
+      else tsOrders[ch.doc.id]={...d,_docId:ch.doc.id};
+    });
+    tsRenderGrid();
+    if(tsCurrentKey&&document.getElementById('ts-order-modal').classList.contains('show'))tsRenderOrderModal();
+  },()=>{document.getElementById('ts-grid').innerHTML='<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">🍽️</div><div class="empty-text">Masa verisi yüklenemedi</div></div>';});
+  tsRenderFloorTabs();tsRenderGrid();
+}
+
+function tsRenderFloorTabs(){
+  document.getElementById('ts-floor-tabs').innerHTML=tsFloors.map(f=>
+    '<div class="ts-floor-tab'+(f.id===tsActiveFloor?' active':'')+'" onclick="tsSelectFloor(\''+esc(f.id)+'\')">'+esc(f.name)+' <span style="opacity:.6;font-size:11px">('+tsOccupiedInFloor(f.id)+'/'+f.tableCount+')</span></div>'
+  ).join('');
+}
+const tsOccupiedInFloor=fid=>Object.values(tsOrders).filter(o=>o.floorId===fid&&(o.items||[]).length).length;
+window.tsSelectFloor=id=>{tsActiveFloor=id;tsRenderFloorTabs();tsRenderGrid();};
+
+function tsRenderGrid(){
+  const floor=tsFloors.find(f=>f.id===tsActiveFloor);
+  if(!floor){document.getElementById('ts-grid').innerHTML='';return;}
+  const cells=[];
+  for(let t=1;t<=floor.tableCount;t++){
+    const o=tsOrders[tsKey(floor.id,t)];
+    const st=tsStatusOf(o);const S=TS_STATUS[st];
+    const total=o?tsOrderTotal(o):0;
+    const cnt=o?(o.items||[]).reduce((s,i)=>s+i.quantity,0):0;
+    let elapsed='';
+    if(o&&o.openedAt&&o.openedAt.toDate){const min=Math.floor((Date.now()-o.openedAt.toDate().getTime())/60000);elapsed=min<60?min+' dk':Math.floor(min/60)+' sa '+(min%60)+' dk';}
+    cells.push('<div class="ts-table-card" style="background:'+S.bg+';border-color:'+S.color+'33" onclick="tsOpenTable(\''+esc(floor.id)+'\','+t+')">'+
+      '<div class="ts-table-num"><span class="ts-status-dot" style="background:'+S.color+'"></span>Masa '+t+'</div>'+
+      (st!=='empty'
+        ?'<div class="ts-table-meta">'+cnt+' kalem'+(elapsed?' · '+elapsed:'')+'</div><div class="ts-table-total">'+fc(total)+'</div>'
+        :'<div class="ts-table-meta" style="margin-top:auto">Boş masa</div>')+
+      '<div class="ts-status-label" style="color:'+S.color+'">'+S.label+'</div>'+
+    '</div>');
+  }
+  document.getElementById('ts-grid').innerHTML=cells.join('');
+  const occ=Object.values(tsOrders).filter(o=>(o.items||[]).length).length;
+  const rev=Object.values(tsOrders).reduce((s,o)=>s+tsOrderTotal(o),0);
+  document.getElementById('ts-occupied').textContent=occ;
+  document.getElementById('ts-open-revenue').textContent=fcs(rev);
+  tsRenderFloorTabs2();
+}
+function tsRenderFloorTabs2(){
+  document.querySelectorAll('#ts-floor-tabs .ts-floor-tab').forEach((el,i)=>{
+    const f=tsFloors[i];if(!f)return;
+    const span=el.querySelector('span');
+    if(span)span.textContent='('+tsOccupiedInFloor(f.id)+'/'+f.tableCount+')';
+  });
+}
+
+window.tsOpenTable=(floorId,table)=>{
+  tsCurrentKey=tsKey(floorId,table);
+  document.getElementById('ts-add-search').value='';
+  tsRenderOrderModal();
+  tsFilterAddList('');
+  document.getElementById('ts-order-modal').classList.add('show');
+};
+function tsCurrentOrder(){
+  const o=tsOrders[tsCurrentKey];
+  if(o)return o;
+  const[floorId,tno]=tsSplitKey(tsCurrentKey);
+  return {id:tsCurrentKey,floorId,tableNumber:tno,items:[],openedAt:null,waiterNote:'',billingStatus:'active'};
+}
+function tsSplitKey(k){const idx=k.lastIndexOf('_');return[k.slice(0,idx),parseInt(k.slice(idx+1))];}
+function tsRenderOrderModal(){
+  const o=tsCurrentOrder();
+  const[,tno]=tsSplitKey(tsCurrentKey);
+  const floor=tsFloors.find(f=>f.id===o.floorId);
+  document.getElementById('ts-order-title').textContent=(floor?floor.name+' · ':'')+'Masa '+tno;
+  const items=o.items||[];
+  document.getElementById('ts-order-items').innerHTML=items.length?items.map(i=>{
+    const ks=KS_LABEL[i.kitchenStatus]||KS_LABEL.waiting;
+    return '<div class="ts-order-row">'+
+      '<div style="flex:1;min-width:0"><div style="font-weight:600">'+esc(i.name)+'</div>'+
+      (i.note?'<div style="font-size:11px;color:var(--muted)">'+esc(i.note)+'</div>':'')+'</div>'+
+      '<span class="ts-kitchen-badge" style="color:'+ks.c+';background:'+ks.bg+'">'+ks.t+'</span>'+
+      '<div class="cart-qty-ctrl"><div class="qty-btn" onclick="tsChangeQty(\''+esc(i.id)+'\',-1)">−</div><div class="qty-num">'+i.quantity+'</div><div class="qty-btn" onclick="tsChangeQty(\''+esc(i.id)+'\',1)">+</div></div>'+
+      '<div style="font-weight:700;font-size:12.5px;width:70px;text-align:right">'+fc(i.price*i.quantity)+'</div>'+
+    '</div>';
+  }).join(''):'<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px">Sipariş boş — aşağıdan ürün ekle</div>';
+  document.getElementById('ts-order-total').textContent=fc(tsOrderTotal(o));
+  document.getElementById('ts-note').value=o.waiterNote||'';
+  document.getElementById('ts-btn-bill').classList.toggle('active-state',o.billingStatus==='waiting_bill');
+  document.getElementById('ts-btn-served').classList.toggle('active-state',o.billingStatus==='served');
+  document.getElementById('ts-pay-btn').disabled=!items.length;
+}
+window.tsFilterAddList=q=>{
+  const f=(q||'').toLowerCase();
+  const list=(f?allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)||(p.barcode||'').includes(f)):allProducts).slice(0,30);
+  document.getElementById('ts-add-list').innerHTML=list.length?list.map(p=>
+    '<div class="ts-add-product-row" onclick="tsAddItem(\''+esc(p.id)+'\')"><span>'+pEmoji(p)+' '+esc(p.name||p.id)+'</span><span style="font-weight:700">'+fc(p.salePrice||0)+' <span style="color:var(--purple);font-weight:800;margin-left:4px">+</span></span></div>'
+  ).join(''):'<div style="padding:10px;font-size:12px;color:var(--muted)">Ürün bulunamadı</div>';
+};
+
+async function tsPush(o){
+  const ref=doc(db,'stores',storeId,'tableOrders',o.id);
+  if(!(o.items||[]).length){await deleteDoc(ref).catch(()=>{});return;}
+  const payload={
+    id:o.id,floorId:o.floorId,tableNumber:o.tableNumber,
+    items:o.items.map(i=>({id:i.id,productID:i.productID,name:i.name,price:i.price,quantity:i.quantity,note:i.note||'',kitchenStatus:i.kitchenStatus||'waiting',...(i.kitchenSentAt?{kitchenSentAt:i.kitchenSentAt}:{})})),
+    openedAt:o.openedAt||Timestamp.now(),
+    waiterNote:o.waiterNote||'',
+    billingStatus:o.billingStatus||'active'
+  };
+  await setDoc(ref,payload);
+}
+window.tsAddItem=async pid=>{
+  const p=allProducts.find(x=>x.id===pid);if(!p)return;
+  const o=tsCurrentOrder();
+  if(!o.openedAt)o.openedAt=Timestamp.now();
+  const ex=(o.items||[]).find(i=>i.productID===pid);
+  if(ex)ex.quantity++;
+  else o.items.push({id:crypto.randomUUID().toUpperCase(),productID:pid,name:p.name||pid,price:p.salePrice||0,quantity:1,note:'',kitchenStatus:'waiting'});
+  tsOrders[o.id]=o;tsRenderOrderModal();tsRenderGrid();
+  try{await tsPush(o);}catch(e){showToast('Kaydedilemedi: '+e.message);}
+};
+window.tsChangeQty=async(itemId,d)=>{
+  const o=tsCurrentOrder();
+  const idx=(o.items||[]).findIndex(i=>i.id===itemId);if(idx===-1)return;
+  o.items[idx].quantity+=d;
+  if(o.items[idx].quantity<=0)o.items.splice(idx,1);
+  if(!o.items.length)delete tsOrders[o.id];else tsOrders[o.id]=o;
+  tsRenderOrderModal();tsRenderGrid();
+  try{await tsPush(o);}catch(e){showToast('Kaydedilemedi: '+e.message);}
+};
+window.tsSaveNote=async()=>{
+  const o=tsCurrentOrder();
+  o.waiterNote=document.getElementById('ts-note').value.trim();
+  if((o.items||[]).length){tsOrders[o.id]=o;try{await tsPush(o);}catch{}}
+};
+window.tsSetBilling=async st=>{
+  const o=tsCurrentOrder();
+  if(!(o.items||[]).length){showToast('Sipariş boş');return;}
+  o.billingStatus=o.billingStatus===st?'active':st;
+  tsOrders[o.id]=o;tsRenderOrderModal();tsRenderGrid();
+  try{await tsPush(o);}catch(e){showToast('Kaydedilemedi: '+e.message);}
+};
+window.tsClearTable=async()=>{
+  const o=tsCurrentOrder();
+  if(!(o.items||[]).length){document.getElementById('ts-order-modal').classList.remove('show');return;}
+  if(!await askConfirm('Masa siparişi silinecek (ödeme alınmadan). Emin misin?'))return;
+  o.items=[];delete tsOrders[o.id];
+  tsRenderGrid();
+  document.getElementById('ts-order-modal').classList.remove('show');
+  try{await tsPush(o);}catch(e){showToast('Hata: '+e.message);}
+};
+
+/* Ödeme al & masayı kapat — mevcut receipts/dailySummaries şemasıyla uyumlu */
+window.tsOpenPayment=()=>{
+  const o=tsCurrentOrder();
+  if(!(o.items||[]).length)return;
+  tsPayMethod='cash';tsUpdatePayBtns();
+  document.getElementById('ts-pay-total').textContent=fc(tsOrderTotal(o));
+  document.getElementById('ts-pay-modal').classList.add('show');
+};
+window.tsSelectPay=m=>{tsPayMethod=m;tsUpdatePayBtns();};
+function tsUpdatePayBtns(){['cash','card','qr'].forEach(k=>document.getElementById('ts-pay-'+k).classList.toggle('selected',k===tsPayMethod));}
+window.tsConfirmPayment=async()=>{
+  const o=tsCurrentOrder();
+  const items=o.items||[];if(!items.length)return;
+  const total=tsOrderTotal(o);
+  const[,tno]=tsSplitKey(tsCurrentKey);
+  document.getElementById('ts-pay-modal').classList.remove('show');
+  document.getElementById('ts-order-modal').classList.remove('show');
+  try{
+    const td=new Date();
+    const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+    const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
+    await addDoc(collection(db,'stores',storeId,'receipts'),{
+      date:serverTimestamp(),monthKey:mk,total,taxTotal:0,paymentMethod:tsPayMethod,
+      staffName:auth.currentUser?.email||'web',
+      items:items.map(i=>({productId:i.productID,name:i.name,qty:i.quantity,unitPrice:i.price,total:i.price*i.quantity,taxRate:0})),
+      expireAt:new Date(td.getTime()+365*24*3600*1000),isRefund:false,source:'web',
+      tableId:o.id,tableLabel:'Masa '+tno
+    });
+    await Promise.all(items.map(i=>{
+      if(!allProducts.find(p=>p.id===i.productID))return Promise.resolve();
+      return updateDoc(doc(db,'stores',storeId,'products',i.productID),{stockQuantity:increment(-i.quantity),updatedAt:serverTimestamp()}).catch(()=>{});
+    }));
+    await bumpSummary(['stores',storeId,'dailySummaries',dk],total,0,tsPayMethod,1);
+    await bumpSummary(['stores',storeId,'monthlySummaries',mk],total,0,tsPayMethod,1);
+    await deleteDoc(doc(db,'stores',storeId,'tableOrders',o.id)).catch(()=>{});
+    for(const i of items){
+      const p=allProducts.find(x=>x.id===i.productID);
+      if(p)p.stockQuantity=Math.max(0,(p.stockQuantity||0)-i.quantity);
+    }
+    delete tsOrders[o.id];
+    renderInventory(allProducts);tsRenderGrid();
+    loadDailySummaries();loadMonthlySummaries();
+    showToast('✓ Masa '+tno+' kapatıldı — '+fc(total));
+  }catch(e){showToast('Ödeme hatası: '+e.message);}
+};
+
+/* Kat ekleme */
+window.tsAddFloor=()=>{
+  document.getElementById('ts-floor-name').value='';
+  document.getElementById('ts-floor-count').value='8';
+  document.getElementById('ts-floor-modal').classList.add('show');
+};
+window.tsSaveFloor=async()=>{
+  const name=document.getElementById('ts-floor-name').value.trim()||('Kat '+(tsFloors.length+1));
+  const cnt=Math.min(60,Math.max(1,parseInt(document.getElementById('ts-floor-count').value)||8));
+  tsFloors.push({id:crypto.randomUUID().toUpperCase(),name,tableCount:cnt});
+  document.getElementById('ts-floor-modal').classList.remove('show');
+  tsActiveFloor=tsFloors[tsFloors.length-1].id;
+  tsRenderFloorTabs();tsRenderGrid();
+  try{
+    await setDoc(doc(db,'stores',storeId),{floors:tsFloors.map(f=>({id:f.id,name:f.name,tableCount:f.tableCount}))},{merge:true});
+    showToast(name+' eklendi');
+  }catch(e){showToast('Kat kaydedilemedi: '+e.message);}
+};
+
 /* ── Inventory ───────────────────── */
 function renderInventory(list){
   const el=document.getElementById('inv-grid');
@@ -1561,6 +1974,21 @@ function renderHomeStats(){
   document.getElementById('year-total').textContent=fcs(monthlySummaries.reduce((s,m)=>s+m.revenue,0));
   if(monthlySummaries.length)renderBarChart('year-chart',monthlySummaries.map(s=>({date:s.month,revenue:s.revenue})),'month');
   else document.getElementById('year-chart').innerHTML='<div class="qs-empty">Henüz veri yok</div>';
+  syncPeriodTotal();
+}
+window.__homePeriod='week';
+window.homePeriodTab=(p)=>{
+  window.__homePeriod=p;
+  ['week','month','year'].forEach(k=>{
+    document.getElementById('ptab-'+k)?.classList.toggle('active',k===p);
+    document.getElementById('period-'+k)?.classList.toggle('active',k===p);
+  });
+  syncPeriodTotal();
+};
+function syncPeriodTotal(){
+  const src=document.getElementById(window.__homePeriod+'-total');
+  const dst=document.getElementById('period-total-active');
+  if(src&&dst)dst.textContent=src.textContent;
 }
 function renderReports(){
   if(!dailySummaries.length)return;
@@ -1880,7 +2308,7 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',tables:'Masa Servisi',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
 window.switchTab=tab=>{
@@ -1899,6 +2327,7 @@ window.switchTab=tab=>{
     if(tab==='veresiye')loadVeresiye();
     if(tab==='staff')loadStaff();
     if(tab==='zreport')loadZReport();
+    if(tab==='tables')tsInit();
   }
 };
 
