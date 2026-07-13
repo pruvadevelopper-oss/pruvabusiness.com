@@ -323,6 +323,24 @@ body {
 .stock-crit { background:var(--red-light); color:#991B1B; }
 .stock-out { background:var(--bg); color:var(--muted); }
 .inv-barcode-btn { width:100%; margin-top:9px; padding:6px; border-radius:7px; border:1px solid var(--border); background:var(--bg); font-size:11px; font-weight:600; color:var(--text2); cursor:pointer; transition:background .12s; }
+.cb-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--border); }
+.cb-row:first-child { border-top:none; }
+.cb-badge { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+.cb-range { flex:1; font-size:13px; font-weight:600; color:var(--text2); }
+.cb-rate { font-size:15px; font-weight:800; color:var(--text); }
+.kds-board { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; align-items:start; }
+.kds-col-header { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; }
+.kds-col-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.kds-col-count { margin-left:auto; background:var(--card); border-radius:10px; padding:1px 8px; font-size:11px; color:var(--text); box-shadow:var(--shadow); }
+.kds-col-body { display:flex; flex-direction:column; gap:10px; min-height:80px; }
+.kds-ticket { background:var(--card); border-radius:var(--radius-sm); padding:13px 14px; box-shadow:var(--shadow); border-left:3px solid transparent; cursor:pointer; transition:box-shadow .12s,transform .12s; }
+.kds-ticket:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+.kds-ticket-table { font-size:11px; font-weight:700; color:var(--purple-mid); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+.kds-ticket-name { font-size:14px; font-weight:700; }
+.kds-ticket-qty { font-size:12px; color:var(--muted); margin-top:2px; }
+.kds-ticket-note { font-size:11.5px; color:var(--amber); margin-top:4px; font-style:italic; }
+.kds-ticket-time { font-size:10.5px; color:var(--muted); margin-top:6px; }
+.kds-empty { font-size:12px; color:var(--muted); text-align:center; padding:20px 0; }
 .inv-barcode-btn:hover { background:#e9ecf5; }
 .barcode-modal-body { text-align:center; padding:8px 0 4px; }
 .barcode-modal-body svg { max-width:100%; }
@@ -759,6 +777,7 @@ body {
       <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
       <div class="nav-item" id="nav-zreport" onclick="switchTab('zreport')"><div class="nav-icon">🧾</div><div class="nav-label">Z Raporu</div></div>
       <div class="nav-item" id="nav-tables" onclick="switchTab('tables')"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
+      <div class="nav-item" id="nav-kds" onclick="switchTab('kds')"><div class="nav-icon">👨‍🍳</div><div class="nav-label">Mutfak Ekranı</div></div>
       <div class="nav-section-label">İşletme</div>
       <div class="nav-item" id="nav-forecast" onclick="switchTab('forecast')"><div class="nav-icon">📈</div><div class="nav-label">Tahmin</div></div>
       <div class="nav-item" id="nav-refund" onclick="switchTab('refund')"><div class="nav-icon">↩️</div><div class="nav-label">İade</div></div>
@@ -766,6 +785,7 @@ body {
       <div class="nav-item" id="nav-veresiye" onclick="switchTab('veresiye')"><div class="nav-icon">📋</div><div class="nav-label">Veresiye</div></div>
       <div class="nav-item" id="nav-staff" onclick="switchTab('staff')"><div class="nav-icon">👥</div><div class="nav-label">Personel</div></div>
       <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçi</div></div>
+      <div class="nav-item" id="nav-campaigns" onclick="switchTab('campaigns')"><div class="nav-icon">🎁</div><div class="nav-label">Kampanyalar</div></div>
       <div class="nav-section-label">Hesap</div>
       <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Ayarlar</div></div>
     </nav>
@@ -906,6 +926,52 @@ body {
           <span><span class="ts-status-dot" style="background:#FBBF24"></span>Sipariş var</span>
           <span><span class="ts-status-dot" style="background:#EF4444"></span>Hesap bekliyor</span>
           <span><span class="ts-status-dot" style="background:#34D399"></span>Teslim edildi</span>
+        </div>
+      </div>
+
+      <!-- KDS (Mutfak Ekranı) -->
+      <div class="tab-panel" id="tab-kds">
+        <div class="kds-board">
+          <div class="kds-col">
+            <div class="kds-col-header" style="color:#6B7280"><span class="kds-col-dot" style="background:#6B7280"></span>Bekliyor <span class="kds-col-count" id="kds-count-waiting">0</span></div>
+            <div class="kds-col-body" id="kds-col-waiting"></div>
+          </div>
+          <div class="kds-col">
+            <div class="kds-col-header" style="color:#B45309"><span class="kds-col-dot" style="background:#F59E0B"></span>Hazırlanıyor <span class="kds-col-count" id="kds-count-preparing">0</span></div>
+            <div class="kds-col-body" id="kds-col-preparing"></div>
+          </div>
+          <div class="kds-col">
+            <div class="kds-col-header" style="color:#065F46"><span class="kds-col-dot" style="background:#10B981"></span>Hazır <span class="kds-col-count" id="kds-count-ready">0</span></div>
+            <div class="kds-col-body" id="kds-col-ready"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMPAIGNS -->
+      <div class="tab-panel" id="tab-campaigns">
+        <div class="section-card" style="margin-bottom:16px">
+          <div class="section-header"><div class="section-title">🎁 Müşteri Cashback Sistemi</div></div>
+          <div style="padding:6px 18px 16px;font-size:12.5px;color:var(--muted)">Platformun müşterilere otomatik uyguladığı para iadesi kademeleri</div>
+          <div style="padding:0 18px 18px">
+            <div class="cb-row"><span class="cb-badge" style="background:#FEF3C7;color:#B45309">1</span><span class="cb-range">250 – 349 ₺</span><span class="cb-rate">%1</span></div>
+            <div class="cb-row"><span class="cb-badge" style="background:#FEF3C7;color:#B45309">2</span><span class="cb-range">350 – 499 ₺</span><span class="cb-rate">%2</span></div>
+            <div class="cb-row"><span class="cb-badge" style="background:var(--teal-light);color:var(--teal)">3</span><span class="cb-range">500 ₺ ve üzeri</span><span class="cb-rate">%3</span></div>
+          </div>
+          <div style="padding:0 18px 18px;font-size:11.5px;color:var(--muted)">Cashback, müşteri kupon kullanmadığında devreye girer. Kupon + Cashback aynı anda uygulanmaz.</div>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">🎉 İşletme Davet Et</div></div>
+          <div style="padding:6px 18px 16px;font-size:12.5px;color:var(--muted)">Çevrendeki esnafı platforma davet et, 100 ₺ Pruva Kredisi kazan</div>
+          <div style="padding:0 18px 18px">
+            <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:16px;margin-bottom:12px">
+              <div style="flex:1">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:3px">Davet Kodun</div>
+                <div id="camp-invite-code" style="font-size:22px;font-weight:800;color:var(--purple);font-family:monospace">—</div>
+              </div>
+              <button id="camp-copy-btn" class="btn-cancel" style="padding:9px 16px;font-size:12.5px" onclick="campCopyCode()" disabled>Kopyala</button>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted)">Davet ettiğin işletme platforma katılıp ilk satışını yaptığında 100 ₺ Pruva Kredisi otomatik hesabına yüklenecek.</div>
+          </div>
         </div>
       </div>
 
@@ -1889,6 +1955,85 @@ window.supReject=async supplierId=>{
   }catch(e){showToast('Hata: '+e.message);}
 };
 
+/* ── Kampanyalar (İşletme Davet Et) — iOS CampaignInfoView şemasıyla birebir ── */
+let campInviteCode='';
+async function campInit(){
+  const uid=auth.currentUser?.uid;if(!uid)return;
+  document.getElementById('camp-invite-code').textContent='…';
+  try{
+    const snap=await getDocs(query(collection(db,'businessInvites'),where('inviterUid','==',uid),where('status','==','pending'),limit(1)));
+    if(!snap.empty){
+      campInviteCode=snap.docs[0].id;
+    }else{
+      const prefix=uid.slice(0,4).toUpperCase();
+      const suffix=Math.floor(Math.random()*65536).toString(16).toUpperCase().padStart(4,'0');
+      campInviteCode=prefix+'-'+suffix;
+      await setDoc(doc(db,'businessInvites',campInviteCode),{inviterUid:uid,status:'pending',createdAt:serverTimestamp()});
+    }
+    document.getElementById('camp-invite-code').textContent=campInviteCode;
+    document.getElementById('camp-copy-btn').disabled=false;
+  }catch(e){document.getElementById('camp-invite-code').textContent='Yüklenemedi';}
+}
+window.campCopyCode=()=>{
+  if(!campInviteCode)return;
+  navigator.clipboard?.writeText(`Pruva platformuna katıl! Kayıt olurken '${campInviteCode}' davet kodunu gir. pruva.app/join`).then(()=>showToast('Davet kodu kopyalandı')).catch(()=>showToast('Kopyalanamadı'));
+};
+
+/* ── Mutfak Ekranı (KDS) — aynı tableOrders koleksiyonunu okur ── */
+let kdsOrders={},kdsListener=null;
+const KDS_NEXT={waiting:'preparing',preparing:'ready',ready:'delivered'};
+function kdsInit(){
+  if(!storeId)return;
+  if(kdsListener)kdsListener();
+  kdsListener=onSnapshot(collection(db,'stores',storeId,'tableOrders'),snap=>{
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==='removed')delete kdsOrders[ch.doc.id];
+      else kdsOrders[ch.doc.id]=ch.doc.data();
+    });
+    kdsRender();
+  },()=>{});
+}
+function kdsRender(){
+  const cols={waiting:[],preparing:[],ready:[]};
+  Object.values(kdsOrders).forEach(o=>{
+    (o.items||[]).forEach(i=>{
+      const st=i.kitchenStatus||'waiting';
+      if(cols[st])cols[st].push({orderId:o.id,tableNumber:o.tableNumber,item:i});
+    });
+  });
+  ['waiting','preparing','ready'].forEach(st=>{
+    document.getElementById('kds-count-'+st).textContent=cols[st].length;
+    const body=document.getElementById('kds-col-'+st);
+    if(!cols[st].length){body.innerHTML='<div class="kds-empty">Boş</div>';return;}
+    body.innerHTML=cols[st].map(({orderId,tableNumber,item})=>{
+      let elapsed='';
+      if(item.kitchenSentAt){
+        const ts=item.kitchenSentAt.toDate?item.kitchenSentAt.toDate().getTime():item.kitchenSentAt*1000;
+        const min=Math.floor((Date.now()-ts)/60000);
+        elapsed=min<1?'az önce':min+' dk önce';
+      }
+      return `<div class="kds-ticket" onclick="kdsAdvance('${esc(orderId)}','${esc(item.id)}')">
+        <div class="kds-ticket-table">Masa ${tableNumber}</div>
+        <div class="kds-ticket-name">${esc(item.name)} ${item.quantity>1?'×'+item.quantity:''}</div>
+        ${item.note?`<div class="kds-ticket-note">"${esc(item.note)}"</div>`:''}
+        ${elapsed?`<div class="kds-ticket-time">${elapsed}</div>`:''}
+      </div>`;
+    }).join('');
+  });
+}
+window.kdsAdvance=async(orderId,itemId)=>{
+  const o=kdsOrders[orderId];if(!o)return;
+  const idx=(o.items||[]).findIndex(i=>i.id===itemId);if(idx===-1)return;
+  const cur=o.items[idx].kitchenStatus||'waiting';
+  const next=KDS_NEXT[cur];if(!next)return;
+  o.items[idx].kitchenStatus=next;
+  if(next==='preparing')o.items[idx].kitchenSentAt=Timestamp.now();
+  kdsRender();
+  try{
+    await setDoc(doc(db,'stores',storeId,'tableOrders',orderId),o);
+  }catch(e){showToast('Güncellenemedi: '+e.message);}
+};
+
 /* ── Inventory ───────────────────── */
 function renderInventory(list){
   const el=document.getElementById('inv-grid');
@@ -2448,7 +2593,7 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',tables:'Masa Servisi',supplier:'Tedarikçi',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
 window.switchTab=tab=>{
@@ -2468,7 +2613,9 @@ window.switchTab=tab=>{
     if(tab==='staff')loadStaff();
     if(tab==='zreport')loadZReport();
     if(tab==='tables')tsInit();
+    if(tab==='kds')kdsInit();
     if(tab==='supplier')supInit();
+    if(tab==='campaigns')campInit();
   }
 };
 
