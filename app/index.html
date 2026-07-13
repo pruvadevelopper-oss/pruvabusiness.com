@@ -278,6 +278,19 @@ body {
 .search-bar { display:flex; align-items:center; gap:8px; background:var(--bg); border-radius:8px; padding:8px 12px; border:1px solid var(--border); }
 .search-bar input { flex:1; border:none; outline:none; background:transparent; font-size:14px; color:var(--text); }
 .search-icon { color:var(--muted); font-size:13px; }
+.cat-chip-row { display:flex; gap:6px; overflow-x:auto; margin-top:10px; padding-bottom:2px; }
+.cat-chip { flex-shrink:0; padding:5px 12px; border-radius:14px; background:var(--bg); border:1px solid var(--border); font-size:12px; font-weight:600; color:var(--text2); cursor:pointer; white-space:nowrap; transition:background .12s,color .12s; }
+.cat-chip:hover { background:#e0e0e5; }
+.cat-chip.selected { background:var(--purple); border-color:var(--purple); color:#fff; }
+.cart-discount-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.cart-discount-row label { font-size:11.5px; color:var(--muted); font-weight:600; }
+.cart-discount-input { display:flex; align-items:center; gap:4px; }
+.cart-discount-input input { width:44px; padding:4px 6px; border:1px solid var(--border); border-radius:6px; font-size:12px; text-align:center; outline:none; background:var(--bg); color:var(--text); }
+.cart-discount-val { font-size:11.5px; font-weight:700; color:#10B981; }
+.cart-actions-row { display:flex; gap:8px; }
+.btn-quickcash { flex:0 0 auto; padding:11px 14px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .12s; }
+.btn-quickcash:disabled { opacity:.35; cursor:default; }
+.btn-quickcash:hover:not(:disabled) { background:#e0e0e5; }
 .product-list-wrap { flex:1; overflow-y:auto; padding:8px 16px; }
 .product-row { display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:8px; cursor:pointer; transition:background .1s; }
 .product-row:hover { background:var(--bg); }
@@ -931,6 +944,7 @@ body {
         <div class="sales-products">
           <div class="sales-toolbar">
             <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Ürün ara veya barkod gir…" oninput="filterProducts(this.value)"></div>
+            <div class="cat-chip-row" id="sales-cat-chips"></div>
           </div>
           <div class="product-list-wrap" id="product-list"><div class="loading-dots"><span></span><span></span><span></span></div></div>
         </div>
@@ -939,8 +953,16 @@ body {
           <div id="cart-empty" class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Sepet boş</div><div style="font-size:11px;margin-top:4px;opacity:.6">Ürün eklemek için + butonuna bas</div></div>
           <div class="cart-items-wrap" id="cart-items" style="display:none"></div>
           <div class="cart-footer">
+            <div class="cart-discount-row">
+              <label>İndirim %</label>
+              <div class="cart-discount-input"><input type="number" id="cart-discount-input" min="0" max="100" value="0" oninput="setCartDiscount(this.value)"></div>
+              <span class="cart-discount-val" id="cart-discount-val" style="display:none"></span>
+            </div>
             <div class="cart-total-row"><div class="cart-total-label">Toplam</div><div class="cart-total-val" id="cart-total">₺0,00</div></div>
-            <button class="btn-checkout" id="checkout-btn" onclick="openCheckout()" disabled>Ödeme Al</button>
+            <div class="cart-actions-row">
+              <button class="btn-quickcash" id="quickcash-btn" onclick="quickCashSale()" disabled title="Tek dokunuşla nakit satış">💵 Nakit</button>
+              <button class="btn-checkout" id="checkout-btn" onclick="openCheckout()" disabled>Ödeme Al</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1663,7 +1685,7 @@ async function loadProducts(){
   try{
     const snap=await getDocs(collection(db,'stores',storeId,'products'));
     allProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.isDeleted&&p.isAvailable!==false);
-    renderProductList(allProducts);renderInventory(allProducts);checkCriticalStock();renderQuickSale();renderEnvWidget();
+    renderSalesCategoryChips();applySalesFilters();renderInventory(allProducts);checkCriticalStock();renderQuickSale();renderEnvWidget();
   }catch(e){
     document.getElementById('product-list').innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;
     document.getElementById('qs-list').innerHTML='<div class="qs-empty">Yüklenemedi</div>';
@@ -1715,7 +1737,26 @@ function renderProductList(list){
     <button class="product-add-btn" onclick="event.stopPropagation();addToCart('${esc(p.id)}')">+</button>
   </div>`).join('');
 }
-window.filterProducts=q=>{const f=q.toLowerCase();renderProductList(f?allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)||(p.id||'').toLowerCase().includes(f)):allProducts);};
+let salesSelectedCategory=null;
+function applySalesFilters(q){
+  const f=(q||document.querySelector('.sales-toolbar .search-bar input')?.value||'').toLowerCase();
+  let list=allProducts;
+  if(salesSelectedCategory)list=list.filter(p=>(p.category||'Genel')===salesSelectedCategory);
+  if(f)list=list.filter(p=>(p.name||'').toLowerCase().includes(f)||(p.id||'').toLowerCase().includes(f));
+  renderProductList(list);
+}
+window.filterProducts=q=>applySalesFilters(q);
+window.renderSalesCategoryChips=()=>{
+  const el=document.getElementById('sales-cat-chips');if(!el)return;
+  const cats=[...new Set(allProducts.map(p=>p.category||'Genel'))].sort();
+  if(!cats.length){el.innerHTML='';return;}
+  el.innerHTML=cats.map(c=>`<div class="cat-chip${c===salesSelectedCategory?' selected':''}" onclick="selectSalesCategory('${esc(c)}')">${esc(c)}</div>`).join('');
+};
+window.selectSalesCategory=c=>{
+  salesSelectedCategory=(salesSelectedCategory===c)?null:c;
+  document.querySelectorAll('#sales-cat-chips .cat-chip').forEach(el=>el.classList.toggle('selected',el.textContent===salesSelectedCategory));
+  applySalesFilters();
+};
 
 /* ── Cart ────────────────────────── */
 window.addToCart=id=>{
@@ -1728,14 +1769,24 @@ window.changeQty=(id,d)=>{
   const i=cart.findIndex(x=>x.id===id);if(i===-1)return;
   cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart();
 };
-const cartTotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+let cartDiscountPercent=0;
+const cartSubtotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+const cartTotal=()=>{const sub=cartSubtotal();return Math.round(sub*(1-cartDiscountPercent/100)*100)/100;};
+window.setCartDiscount=v=>{
+  let n=Math.max(0,Math.min(100,Number(v)||0));
+  cartDiscountPercent=n;renderCart();
+};
 function renderCart(){
-  const total=cartTotal(),empty=!cart.length;
+  const sub=cartSubtotal(),total=cartTotal(),empty=!cart.length;
   document.getElementById('cart-empty').style.display=empty?'flex':'none';
   document.getElementById('cart-items').style.display=empty?'none':'block';
   document.getElementById('cart-count').textContent=cart.reduce((s,i)=>s+i.qty,0);
   document.getElementById('cart-total').textContent=fc(total);
   document.getElementById('checkout-btn').disabled=empty;
+  document.getElementById('quickcash-btn').disabled=empty;
+  const discVal=document.getElementById('cart-discount-val');
+  if(cartDiscountPercent>0){discVal.style.display='inline';discVal.textContent='-'+fc(sub-total);}
+  else{discVal.style.display='none';}
   const qsCount=document.getElementById('qs-cart-count'),qsTotal=document.getElementById('qs-cart-total'),qsBtn=document.getElementById('qs-checkout-btn');
   if(qsCount){qsCount.textContent=`${cart.reduce((s,i)=>s+i.qty,0)} ürün`;qsTotal.textContent=fc(total);qsBtn.disabled=empty;}
   if(!empty)document.getElementById('cart-items').innerHTML=cart.map(i=>`
@@ -1745,7 +1796,8 @@ function renderCart(){
       <div class="cart-item-price">${fc(i.price*i.qty)}</div>
     </div>`).join('');
 }
-window.openCheckout=()=>{if(!cart.length)return;document.getElementById('modal-total').textContent=fc(cartTotal());document.getElementById('checkout-modal').classList.add('show');};
+window.openCheckout=()=>{if(!cart.length)return;selectPayment('cash');document.getElementById('modal-total').textContent=fc(cartTotal());document.getElementById('checkout-modal').classList.add('show');};
+window.quickCashSale=()=>{if(!cart.length)return;selectedPay='cash';confirmSale();};
 window.selectPayment=m=>{
   selectedPay=m;
   ['cash','card','veresiye'].forEach(k=>document.getElementById('pay-'+k).classList.toggle('selected',m===k));
@@ -1787,7 +1839,7 @@ window.confirmSale=async()=>{
       const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
       const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
       await addDoc(collection(db,'stores',storeId,'receipts'),{
-        date:serverTimestamp(),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,
+        date:serverTimestamp(),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,discountPercent:cartDiscountPercent,
         staffName:auth.currentUser?.email||'web',
         items:cart.map(i=>({productId:i.id,name:i.name,qty:i.qty,unitPrice:i.price,total:i.price*i.qty,taxRate:i.taxRate||0})),
         expireAt:new Date(td.getTime()+365*24*3600*1000),isRefund:false,source:'web'
@@ -1807,7 +1859,8 @@ window.confirmSale=async()=>{
       }
     }
   }catch(e){console.error(e);}
-  cart=[];renderCart();loadProducts();loadDailySummaries();loadMonthlySummaries();
+  cart=[];cartDiscountPercent=0;const di=document.getElementById('cart-discount-input');if(di)di.value=0;
+  renderCart();loadProducts();loadDailySummaries();loadMonthlySummaries();
   showToast(`✓ ${fc(total)} — satış tamamlandı`);switchTab('home');
 };
 
