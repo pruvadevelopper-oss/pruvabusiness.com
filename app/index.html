@@ -1629,12 +1629,14 @@ body {
 <button id="ai-droplet" onclick="openAIDroplet()" title="Pruva AI"><span>✨</span></button>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
          collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot }
-  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { getAI, getGenerativeModel, VertexAIBackend }
+  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-ai.js';
 
 const app  = initializeApp({
   apiKey:"AIzaSyChguhy4_YdoSqWs6ukbeIdCdFTim96svQ",
@@ -1646,6 +1648,8 @@ const app  = initializeApp({
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
+// iOS ile aynı kural: backend .vertexAI() olmalı, .googleAI() DEĞİL — Blaze planına bağlı, ücretsiz kredi gerektirmez.
+const ai   = getAI(app, { backend: new VertexAIBackend() });
 
 let storeId=null, allProducts=[], cart=[], selectedPay='cash';
 let dailySummaries=[], monthlySummaries=[], recentTransactions=[];
@@ -2522,11 +2526,54 @@ async function aiRespond(text){
 
   return 'Tam anlayamadım 🤔 "Süt fiyatı ne kadar" veya "Ekmeğin stoğunu 50 yap" gibi yazmayı deneyebilirsin. "Yardım" yaz, komutları göstereyim.';
 }
+
+// İnternet varsa önce Gemini'ye sor (iOS'taki handleWithGeminiFirst ile aynı öncelik).
+// Aktif komutları CMD: öneki ile döndürür → yerel aiRespond() ile aynı yürütme koduna yönlendirilir
+// (Firestore yazma mantığı tek yerde kalır, Gemini asla doğrudan veri yazmaz).
+// Gemini ulaşılamazsa (ağ yok / hata) null döner → çağıran yerel motora düşer.
+async function aiGeminiRespond(text){
+  try{
+    const crit=allProducts.filter(p=>{const s=p.stockQuantity??0,m=p.minStockThreshold??0;return m>0&&s<=m;}).map(p=>p.name).slice(0,15).join(', ')||'yok';
+    const today=dailySummaries.length?dailySummaries[dailySummaries.length-1]:null;
+    const todayText=today?`Bugün ciro: ${fc(today.revenue||0)}, işlem sayısı: ${today.orders||0}.`:'Bugüne ait satış verisi yok.';
+    const productList=allProducts.slice(0,60).map(p=>`${p.name} (₺${p.salePrice||0}, stok:${p.stockQuantity||0})`).join(', ');
+
+    const system=`Sen Pruva Business POS uygulamasının yapay zeka asistanısın, adın Pruva AI. Türkiye'deki esnaf ve küçük işletme sahiplerine hizmet ediyorsun. Kısa, net, samimi ama profesyonel Türkçe konuş. Emoji kullanma.
+
+İKİ MOD:
+Mod 1 — kullanıcı bir ürünün FİYATINI veya STOĞUNU güncellemek istiyorsa: SADECE aşağıdaki formatlardan birinde TEK SATIR yanıt ver, başka hiçbir şey yazma:
+"CMD: <ürün adı> fiyatını <sayı> yap"
+"CMD: <ürün adı> stoğunu <sayı> yap"
+"CMD: <ürün adı>'e <sayı> ekle"
+Mod 2 — geri kalan HER ŞEY için (soru, sohbet, fiyat/stok sorgulama, satış özeti, kritik stok, kimlik sorusu, selamlama, "ne yapabilirsin"): düz metin Türkçe cevap ver. Aşağıdaki bağlamı kullan. CMD veya JSON kullanma.
+
+BAĞLAM:
+${todayText}
+Kritik stoktaki ürünler: ${crit}
+Mevcut ürünler: ${productList}
+
+Yalnızca stok, fiyat, satış ve işletme durumu ile ilgili konularda yardımcı ol. Alakasız konularda (siyaset, tarif, kişisel tavsiye, görsel/müzik üretme vb.) kibarca reddet: "Bu konuda yardımcı olamıyorum. Stok, satış veya işletme hakkında bir sorunuz varsa yanınızdayım."`;
+
+    const model=getGenerativeModel(ai,{model:'gemini-2.5-flash',systemInstruction:system});
+    const result=await model.generateContent(text);
+    const reply=(result.response.text()||'').trim();
+    if(!reply)return null;
+    if(reply.startsWith('CMD:'))return await aiRespond(reply.slice(4).trim());
+    return reply;
+  }catch(e){
+    console.error('[PruvaAI] Gemini hata:',e);
+    return null;
+  }
+}
 window.aiAsk=async text=>{
   document.getElementById('ai-input').value='';
   aiHistory.push({role:'user',text});
   aiRenderMessages();
-  const reply=await aiRespond(text);
+  aiHistory.push({role:'ai',text:'…'});
+  aiRenderMessages();
+  let reply=navigator.onLine?await aiGeminiRespond(text):null;
+  if(reply==null)reply=await aiRespond(text);
+  aiHistory.pop();
   aiHistory.push({role:'ai',text:reply});
   aiRenderMessages();
 };
