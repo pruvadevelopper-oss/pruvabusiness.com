@@ -533,6 +533,28 @@ body {
 #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px); background:rgba(28,28,30,0.90); color:#fff; padding:8px 16px; border-radius:18px; font-size:12.5px; font-weight:600; backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; z-index:9999; }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+/* PRUVA AI DROPLET — iOS'taki damla ile aynı marka gradyanı, sadeleştirilmiş web versiyonu */
+@keyframes dropletBob { 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-6px) scale(1.03); } }
+@keyframes dropletGlow { 0%,100%{ opacity:.55; } 50%{ opacity:.85; } }
+#ai-droplet {
+  position:fixed; right:26px; bottom:26px; width:58px; height:58px; border-radius:50%; z-index:9500;
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  background:conic-gradient(from 180deg, #b874ff, #5cb2ff, #ff8cf2, #9982ff, #b874ff);
+  box-shadow:0 6px 24px rgba(124,58,237,0.45), 0 0 0 1px rgba(255,255,255,0.25) inset;
+  animation:dropletBob 3.4s ease-in-out infinite;
+  transition:transform .15s;
+}
+#ai-droplet::before {
+  content:''; position:absolute; inset:-10px; border-radius:50%;
+  background:radial-gradient(circle, rgba(140,90,255,0.55), transparent 70%);
+  animation:dropletGlow 3.4s ease-in-out infinite; z-index:-1;
+}
+#ai-droplet:hover { transform:scale(1.08); }
+#ai-droplet:active { transform:scale(0.94); }
+#ai-droplet span { font-size:22px; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+#ai-droplet.hidden { display:none; }
+@media (max-width:900px) { #ai-droplet { right:16px; bottom:78px; width:50px; height:50px; } #ai-droplet span { font-size:19px; } }
+
 /* UTILS */
 .loading-dots { display:flex; gap:5px; justify-content:center; padding:40px; }
 .loading-dots span { width:6px; height:6px; border-radius:50%; background:var(--purple); opacity:.3; animation:pulse 1.2s ease-in-out infinite; }
@@ -1604,6 +1626,7 @@ body {
 </div>
 
 <div id="toast"></div>
+<button id="ai-droplet" onclick="openAIDroplet()" title="Pruva AI"><span>✨</span></button>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -1652,12 +1675,13 @@ window.doLogin = async () => {
   }
 };
 window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
-function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');}
+function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
 
 async function initApp(user){
   document.getElementById('auth-loading').classList.add('hidden');
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  document.getElementById('ai-droplet').classList.remove('hidden');
   const now=new Date();
   const days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   const months=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
@@ -3324,6 +3348,7 @@ window.loadZReport=async dateStr=>{
 const tabTitles={home:'Ana Sayfa',ai:'Pruva AI',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
+window.openAIDroplet=()=>{ switchTab('ai'); setTimeout(()=>document.getElementById('ai-input')?.focus(), 50); };
 window.switchTab=tab=>{
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
@@ -3332,6 +3357,7 @@ window.switchTab=tab=>{
   document.querySelectorAll('.mobile-tab-item').forEach(n=>n.classList.remove('active'));
   const mob=document.getElementById('mob-'+tab);if(mob)mob.classList.add('active');
   document.getElementById('topbar-title').textContent=tabTitles[tab]||tab;
+  document.getElementById('ai-droplet')?.classList.toggle('hidden', tab==='ai');
   if(tab==='loss')renderLoss();  // güncel stoğu yansıt
   // Lazy-load tabs
   if(!loadedTabs.has(tab)){
