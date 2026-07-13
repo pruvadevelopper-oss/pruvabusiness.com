@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Pruva Business</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   /* Pruva marka rengi: koyu lacivert (logodan) + CTA için royal mavi */
@@ -357,6 +358,11 @@ body {
 .barcode-modal-body svg { max-width:100%; }
 .barcode-product-name { font-size:15px; font-weight:800; margin-bottom:2px; }
 .barcode-product-price { font-size:13px; color:var(--muted); margin-bottom:14px; }
+.ie-dropzone { border:2px dashed var(--border); border-radius:12px; padding:28px; text-align:center; cursor:pointer; transition:border-color .15s,background .15s; }
+.ie-dropzone:hover, .ie-dropzone.drag { border-color:var(--purple); background:var(--purple-light); }
+.ie-row { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:8px; padding:6px 10px; font-size:12px; border-bottom:1px solid var(--border); }
+.ie-row:last-child { border-bottom:none; }
+.ie-row.head { font-weight:700; background:var(--bg); color:var(--muted); text-transform:uppercase; font-size:10.5px; }
 
 /* REPORTS */
 .reports-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
@@ -788,6 +794,7 @@ body {
       <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
       <div class="nav-item" id="nav-zreport" onclick="switchTab('zreport')"><div class="nav-icon">🧾</div><div class="nav-label">Z Raporu</div></div>
       <div class="nav-item" id="nav-invoices" onclick="switchTab('invoices')"><div class="nav-icon">📄</div><div class="nav-label">Fatura Arşivi</div></div>
+      <div class="nav-item" id="nav-menu" onclick="switchTab('menu')"><div class="nav-icon">📖</div><div class="nav-label">Menü Editörü</div></div>
       <div class="nav-item" id="nav-tables" onclick="switchTab('tables')"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
       <div class="nav-item" id="nav-kds" onclick="switchTab('kds')"><div class="nav-icon">👨‍🍳</div><div class="nav-label">Mutfak Ekranı</div></div>
       <div class="nav-section-label">İşletme</div>
@@ -798,6 +805,7 @@ body {
       <div class="nav-item" id="nav-staff" onclick="switchTab('staff')"><div class="nav-icon">👥</div><div class="nav-label">Personel</div></div>
       <div class="nav-item" id="nav-chat" onclick="switchTab('chat')"><div class="nav-icon">💬</div><div class="nav-label">Personel Sohbeti</div></div>
       <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçi</div></div>
+      <div class="nav-item" id="nav-courier" onclick="switchTab('courier')"><div class="nav-icon">🛵</div><div class="nav-label">Kurye Çağır</div></div>
       <div class="nav-item" id="nav-campaigns" onclick="switchTab('campaigns')"><div class="nav-icon">🎁</div><div class="nav-label">Kampanyalar</div></div>
       <div class="nav-section-label">Hesap</div>
       <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Ayarlar</div></div>
@@ -942,6 +950,24 @@ body {
         </div>
       </div>
 
+      <!-- COURIER (Kurye Çağır) -->
+      <div class="tab-panel" id="tab-courier">
+        <div class="inv-toolbar">
+          <div style="flex:1;font-size:12.5px;color:var(--muted)">Yakındaki kuryelere yayınlanır — ilk kabul eden teslimat için yola çıkar (3 dk geçerli)</div>
+          <button class="btn-add" onclick="openCourierRequestModal()">+ Teslimat Talebi</button>
+        </div>
+        <div id="courier-list" class="refund-list"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+      </div>
+
+      <!-- MENU EDITOR -->
+      <div class="tab-panel" id="tab-menu">
+        <div class="inv-toolbar">
+          <div style="flex:1;font-size:12.5px;color:var(--muted)">Müşteri uygulamasında (Pruva Market / QR menü) görünecek liste — envanterden ayrı</div>
+          <button class="btn-add" onclick="openMenuItemModal()">+ Menü Ürünü</button>
+        </div>
+        <div id="menu-list" class="inv-grid"><div class="loading-dots" style="grid-column:span 4"><span></span><span></span><span></span></div></div>
+      </div>
+
       <!-- INVOICE VAULT (Fatura Arşivi) -->
       <div class="tab-panel" id="tab-invoices">
         <div style="margin-bottom:14px;font-size:12.5px;color:var(--muted)">Taranmış faturalar (sadece görüntüleme — tarama iOS uygulamasından yapılır)</div>
@@ -1026,6 +1052,7 @@ body {
       <div class="tab-panel" id="tab-inv">
         <div class="inv-toolbar">
           <div class="search-bar" style="flex:1"><span class="search-icon">🔍</span><input type="text" placeholder="Ürün ara…" oninput="filterInventory(this.value)"></div>
+          <button class="btn-cancel" style="padding:8px 14px;font-size:13px" onclick="openImportExportModal()">⇅ İçe/Dışa Aktar</button>
           <button class="btn-add" onclick="openProductModal()">+ Ürün Ekle</button>
         </div>
         <div class="inv-grid" id="inv-grid"><div class="loading-dots" style="grid-column:span 4"><span></span><span></span><span></span></div></div>
@@ -1282,6 +1309,76 @@ body {
     <div class="modal-actions">
       <button class="btn-cancel" onclick="document.getElementById('payment-modal').classList.remove('show')">Kapat</button>
       <button class="btn-confirm" onclick="savePaymentSettings()">✓ Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Courier Request Modal -->
+<div class="modal-overlay" id="courier-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <div class="modal-title">Teslimat Talebi Oluştur</div>
+    <div class="form-group"><label>Teslimat Adresi</label><input type="text" id="cr-address" placeholder="Mahalle, sokak, no…"></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Alıcı Adı</label><input type="text" id="cr-recipient" placeholder="Ad Soyad"></div>
+      <div class="form-group"><label>Alıcı Telefonu</label><input type="tel" id="cr-phone" placeholder="05XX XXX XX XX"></div>
+    </div>
+    <div class="form-group"><label>Teslimat Ücreti (₺)</label><input type="number" id="cr-fee" min="0" step="1" placeholder="50"></div>
+    <div class="form-group"><label>Not (opsiyonel)</label><input type="text" id="cr-note" placeholder="Paket içeriği, kat bilgisi vb."></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('courier-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" onclick="submitCourierRequest()">🛵 Talebi Yayınla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Item Modal -->
+<div class="modal-overlay" id="menu-item-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box">
+    <div class="modal-title" id="menu-item-title">Menü Ürünü Ekle</div>
+    <input type="hidden" id="mi-id">
+    <div class="form-group"><label>Envanterden Seç (opsiyonel)</label>
+      <select id="mi-from-inv" onchange="miFillFromInventory(this.value)"><option value="">— elle gir —</option></select>
+    </div>
+    <div class="form-group"><label>Ürün Adı</label><input type="text" id="mi-name" placeholder="Türk Kahvesi"></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Fiyat (₺)</label><input type="number" id="mi-price" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label>Kategori</label><input type="text" id="mi-category" placeholder="İçecek"></div>
+    </div>
+    <div class="form-group"><label>Açıklama (opsiyonel)</label><input type="text" id="mi-desc" placeholder="Kısa açıklama"></div>
+    <div class="settings-row" style="border-top:none;padding:8px 0;cursor:default">
+      <div class="settings-text"><div class="settings-title" style="font-size:13px">Müşteriye Görünür</div></div>
+      <label class="switch"><input type="checkbox" id="mi-available" checked><span class="switch-slider"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger-ghost" id="mi-delete-btn" style="display:none" onclick="deleteMenuItem()">Sil</button>
+      <button class="btn-cancel" onclick="document.getElementById('menu-item-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" onclick="saveMenuItem()">✓ Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import/Export Modal -->
+<div class="modal-overlay" id="ie-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box wide modal-box-scroll">
+    <div class="modal-title">Excel İçe / Dışa Aktar</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Sütun sırası: <b>Ürün Adı, Kategori, Fiyat, Stok</b> (ilk satır başlık olarak atlanır) — CSV veya XLSX</div>
+    <div id="ie-dropzone" class="ie-dropzone" onclick="document.getElementById('ie-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="ieHandleDrop(event)">
+      <div style="font-size:28px;margin-bottom:6px">📥</div>
+      <div style="font-weight:600;font-size:13.5px">Dosya seç veya sürükle-bırak</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:2px">.csv veya .xlsx</div>
+      <input type="file" id="ie-file" accept=".csv,.xlsx" style="display:none" onchange="ieHandleFile(this.files[0])">
+    </div>
+    <div id="ie-preview" style="display:none;margin-top:14px">
+      <div style="font-size:12.5px;font-weight:700;margin-bottom:8px" id="ie-preview-title"></div>
+      <div id="ie-preview-table" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px"></div>
+      <button class="btn-confirm" style="width:100%;margin-top:12px" id="ie-import-btn" onclick="ieDoImport()">✓ Ürünleri İçe Aktar</button>
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:18px;padding-top:16px">
+      <div style="font-size:12.5px;font-weight:700;margin-bottom:8px">Dışa Aktar</div>
+      <button class="btn-cancel" style="width:100%" onclick="ieExportCSV()">⬇ Tüm Ürünleri CSV Olarak İndir</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-cancel" style="flex:1" onclick="document.getElementById('ie-modal').classList.remove('show')">Kapat</button>
     </div>
   </div>
 </div>
@@ -2188,6 +2285,221 @@ function renderInventory(list){
   }).join('');
 }
 
+/* ── Kurye Çağır — iOS CourierManager.createDeliveryRequest ile aynı şema (top-level deliveryRequests) ── */
+const CR_STATUS={open:{t:'Bekleniyor',c:'#B45309',bg:'#FEF3C7'},accepted:{t:'Kurye Yolda',c:'#1D4ED8',bg:'#DBEAFE'},cancelled:{t:'İptal',c:'#991B1B',bg:'#FEE2E2'},expired:{t:'Süresi Doldu',c:'#6B7280',bg:'#F3F4F6'}};
+let courierRequests=[],courierListener=null;
+window.openCourierRequestModal=()=>{
+  ['cr-address','cr-recipient','cr-phone','cr-fee','cr-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('courier-modal').classList.add('show');
+};
+window.submitCourierRequest=async()=>{
+  const address=document.getElementById('cr-address').value.trim();
+  const fee=parseFloat(document.getElementById('cr-fee').value)||0;
+  if(!address){showToast('Teslimat adresi gerekli');return;}
+  if(fee<=0){showToast('Teslimat ücreti gerekli');return;}
+  const storeName=document.getElementById('sidebar-store-name')?.textContent||'Mağaza';
+  const now=Date.now();
+  try{
+    await addDoc(collection(db,'deliveryRequests'),{
+      storeId,storeName,storeAddress:'',storeLat:0,storeLng:0,
+      deliveryAddress:address,orderId:'WEB'+now,fee,baseFee:fee,surgeMultiplier:1,
+      commissionModel:'store_billed',status:'open',
+      createdAt:Timestamp.now(),expiresAt:Timestamp.fromMillis(now+3*60*1000),
+      acceptedBy:null,recipientName:document.getElementById('cr-recipient').value.trim(),
+      recipientPhone:document.getElementById('cr-phone').value.trim(),
+      note:document.getElementById('cr-note').value.trim(),minVehicleSize:'any'
+    });
+    document.getElementById('courier-modal').classList.remove('show');
+    showToast('✓ Teslimat talebi yayınlandı');
+  }catch(e){showToast('Hata: '+e.message);}
+};
+function courierInit(){
+  if(!storeId)return;
+  if(courierListener)courierListener();
+  courierListener=onSnapshot(
+    query(collection(db,'deliveryRequests'),where('storeId','==',storeId),orderBy('createdAt','desc'),limit(30)),
+    snap=>{courierRequests=snap.docs.map(d=>({id:d.id,...d.data()}));courierRenderList();},
+    ()=>{document.getElementById('courier-list').innerHTML='<div class="empty-state"><div class="empty-icon">🛵</div><div class="empty-text">Yüklenemedi</div></div>';}
+  );
+}
+function courierRenderList(){
+  const el=document.getElementById('courier-list');
+  if(!courierRequests.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🛵</div><div class="empty-text">Henüz teslimat talebi yok</div></div>';return;}
+  el.innerHTML=courierRequests.map(r=>{
+    const st=CR_STATUS[r.status]||CR_STATUS.open;
+    const dt=r.createdAt?.toDate?r.createdAt.toDate():null;
+    const dateStr=dt?dt.toLocaleDateString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    return `<div class="refund-row" style="cursor:default">
+      <div class="refund-icon">🛵</div>
+      <div class="refund-info">
+        <div class="refund-amount">${fc(r.fee||0)} — ${esc(r.deliveryAddress||'')}</div>
+        <div class="refund-meta">${dateStr}${r.recipientName?' · '+esc(r.recipientName):''}</div>
+      </div>
+      <span class="refund-tag" style="background:${st.bg};color:${st.c}">${st.t}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── Menü Editörü — iOS StoreProfileManager.menuItems ile aynı şema (stores/{id}/menu) ── */
+let menuItems=[];
+async function loadMenuItems(){
+  if(!storeId)return;
+  const el=document.getElementById('menu-list');
+  try{
+    const snap=await getDocs(collection(db,'stores',storeId,'menu'));
+    menuItems=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderMenuList();
+  }catch(e){el.innerHTML=`<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">📖</div><div class="empty-text">Yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;}
+}
+function renderMenuList(){
+  const el=document.getElementById('menu-list');
+  if(!menuItems.length){el.innerHTML='<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">📖</div><div class="empty-text">Menüye henüz ürün eklenmedi</div></div>';return;}
+  el.innerHTML=menuItems.map(m=>`
+    <div class="inv-card" onclick="openMenuItemModal('${esc(m.id)}')">
+      <div class="inv-emoji">${m.isAvailable===false?'🚫':'🍽️'}</div>
+      <div class="inv-name">${esc(m.name)}</div>
+      <div class="inv-price">${fc(m.price||0)}${m.category?' · '+esc(m.category):''}</div>
+      <span class="stock-badge ${m.isAvailable===false?'stock-out':'stock-ok'}">${m.isAvailable===false?'Gizli':'Görünür'}</span>
+    </div>`).join('');
+}
+window.openMenuItemModal=id=>{
+  const m=id?menuItems.find(x=>x.id===id):null;
+  document.getElementById('menu-item-title').textContent=m?'Menü Ürününü Düzenle':'Menü Ürünü Ekle';
+  document.getElementById('mi-id').value=id||'';
+  document.getElementById('mi-name').value=m?.name||'';
+  document.getElementById('mi-price').value=m?.price??'';
+  document.getElementById('mi-category').value=m?.category||'';
+  document.getElementById('mi-desc').value=m?.description||'';
+  document.getElementById('mi-available').checked=m?.isAvailable!==false;
+  document.getElementById('mi-delete-btn').style.display=m?'inline-block':'none';
+  const sel=document.getElementById('mi-from-inv');
+  sel.innerHTML='<option value="">— elle gir —</option>'+allProducts.map(p=>`<option value="${esc(p.id)}">${esc(p.name||p.id)} — ${fc(p.salePrice||0)}</option>`).join('');
+  document.getElementById('menu-item-modal').classList.add('show');
+};
+window.miFillFromInventory=pid=>{
+  if(!pid)return;
+  const p=allProducts.find(x=>x.id===pid);if(!p)return;
+  document.getElementById('mi-name').value=p.name||'';
+  document.getElementById('mi-price').value=p.salePrice||0;
+  document.getElementById('mi-category').value=p.category||'';
+};
+window.saveMenuItem=async()=>{
+  const id=document.getElementById('mi-id').value||('MI'+Date.now());
+  const name=document.getElementById('mi-name').value.trim();
+  if(!name){showToast('Ürün adı gerekli');return;}
+  const data={
+    name,price:parseFloat(document.getElementById('mi-price').value)||0,
+    category:document.getElementById('mi-category').value.trim(),
+    description:document.getElementById('mi-desc').value.trim(),
+    isAvailable:document.getElementById('mi-available').checked,
+    imageSymbol:'tag.fill'
+  };
+  try{
+    await setDoc(doc(db,'stores',storeId,'menu',id),data,{merge:true});
+    document.getElementById('menu-item-modal').classList.remove('show');
+    showToast('✓ Menü güncellendi');
+    loadMenuItems();
+  }catch(e){showToast('Hata: '+e.message);}
+};
+window.deleteMenuItem=async()=>{
+  const id=document.getElementById('mi-id').value;if(!id)return;
+  if(!await askConfirm('Bu menü ürününü silmek istiyor musun?'))return;
+  try{
+    await deleteDoc(doc(db,'stores',storeId,'menu',id));
+    document.getElementById('menu-item-modal').classList.remove('show');
+    showToast('Silindi');
+    loadMenuItems();
+  }catch(e){showToast('Hata: '+e.message);}
+};
+
+/* ── Excel İçe/Dışa Aktar — iOS ExcelParser ile aynı pozisyonel sütun düzeni ── */
+const CATEGORY_MAP={genel:'Genel',ekmek:'Ekmek',et:'Et & Tavuk',tavuk:'Et & Tavuk','et & tavuk':'Et & Tavuk',içecek:'İçecek',icecek:'İçecek',manav:'Manav',süt:'Süt Ürünleri',sut:'Süt Ürünleri','süt ürünleri':'Süt Ürünleri',atıştırmalık:'Atıştırmalık',atistirmalik:'Atıştırmalık',snack:'Atıştırmalık'};
+const normCat=raw=>CATEGORY_MAP[(raw||'').toLocaleLowerCase('tr-TR').trim()]||'Genel';
+let ieParsedRows=[];
+window.openImportExportModal=()=>{
+  ieParsedRows=[];
+  document.getElementById('ie-preview').style.display='none';
+  document.getElementById('ie-file').value='';
+  document.getElementById('ie-modal').classList.add('show');
+};
+window.ieHandleDrop=e=>{
+  e.preventDefault();document.getElementById('ie-dropzone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];if(f)ieHandleFile(f);
+};
+window.ieHandleFile=file=>{
+  if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let rows=[];
+      if(ext==='csv'){
+        const text=e.target.result;
+        const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+        if(lines.length<2){showToast('Dosya boş veya başlık satırı eksik');return;}
+        const sep=lines[0].includes(';')?';':',';
+        rows=lines.slice(1).map(l=>l.split(sep).map(c=>c.trim()));
+      }else if(ext==='xlsx'){
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const all=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+        rows=all.slice(1).filter(r=>r&&r[0]);
+      }else{showToast('Desteklenmeyen format — .csv veya .xlsx kullanın');return;}
+      ieParsedRows=rows.filter(c=>c.length>=3&&c[0]).map(c=>({
+        name:String(c[0]).trim(),
+        category:normCat(c[1]),
+        price:parseFloat(String(c[2]||'0').replace(',','.'))||0,
+        stock:parseInt(c[3])||0
+      }));
+      if(!ieParsedRows.length){showToast('Geçerli ürün bulunamadı — formatı kontrol edin');return;}
+      ieRenderPreview();
+    }catch(err){showToast('Dosya okunamadı: '+err.message);}
+  };
+  if(ext==='xlsx')reader.readAsArrayBuffer(file);else reader.readAsText(file,'utf-8');
+};
+function ieRenderPreview(){
+  document.getElementById('ie-preview').style.display='block';
+  document.getElementById('ie-preview-title').textContent=ieParsedRows.length+' ürün bulundu';
+  const rows=ieParsedRows.slice(0,20);
+  document.getElementById('ie-preview-table').innerHTML=
+    '<div class="ie-row head"><span>Ad</span><span>Kategori</span><span>Fiyat</span><span>Stok</span></div>'+
+    rows.map(r=>`<div class="ie-row"><span>${esc(r.name)}</span><span>${esc(r.category)}</span><span>${fc(r.price)}</span><span>${r.stock}</span></div>`).join('')+
+    (ieParsedRows.length>20?`<div class="ie-row" style="color:var(--muted);justify-content:center">… ve ${ieParsedRows.length-20} ürün daha</div>`:'');
+}
+window.ieDoImport=async()=>{
+  if(!ieParsedRows.length||!storeId)return;
+  const btn=document.getElementById('ie-import-btn');
+  btn.disabled=true;btn.textContent='İçe aktarılıyor…';
+  let ok=0,fail=0;
+  for(const p of ieParsedRows){
+    const barcode='WEB'+Date.now()+Math.floor(Math.random()*1000);
+    try{
+      await setDoc(doc(db,'stores',storeId,'products',barcode),{
+        barcode,name:p.name,category:p.category,salePrice:p.price,stockQuantity:p.stock,
+        minStockThreshold:0,taxRate:0.2,isDeleted:false,isAvailable:true,updatedAt:serverTimestamp()
+      });
+      ok++;
+    }catch(e){fail++;}
+  }
+  btn.disabled=false;btn.textContent='✓ Ürünleri İçe Aktar';
+  document.getElementById('ie-modal').classList.remove('show');
+  showToast(`✓ ${ok} ürün eklendi${fail?', '+fail+' hata':''}`);
+  loadProducts();
+};
+window.ieExportCSV=()=>{
+  if(!allProducts.length){showToast('Dışa aktarılacak ürün yok');return;}
+  const header='Ürün Adı,Kategori,Fiyat,Stok\n';
+  const rows=allProducts.map(p=>[p.name||'',p.category||'',p.salePrice||0,p.stockQuantity||0].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const td=new Date();const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+  a.href=url;a.download='pruva-urunler-'+dk+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✓ CSV indirildi');
+};
+
 /* ── Barkod Oluşturucu ────────────── */
 window.openBarcodeModal=id=>{
   const p=allProducts.find(x=>x.id===id);if(!p)return;
@@ -2769,7 +3081,7 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
 const loadedTabs=new Set();
 
 window.switchTab=tab=>{
@@ -2792,7 +3104,9 @@ window.switchTab=tab=>{
     if(tab==='kds')kdsInit();
     if(tab==='chat')chatInit();
     if(tab==='invoices')loadInvoices();
+    if(tab==='menu')loadMenuItems();
     if(tab==='supplier')supInit();
+    if(tab==='courier')courierInit();
     if(tab==='campaigns')campInit();
   }
 };
