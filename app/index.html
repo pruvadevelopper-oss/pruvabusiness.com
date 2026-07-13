@@ -533,27 +533,15 @@ body {
 #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(12px); background:rgba(28,28,30,0.90); color:#fff; padding:8px 16px; border-radius:18px; font-size:12.5px; font-weight:600; backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; z-index:9999; }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* PRUVA AI DROPLET — iOS'taki damla ile aynı marka gradyanı, sadeleştirilmiş web versiyonu */
-@keyframes dropletBob { 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-6px) scale(1.03); } }
-@keyframes dropletGlow { 0%,100%{ opacity:.55; } 50%{ opacity:.85; } }
-#ai-droplet {
-  position:fixed; right:26px; bottom:26px; width:58px; height:58px; border-radius:50%; z-index:9500;
-  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  background:conic-gradient(from 180deg, #b874ff, #5cb2ff, #ff8cf2, #9982ff, #b874ff);
-  box-shadow:0 6px 24px rgba(124,58,237,0.45), 0 0 0 1px rgba(255,255,255,0.25) inset;
-  animation:dropletBob 3.4s ease-in-out infinite;
-  transition:transform .15s;
-}
-#ai-droplet::before {
-  content:''; position:absolute; inset:-10px; border-radius:50%;
-  background:radial-gradient(circle, rgba(140,90,255,0.55), transparent 70%);
-  animation:dropletGlow 3.4s ease-in-out infinite; z-index:-1;
-}
-#ai-droplet:hover { transform:scale(1.08); }
-#ai-droplet:active { transform:scale(0.94); }
-#ai-droplet span { font-size:22px; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+/* PRUVA AI DROPLET — iOS'taki damla fiziği + optik modelinin web (Canvas) karşılığı.
+   Bkz. Barcode POS gemini/DynamicIslandDroplet.swift — aynı düşüş/sekme/salınım/
+   sürükleme fiziği ve katmanlı cam küre görseli burada Canvas 2D ile taklit edilir. */
+#ai-droplet { position:fixed; inset:0; z-index:9500; pointer-events:none; }
 #ai-droplet.hidden { display:none; }
-@media (max-width:900px) { #ai-droplet { right:16px; bottom:78px; width:50px; height:50px; } #ai-droplet span { font-size:19px; } }
+#ai-drop-canvas { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; }
+#ai-drop-hit { position:fixed; border-radius:50%; pointer-events:none; touch-action:none; cursor:grab; }
+#ai-drop-hit.live { pointer-events:auto; }
+#ai-drop-hit:active { cursor:grabbing; }
 
 /* UTILS */
 .loading-dots { display:flex; gap:5px; justify-content:center; padding:40px; }
@@ -1626,7 +1614,10 @@ body {
 </div>
 
 <div id="toast"></div>
-<button id="ai-droplet" onclick="openAIDroplet()" title="Pruva AI"><span>✨</span></button>
+<div id="ai-droplet" title="Pruva AI">
+  <canvas id="ai-drop-canvas"></canvas>
+  <div id="ai-drop-hit"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
@@ -3424,6 +3415,349 @@ window.switchTab=tab=>{
     if(tab==='campaigns')campInit();
   }
 };
+
+/* ── Pruva AI Damlası: iOS'taki DynamicIslandDroplet.swift fiziği + optik
+   modelinin Canvas 2D karşılığı. Düşüş→sekme→dinlenme salınımı→sürükleme→
+   dokunuşta batıp AI panelini açma aynı mantıkla, web'e uyarlanmış. ── */
+(function initPruvaDroplet(){
+  const container = document.getElementById('ai-droplet');
+  const canvas     = document.getElementById('ai-drop-canvas');
+  const hit        = document.getElementById('ai-drop-hit');
+  if(!container || !canvas || !hit) return;
+  const ctx = canvas.getContext('2d');
+
+  let W=0, H=0, DPR=Math.min(window.devicePixelRatio||1,2);
+  function resize(){
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=Math.round(W*DPR); canvas.height=Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    restingSpot();
+  }
+
+  const GRAVITY=2600;
+  let phase='hidden'; // hidden|falling|resting|grabbed|sinking
+  let pos={x:0,y:0}, r=32;
+  let elong=1, motionAngle=Math.PI/2, squash=1, dropScale=1, alpha=1;
+  let wobX=0, wobV=0;
+  let fallVy=0;
+  let restX=0, restY=0;
+  let grabOffset={x:0,y:0};
+  let isPressed=false, pressStart=0, pressClientX=0, pressClientY=0;
+  let velHist=[], lastSpeed=0, lastPX=0, lastPY=0, lastMoveT=0;
+  let plofStart=-1, plofX=0, plofY=0;
+  let plofDots=[];
+  let sinkStart=-1;
+  let lastT=0;
+  let wasHidden=true;
+
+  function restingSpot(){
+    const mobile = W<=900;
+    const marginR = mobile?16:26, marginB = mobile?78:26;
+    restX = W - marginR - r;
+    restY = H - marginB - r;
+  }
+
+  function spawn(){
+    restingSpot();
+    r = 29+Math.random()*4;
+    restingSpot();
+    dropScale=1; alpha=1; elong=1; squash=1;
+    pos.x = restX; pos.y = -r*3;
+    fallVy = 120+Math.random()*80;
+    motionAngle = Math.PI/2;
+    phase = 'falling';
+  }
+
+  function exciteWobble(imp){ wobV += imp; }
+
+  function approach(v, target, rate, dt){ return v + (target-v)*(1-Math.exp(-rate*dt)); }
+
+  function tickWobble(dt){
+    if(phase==='sinking'){ wobX=0; wobV=0; return; }
+    const k=140, c=9;
+    wobV += (-k*wobX - c*wobV)*dt;
+    wobX += wobV*dt;
+    if(Math.abs(wobX)<0.0004 && Math.abs(wobV)<0.002) wobX=0;
+  }
+
+  function tickFall(dt){
+    if(phase!=='falling') return;
+    fallVy += GRAVITY*dt;
+    pos.x = restX;
+    pos.y += fallVy*dt;
+    if(pos.y>=restY){
+      pos.y = restY;
+      if(fallVy>320){
+        squash = Math.max(0.62, 1-fallVy/3800);
+        fallVy = -fallVy*0.28;
+        elong = 0.88;
+        exciteWobble(Math.random()<0.5?0.7:-0.7);
+      } else {
+        squash = Math.max(0.50, 1-fallVy/2200);
+        fallVy = 0;
+        phase = 'resting';
+        exciteWobble(0.5);
+      }
+    }
+    const speed = fallVy;
+    if(speed>40) elong = 1+Math.min(0.28, speed/1400);
+    else if(speed<-40) elong = Math.max(0.90, 1+speed/2800);
+  }
+
+  function isNearDrop(x,y){ return Math.hypot(x-pos.x, y-pos.y) < r+28; }
+
+  function grab(x,y){
+    phase = 'grabbed';
+    grabOffset = {x:x-pos.x, y:y-pos.y};
+    lastSpeed = 0; elong = 1;
+    exciteWobble(1.1);
+  }
+
+  function moveDrop(x,y,now){
+    const target = {x:x-grabOffset.x, y:y-grabOffset.y};
+    const dt = Math.max(0.001,(now-lastMoveT)/1000);
+    const vx = (target.x-pos.x)/dt, vy = (target.y-pos.y)/dt;
+    pos.x = target.x; pos.y = target.y;
+    const speed = Math.hypot(vx,vy);
+    velHist.push(speed); if(velHist.length>5) velHist.shift();
+    const smoothSpeed = velHist.reduce((a,b)=>a+b,0)/velHist.length;
+    elong = 1+Math.min(0.28, smoothSpeed/1350);
+    if(speed>80) motionAngle = Math.atan2(vy,vx);
+    const dSpeed = speed-lastSpeed;
+    if(Math.abs(dSpeed)>600) exciteWobble(Math.min(Math.max(dSpeed/9000,-0.5),0.5));
+    lastSpeed = speed; lastMoveT = now; lastPX=x; lastPY=y;
+  }
+
+  function sink(){
+    phase = 'sinking';
+    elong = 1; squash = 1;
+    exciteWobble(0.2);
+    plofStart = performance.now();
+    plofX = pos.x; plofY = pos.y;
+    plofDots = Array.from({length:8},(_,i)=>({
+      angle: (i/8)*Math.PI*2 + Math.random()*0.4,
+      dist: 0.6+Math.random()*0.5,
+      size: 2+Math.random()*2.5
+    }));
+    sinkStart = plofStart;
+    setTimeout(()=>{ window.openAIDroplet && window.openAIDroplet(); }, 140);
+    setTimeout(()=>{ phase='hidden'; }, 360);
+  }
+
+  hit.addEventListener('pointerdown', e=>{
+    if(phase!=='resting') return;
+    if(!isNearDrop(e.clientX,e.clientY)) return;
+    hit.setPointerCapture(e.pointerId);
+    isPressed = true;
+    pressStart = performance.now();
+    pressClientX = e.clientX; pressClientY = e.clientY;
+    lastMoveT = pressStart; lastPX=e.clientX; lastPY=e.clientY;
+    exciteWobble(0.3);
+  });
+  hit.addEventListener('pointermove', e=>{
+    if(!isPressed) return;
+    if(phase==='grabbed') moveDrop(e.clientX,e.clientY,performance.now());
+  });
+  function release(e){
+    if(!isPressed) return;
+    isPressed=false;
+    if(phase==='resting' || phase==='grabbed') sink();
+  }
+  hit.addEventListener('pointerup', release);
+  hit.addEventListener('pointercancel', release);
+
+  function drawSphere(t){
+    const breath = 0.5+0.5*Math.sin(t*1.5);
+    ctx.save();
+    ctx.translate(pos.x,pos.y);
+    ctx.translate(0, r*(1-squash));
+    const sqX = 1+(1/squash-1)*0.6;
+    ctx.scale(sqX, squash);
+    ctx.scale(dropScale,dropScale);
+    ctx.rotate(motionAngle);
+    ctx.scale(elong*(1+wobX), (1/elong)*(1-wobX*0.85));
+    ctx.rotate(-motionAngle);
+
+    // -1 zemin gölgesi
+    ctx.save();
+    ctx.filter = `blur(${(r*0.18).toFixed(1)}px)`;
+    let g = ctx.createRadialGradient(0,0,0,0,0,r*2.4);
+    const shadowBase = phase==='grabbed'?0.30:0.17;
+    g.addColorStop(0, `rgba(41,13,87,${shadowBase+0.06*breath})`);
+    g.addColorStop(0.5, 'rgba(41,13,87,0.10)');
+    g.addColorStop(0.8, 'rgba(41,13,87,0.03)');
+    g.addColorStop(1, 'rgba(41,13,87,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(0, r*(phase==='grabbed'?0.50:0.28), r*2.5, r*2.5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // 0 aura
+    g = ctx.createRadialGradient(0,0,r*0.5,0,0,r*1.9);
+    g.addColorStop(0, `rgba(158,92,255,${0.30+0.22*breath})`);
+    g.addColorStop(1, 'rgba(158,92,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0,0,r*1.9,0,Math.PI*2); ctx.fill();
+
+    // 1 gövde
+    g = ctx.createRadialGradient(-r*0.15,-r*0.2,0,-r*0.15,-r*0.2,r*1.5);
+    g.addColorStop(0, 'rgb(112,51,250)');
+    g.addColorStop(1, 'rgb(38,10,112)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+
+    // 2 iç bulutsu (blend lighter)
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.clip();
+    let bx = Math.cos(t*0.8)*r*0.30, by = Math.sin(t*0.6)*r*0.28;
+    g = ctx.createRadialGradient(bx,by,0,bx,by,r*0.55);
+    g.addColorStop(0, 'rgba(82,158,255,0.60)'); g.addColorStop(1,'rgba(82,158,255,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(bx,by,r*0.55,0,Math.PI*2); ctx.fill();
+    bx = Math.cos(t*0.6+2.1)*r*0.32; by = Math.sin(t*0.8+1.3)*r*0.30;
+    g = ctx.createRadialGradient(bx,by,0,bx,by,r*0.50);
+    g.addColorStop(0, 'rgba(245,115,255,0.50)'); g.addColorStop(1,'rgba(245,115,255,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(bx,by,r*0.50,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 3a cam kenarı (conic)
+    if(ctx.createConicGradient){
+      const cg = ctx.createConicGradient(t*0.55, 0, 0);
+      cg.addColorStop(0.00,'rgba(184,118,255,0.70)');
+      cg.addColorStop(0.25,'rgba(92,178,255,0.70)');
+      cg.addColorStop(0.50,'rgba(255,140,242,0.70)');
+      cg.addColorStop(0.75,'rgba(153,130,255,0.70)');
+      cg.addColorStop(1.00,'rgba(184,118,255,0.70)');
+      ctx.save();
+      ctx.filter = `blur(${(r*0.09).toFixed(1)}px)`;
+      ctx.strokeStyle = cg; ctx.lineWidth = r*0.14;
+      ctx.beginPath(); ctx.arc(0,0,r*1.02,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+
+    // 3b keskin ince rim
+    g = ctx.createLinearGradient(-r,-r,r,r);
+    g.addColorStop(0,'rgba(255,255,255,0.75)');
+    g.addColorStop(0.5,'rgba(179,140,255,0.30)');
+    g.addColorStop(1,'rgba(77,36,140,0.55)');
+    ctx.strokeStyle=g; ctx.lineWidth=r*0.035;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
+
+    // 3c iç refraksiyon
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.strokeStyle='rgba(255,255,255,0.20)'; ctx.lineWidth=r*0.02;
+    ctx.beginPath(); ctx.arc(0,0,r*0.91,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+
+    // 4 ışık kalbi
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    const coreS = 0.80+0.25*breath;
+    g = ctx.createRadialGradient(0,0,0,0,0,r*0.45);
+    g.addColorStop(0,'rgba(255,255,255,0.80)');
+    g.addColorStop(0.5,'rgba(204,166,255,0.22)');
+    g.addColorStop(1,'rgba(204,166,255,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(0,0,r*0.45*coreS,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // 5 speküler
+    g = ctx.createRadialGradient(-r*0.34,-r*0.40,0,-r*0.34,-r*0.40,r*0.18);
+    g.addColorStop(0,'rgba(255,255,255,0.95)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.ellipse(-r*0.34,-r*0.40,r*0.15,r*0.11,0,0,Math.PI*2); ctx.fill();
+
+    // 6 yıldız pırıltıları
+    for(let i=0;i<3;i++){
+      const phase2 = i*2.09;
+      const twinkle = Math.max(0, Math.sin(t*(1.1+i*0.35)+phase2));
+      if(twinkle<=0) continue;
+      ctx.fillStyle = `rgba(255,255,255,${0.85*twinkle})`;
+      ctx.beginPath();
+      ctx.arc(Math.cos(phase2*1.7)*r*0.48, Math.sin(phase2*2.3)*r*0.44, 1.2, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function drawPlof(now){
+    if(plofStart<0) return;
+    const p = Math.min(1, (now-plofStart)/300);
+    const a = 1-p;
+    if(a<=0){ plofStart=-1; return; }
+    const plofR = r*(0.9+p*0.6);
+    ctx.save();
+    ctx.translate(plofX, plofY);
+    ctx.fillStyle = `rgba(255,255,255,${0.45*a})`;
+    ctx.beginPath(); ctx.arc(0,0,plofR*0.8,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = `rgba(178,224,255,${0.55*a})`; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.arc(0,0,plofR,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = `rgba(255,255,255,${0.30*a})`; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.arc(0,0,plofR*0.72,0,Math.PI*2); ctx.stroke();
+    for(const d of plofDots){
+      ctx.fillStyle = `rgba(204,237,255,${0.75*a})`;
+      ctx.beginPath();
+      ctx.arc(Math.cos(d.angle)*plofR*1.45*d.dist, Math.sin(d.angle)*plofR*1.45*d.dist, d.size,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function loop(now){
+    requestAnimationFrame(loop);
+    const hidden = container.classList.contains('hidden');
+    if(hidden){
+      wasHidden = true;
+      return;
+    }
+    if(wasHidden){
+      wasHidden = false;
+      if(phase==='hidden') setTimeout(spawn, 300+Math.random()*400);
+    }
+    const dt = lastT ? Math.min(0.05,(now-lastT)/1000) : 1/60;
+    lastT = now;
+
+    if(isPressed && phase==='resting' && (now-pressStart)>280){
+      grab(pressClientX, pressClientY);
+    }
+
+    if(phase==='sinking'){
+      const p = sinkStart>=0 ? Math.min(1,(now-sinkStart)/160) : 1;
+      dropScale = 1+1.2*p;
+      alpha = 1-p;
+    } else if(phase!=='hidden'){
+      tickWobble(dt);
+      tickFall(dt);
+      elong  = approach(elong, 1, 8.4, dt);
+      squash = approach(squash, 1, 10, dt);
+      dropScale = approach(dropScale, 1, 20, dt);
+      alpha = approach(alpha, 1, 20, dt);
+    }
+
+    ctx.clearRect(0,0,W,H);
+    const t = now/1000;
+    if(phase!=='hidden'){
+      ctx.globalAlpha = alpha;
+      drawSphere(t);
+      ctx.globalAlpha = 1;
+    }
+    drawPlof(now);
+
+    // hit alanı damlanın üstünde tutulur — sadece dinlenirken tıklanabilir
+    const live = (phase==='resting');
+    hit.classList.toggle('live', live || phase==='grabbed');
+    const hr = r+28;
+    hit.style.width = (hr*2)+'px'; hit.style.height=(hr*2)+'px';
+    hit.style.left = (pos.x-hr)+'px'; hit.style.top = (pos.y-hr)+'px';
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(loop);
+})();
 
 /* ── Toast ───────────────────────── */
 let toastT;
