@@ -1115,6 +1115,7 @@ body {
             <div class="settings-group-title">Tercihler</div>
             <div class="settings-row" onclick="showToast('Para birimi iOS uygulamasından yönetilir')"><div class="settings-icon" style="background:#D1FAE5">💱</div><div class="settings-text"><div class="settings-title">Para Birimi</div><div class="settings-sub">TRY — Türk Lirası · iOS uygulamasından değiştirilir</div></div><div class="settings-arrow">›</div></div>
             <div class="settings-row" onclick="switchTab('zreport')"><div class="settings-icon" style="background:#DBEAFE">🧾</div><div class="settings-text"><div class="settings-title">Z Raporu</div><div class="settings-sub">Gün sonu raporu görüntüle ve yazdır</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" onclick="openPaymentModal()"><div class="settings-icon" style="background:var(--teal-light)">💳</div><div class="settings-text"><div class="settings-title">Ödeme Yöntemleri</div><div class="settings-sub">IBAN, UPI, PayPal — müşteri ödeme bilgileri</div></div><div class="settings-arrow">›</div></div>
           </div>
           <div class="settings-group">
             <div class="settings-group-title">iOS Uygulaması</div>
@@ -1214,6 +1215,45 @@ body {
       <button class="btn-danger-ghost" id="pr-delete-btn" style="display:none" onclick="deleteProduct()">Sil</button>
       <button class="btn-cancel" onclick="document.getElementById('product-modal').classList.remove('show')">İptal</button>
       <button class="btn-confirm" onclick="saveProduct()">✓ Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Settings Modal -->
+<div class="modal-overlay" id="payment-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box wide modal-box-scroll">
+    <div class="modal-title">Ödeme Yöntemleri</div>
+    <div class="settings-row" style="border-top:none;padding:11px 0;cursor:default">
+      <div class="settings-icon" style="background:var(--purple-light)">🏦</div>
+      <div class="settings-text"><div class="settings-title">IBAN / SEPA</div><div class="settings-sub">Havale ile ödeme kabul et</div></div>
+      <label class="switch"><input type="checkbox" id="pm-iban-on" onchange="pmToggle('iban')"><span class="switch-slider"></span></label>
+    </div>
+    <div id="pm-iban-fields" style="display:none;margin-bottom:14px">
+      <div class="form-group"><label>Hesap Sahibi</label><input type="text" id="pm-acct-name" placeholder="Ad Soyad"></div>
+      <div class="form-group"><label>IBAN</label><input type="text" id="pm-iban" placeholder="TR00 0000 0000 0000 0000 0000 00" style="font-family:monospace"></div>
+      <div class="form-group"><label>BIC (opsiyonel)</label><input type="text" id="pm-bic" placeholder="BIC/SWIFT"></div>
+    </div>
+    <div class="settings-row" style="padding:11px 0;cursor:default">
+      <div class="settings-icon" style="background:#FFF7ED">🇮🇳</div>
+      <div class="settings-text"><div class="settings-title">UPI</div><div class="settings-sub">Hindistan için UPI ödemesi</div></div>
+      <label class="switch"><input type="checkbox" id="pm-upi-on" onchange="pmToggle('upi')"><span class="switch-slider"></span></label>
+    </div>
+    <div id="pm-upi-fields" style="display:none;margin-bottom:14px">
+      <div class="form-group"><label>UPI ID</label><input type="text" id="pm-upi-id" placeholder="name@upi"></div>
+      <div class="form-group"><label>Hesap Sahibi</label><input type="text" id="pm-upi-name" placeholder="Ad Soyad"></div>
+    </div>
+    <div class="settings-row" style="padding:11px 0;cursor:default">
+      <div class="settings-icon" style="background:#EFF6FF">🅿️</div>
+      <div class="settings-text"><div class="settings-title">PayPal</div><div class="settings-sub">Global ödeme kabul et</div></div>
+      <label class="switch"><input type="checkbox" id="pm-paypal-on" onchange="pmToggle('paypal')"><span class="switch-slider"></span></label>
+    </div>
+    <div id="pm-paypal-fields" style="display:none;margin-bottom:8px">
+      <div class="form-group"><label>PayPal.me kullanıcı adı</label><input type="text" id="pm-paypal-user" placeholder="kullaniciadi"></div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-bottom:14px">Stripe / iyzico kart ödeme entegrasyonları güvenlik nedeniyle sadece iOS uygulamasından yapılandırılır.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('payment-modal').classList.remove('show')">Kapat</button>
+      <button class="btn-confirm" onclick="savePaymentSettings()">✓ Kaydet</button>
     </div>
   </div>
 </div>
@@ -2190,6 +2230,46 @@ window.saveStoreProfile=async()=>{
     await setDoc(doc(db,'stores',storeId),data,{merge:true});
     ['sidebar-store-name','settings-store-name'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=name;});
     showToast('✓ Mağaza profili kaydedildi');
+  }catch(e){showToast('Hata: '+e.message);}
+};
+
+/* ── Ödeme Yöntemleri — iOS PaymentManager (stores/{id}/private/paymentConfig) ile aynı ── */
+window.pmToggle=key=>{
+  document.getElementById('pm-'+key+'-fields').style.display=document.getElementById('pm-'+key+'-on').checked?'block':'none';
+};
+window.openPaymentModal=async()=>{
+  document.getElementById('payment-modal').classList.add('show');
+  try{
+    const snap=await getDoc(doc(db,'stores',storeId,'private','paymentConfig'));
+    const d=snap.exists()?snap.data():{};
+    document.getElementById('pm-iban-on').checked=!!d.pm_iban_enabled;
+    document.getElementById('pm-acct-name').value=d.pm_acct_name||'';
+    document.getElementById('pm-iban').value=d.pm_iban||'';
+    document.getElementById('pm-bic').value=d.pm_bic||'';
+    document.getElementById('pm-upi-on').checked=!!d.pm_upi_enabled;
+    document.getElementById('pm-upi-id').value=d.pm_upi_id||'';
+    document.getElementById('pm-upi-name').value=d.pm_upi_name||'';
+    document.getElementById('pm-paypal-on').checked=!!d.pm_paypal_enabled;
+    document.getElementById('pm-paypal-user').value=d.pm_paypal_user||'';
+    ['iban','upi','paypal'].forEach(k=>pmToggle(k));
+  }catch(e){showToast('Yüklenemedi: '+e.message);}
+};
+window.savePaymentSettings=async()=>{
+  const data={
+    pm_iban_enabled:document.getElementById('pm-iban-on').checked,
+    pm_acct_name:document.getElementById('pm-acct-name').value.trim(),
+    pm_iban:document.getElementById('pm-iban').value.trim(),
+    pm_bic:document.getElementById('pm-bic').value.trim(),
+    pm_upi_enabled:document.getElementById('pm-upi-on').checked,
+    pm_upi_id:document.getElementById('pm-upi-id').value.trim(),
+    pm_upi_name:document.getElementById('pm-upi-name').value.trim(),
+    pm_paypal_enabled:document.getElementById('pm-paypal-on').checked,
+    pm_paypal_user:document.getElementById('pm-paypal-user').value.trim()
+  };
+  try{
+    await setDoc(doc(db,'stores',storeId,'private','paymentConfig'),data,{merge:true});
+    document.getElementById('payment-modal').classList.remove('show');
+    showToast('✓ Ödeme ayarları kaydedildi');
   }catch(e){showToast('Hata: '+e.message);}
 };
 
