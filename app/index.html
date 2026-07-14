@@ -543,6 +543,46 @@ body {
 #ai-drop-hit.live { pointer-events:auto; }
 #ai-drop-hit:active { cursor:grabbing; }
 
+/* Damla morph → panel: iOS'taki "damla büyüyerek buzlu cam sheet'e dönüşür" hissi.
+   Gerçek panelle AYNI arka plan/renkleri kullanır ki geçiş bittiğinde sökülünce fark edilmesin. */
+.ai-glass-bg {
+  background:
+    radial-gradient(ellipse at 22% 12%, rgba(124,80,255,0.16), transparent 55%),
+    linear-gradient(135deg, rgb(18,10,51) 0%, rgb(10,8,36) 55%, rgb(15,5,46) 100%);
+}
+#ai-morph {
+  position:fixed; z-index:9600; pointer-events:none;
+  border-radius:26px; opacity:0; transform:scale(0.04);
+  transform-origin:50% 50%;
+  border:1px solid rgba(153,122,255,0.45);
+  box-shadow:0 24px 70px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.04);
+  overflow:hidden;
+}
+#ai-morph.show { transition:transform .42s cubic-bezier(.25,.85,.3,1.15), opacity .16s ease-out; opacity:1; transform:scale(1); }
+/* Kapanış: iOS'taki closeSheet() — sheetDragY ekran dışına kayar + fade (scale'e DOKUNULMAZ) */
+#ai-morph.visible-instant { transition:none; opacity:1; transform:scale(1) translateY(0); }
+#ai-morph.closing { transition:transform .36s cubic-bezier(.32,.94,.4,1), opacity .20s ease-in .10s; opacity:0; transform:scale(1) translateY(55px); }
+#ai-morph .ai-morph-beam {
+  position:absolute; width:60%; height:140%; top:-20%; filter:blur(30px); opacity:0.35;
+  background:linear-gradient(180deg, rgba(158,110,255,0.55), transparent 70%);
+  animation:aiBeamSway 7s ease-in-out infinite;
+}
+#ai-morph .ai-morph-beam.b2 { left:45%; background:linear-gradient(180deg, rgba(92,178,255,0.45), transparent 70%); animation-duration:9s; animation-delay:-3s; }
+#ai-morph .ai-morph-beam.b1 { left:5%; }
+@keyframes aiBeamSway { 0%,100%{ transform:translateX(0) rotate(4deg); } 50%{ transform:translateX(30px) rotate(-3deg); } }
+
+/* Pruva AI panelinin kendisi — uygulamadaki koyu lacivert/mor cam sheet paleti */
+#tab-ai.flex-panel { position:absolute; color:#f1ecff; }
+#tab-ai .chat-messages { background:transparent; position:relative; z-index:1; }
+#tab-ai .ai-bubble-row:not(.user) .ai-bubble { background:rgba(255,255,255,0.08); color:#f1ecff; box-shadow:none; border:1px solid rgba(255,255,255,0.10); backdrop-filter:blur(8px); }
+#tab-ai .ai-chips { position:relative; z-index:1; }
+#tab-ai .ai-chip { background:rgba(255,255,255,0.08); color:#e3d9ff; border:1px solid rgba(168,130,255,0.35); }
+#tab-ai .ai-chip:hover { background:rgba(255,255,255,0.14); }
+#tab-ai .chat-input-row { background:rgba(255,255,255,0.03); border-top:1px solid rgba(168,130,255,0.18); position:relative; z-index:1; }
+#tab-ai #ai-input { background:rgba(255,255,255,0.07); color:#fff; border:1px solid rgba(168,130,255,0.28); }
+#tab-ai #ai-input::placeholder { color:rgba(255,255,255,0.42); }
+#tab-ai .ai-beams-bg { position:absolute; inset:0; overflow:hidden; z-index:0; }
+
 /* UTILS */
 .loading-dots { display:flex; gap:5px; justify-content:center; padding:40px; }
 .loading-dots span { width:6px; height:6px; border-radius:50%; background:var(--purple); opacity:.3; animation:pulse 1.2s ease-in-out infinite; }
@@ -1016,7 +1056,8 @@ body {
       </div>
 
       <!-- PRUVA AI -->
-      <div class="tab-panel flex-panel" id="tab-ai" style="padding:0">
+      <div class="tab-panel flex-panel ai-glass-bg" id="tab-ai" style="padding:0">
+        <div class="ai-beams-bg"><div class="ai-morph-beam b1"></div><div class="ai-morph-beam b2"></div></div>
         <div class="chat-messages" id="ai-messages"></div>
         <div class="ai-chips" id="ai-chips">
           <button class="ai-chip" onclick="aiAsk('Bugünkü satışlarım')">Bugünkü satış özeti</button>
@@ -1617,6 +1658,10 @@ body {
 <div id="ai-droplet" title="Pruva AI">
   <canvas id="ai-drop-canvas"></canvas>
   <div id="ai-drop-hit"></div>
+</div>
+<div id="ai-morph" class="ai-glass-bg">
+  <div class="ai-morph-beam b1"></div>
+  <div class="ai-morph-beam b2"></div>
 </div>
 
 <script type="module">
@@ -3388,6 +3433,8 @@ const loadedTabs=new Set();
 
 window.openAIDroplet=()=>{ switchTab('ai'); setTimeout(()=>document.getElementById('ai-input')?.focus(), 50); };
 window.switchTab=tab=>{
+  const wasAI = document.getElementById('tab-ai')?.classList.contains('active');
+  if(wasAI && tab!=='ai' && window.__pruvaMorphClose){ window.__pruvaMorphClose(); }
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -3540,9 +3587,51 @@ window.switchTab=tab=>{
       size: 2+Math.random()*2.5
     }));
     sinkStart = plofStart;
-    setTimeout(()=>{ window.openAIDroplet && window.openAIDroplet(); }, 140);
+    morphOpen(pos.x, pos.y);
     setTimeout(()=>{ phase='hidden'; }, 360);
   }
+
+  function morphOpen(fromX, fromY){
+    const morph = document.getElementById('ai-morph');
+    const area  = document.querySelector('.content-area');
+    if(!morph || !area){ window.openAIDroplet && window.openAIDroplet(); return; }
+    const rect = area.getBoundingClientRect();
+    morph.style.left   = rect.left+'px';
+    morph.style.top    = rect.top+'px';
+    morph.style.width  = rect.width+'px';
+    morph.style.height = rect.height+'px';
+    morph.style.transformOrigin =
+      ((fromX-rect.left)/rect.width*100).toFixed(1)+'% '+
+      ((fromY-rect.top)/rect.height*100).toFixed(1)+'%';
+    morph.classList.remove('show');
+    void morph.offsetWidth; // reflow — bir sonraki spawn'da geçişi sıfırdan başlatır
+    requestAnimationFrame(()=>morph.classList.add('show'));
+    setTimeout(()=>{ window.openAIDroplet && window.openAIDroplet(); }, 140);
+    setTimeout(()=>{ morph.classList.remove('show'); }, 460);
+  }
+
+  // iOS closeSheet(): sheetOpen=false -> aşağı kayarak + fade ile kapanır, sonra yeni damla doğar.
+  window.__pruvaMorphClose = function(){
+    const morph = document.getElementById('ai-morph');
+    const area  = document.querySelector('.content-area');
+    if(!morph || !area) return;
+    const rect = area.getBoundingClientRect();
+    morph.style.left   = rect.left+'px';
+    morph.style.top    = rect.top+'px';
+    morph.style.width  = rect.width+'px';
+    morph.style.height = rect.height+'px';
+    morph.classList.remove('show','closing');
+    morph.classList.add('visible-instant');
+    void morph.offsetWidth;
+    requestAnimationFrame(()=>{
+      morph.classList.remove('visible-instant');
+      morph.classList.add('closing');
+    });
+    setTimeout(()=>{
+      morph.classList.remove('closing');
+      container.classList.remove('hidden'); // damla geri gelsin — loop wasHidden'i tetikleyip spawn eder
+    }, 380);
+  };
 
   hit.addEventListener('pointerdown', e=>{
     if(phase!=='resting') return;
