@@ -3498,10 +3498,12 @@ window.switchTab=tab=>{
   let wasHidden=true;
 
   function restingSpot(){
+    // iOS'taki surfaceY = screen.height * 0.62 ("Büyüme Trendi" kartları hizası) —
+    // web'de de damla ekranın alt köşesine değil, aynı orana oturur.
     const mobile = W<=900;
-    const marginR = mobile?16:26, marginB = mobile?78:26;
+    const marginR = mobile?16:26;
     restX = W - marginR - r;
-    restY = H - marginB - r;
+    restY = H * 0.62 - r;
   }
 
   function spawn(){
