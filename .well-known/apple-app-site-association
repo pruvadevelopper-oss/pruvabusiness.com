@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["9R6W2CZV3Y.com.0-1.QwickPOS"],
+        "components": [
+          { "/": "/t/*" },
+          { "/": "/o/*" }
+        ]
+      }
+    ]
+  },
+  "appclips": {
+    "apps": ["9R6W2CZV3Y.com.0-1.QwickPOS.Clip"]
+  }
+}
