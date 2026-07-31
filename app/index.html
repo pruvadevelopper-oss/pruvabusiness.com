@@ -101,6 +101,18 @@ body {
 #login-error { color:#FCA5A5; font-size:13px; text-align:center; margin-top:10px; min-height:18px; }
 .spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.login-signup-toggle { text-align:center; margin-top:10px; }
+.login-signup-toggle a { color:rgba(255,255,255,0.55); font-size:13px; text-decoration:none; cursor:pointer; }
+.login-divider { display:flex; align-items:center; gap:10px; margin:16px 0; }
+.login-divider::before, .login-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.15); }
+.login-divider span { font-size:11px; color:rgba(255,255,255,0.4); }
+.btn-social {
+  width:100%; padding:11px; margin-top:8px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+  border-radius:10px; font-size:14px; font-weight:500; color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px; transition:background .15s;
+}
+.btn-social:hover { background:rgba(255,255,255,0.14); }
 
 /* APP SHELL */
 #app { display:flex; height:100dvh; overflow:hidden; }
@@ -639,11 +651,17 @@ body {
     <div class="login-card">
       <div class="input-group"><label data-i18n="emailLabel">E-posta</label><input type="email" id="login-email" data-i18n-placeholder="emailPlaceholder" placeholder="ornek@sirket.com" autocomplete="email"></div>
       <div class="input-group"><label data-i18n="passLabel">Şifre</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="btn-login" onclick="doLogin()">
+      <button class="btn-login" id="login-submit-btn" onclick="doLogin()">
         <span id="login-btn-text" data-i18n="loginBtn">Giriş Yap</span>
         <div class="spinner" id="login-spinner"></div>
       </button>
       <div id="login-error"></div>
+      <div class="login-signup-toggle">
+        <a id="login-mode-toggle" data-i18n="signupPrompt" onclick="toggleAuthMode();return false;">Hesabın yok mu? Kayıt Ol</a>
+      </div>
+      <div class="login-divider"><span data-i18n="orDivider">VEYA</span></div>
+      <button class="btn-social" onclick="doAppleLogin()" data-i18n="continueWithApple"> Apple ile devam et</button>
+      <button class="btn-social" onclick="doGoogleLogin()" data-i18n="continueWithGoogle"> Google ile devam et</button>
     </div>
   </div>
 </div>
@@ -651,30 +669,30 @@ body {
 <script>
 (function(){
   var LOGIN_I18N = {
-    en:{tagline:"Smart POS · 24 Languages · Offline-First",emailLabel:"Email",emailPlaceholder:"name@company.com",passLabel:"Password",loginBtn:"Sign In",errEmpty:"Email and password are required.",errInvalid:"Incorrect email or password.",errFailed:"Sign in failed."},
-    tr:{tagline:"Akıllı POS · 24 Dil · Offline-First",emailLabel:"E-posta",emailPlaceholder:"ornek@sirket.com",passLabel:"Şifre",loginBtn:"Giriş Yap",errEmpty:"E-posta ve şifre gerekli.",errInvalid:"E-posta veya şifre hatalı.",errFailed:"Giriş başarısız."},
-    de:{tagline:"Intelligente Kasse · 24 Sprachen · Offline-First",emailLabel:"E-Mail",emailPlaceholder:"name@firma.com",passLabel:"Passwort",loginBtn:"Anmelden",errEmpty:"E-Mail und Passwort erforderlich.",errInvalid:"E-Mail oder Passwort falsch.",errFailed:"Anmeldung fehlgeschlagen."},
-    fr:{tagline:"Caisse intelligente · 24 langues · Hors ligne",emailLabel:"E-mail",emailPlaceholder:"nom@entreprise.com",passLabel:"Mot de passe",loginBtn:"Se connecter",errEmpty:"E-mail et mot de passe requis.",errInvalid:"E-mail ou mot de passe incorrect.",errFailed:"Connexion échouée."},
-    es:{tagline:"TPV inteligente · 24 idiomas · Sin conexión",emailLabel:"Correo",emailPlaceholder:"nombre@empresa.com",passLabel:"Contraseña",loginBtn:"Iniciar sesión",errEmpty:"Correo y contraseña requeridos.",errInvalid:"Correo o contraseña incorrectos.",errFailed:"Error al iniciar sesión."},
-    pt:{tagline:"PDV inteligente · 24 idiomas · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nome@empresa.com",passLabel:"Senha",loginBtn:"Entrar",errEmpty:"E-mail e senha são obrigatórios.",errInvalid:"E-mail ou senha incorretos.",errFailed:"Falha ao entrar."},
-    it:{tagline:"POS intelligente · 24 lingue · Offline-First",emailLabel:"Email",emailPlaceholder:"nome@azienda.com",passLabel:"Password",loginBtn:"Accedi",errEmpty:"Email e password obbligatorie.",errInvalid:"Email o password errati.",errFailed:"Accesso non riuscito."},
-    nl:{tagline:"Slimme kassa · 24 talen · Offline-First",emailLabel:"E-mail",emailPlaceholder:"naam@bedrijf.com",passLabel:"Wachtwoord",loginBtn:"Inloggen",errEmpty:"E-mail en wachtwoord vereist.",errInvalid:"E-mail of wachtwoord onjuist.",errFailed:"Inloggen mislukt."},
-    pl:{tagline:"Inteligentny POS · 24 języki · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nazwa@firma.com",passLabel:"Hasło",loginBtn:"Zaloguj się",errEmpty:"Wymagany e-mail i hasło.",errInvalid:"Nieprawidłowy e-mail lub hasło.",errFailed:"Logowanie nie powiodło się."},
-    ru:{tagline:"Умная касса · 24 языка · Офлайн-режим",emailLabel:"Эл. почта",emailPlaceholder:"имя@компания.com",passLabel:"Пароль",loginBtn:"Войти",errEmpty:"Введите e-mail и пароль.",errInvalid:"Неверный e-mail или пароль.",errFailed:"Не удалось войти."},
-    ar:{tagline:"كاشير ذكي · 24 لغة · يعمل دون إنترنت",emailLabel:"البريد الإلكتروني",emailPlaceholder:"name@company.com",passLabel:"كلمة المرور",loginBtn:"تسجيل الدخول",errEmpty:"البريد الإلكتروني وكلمة المرور مطلوبان.",errInvalid:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",errFailed:"فشل تسجيل الدخول."},
-    fa:{tagline:"صندوق هوشمند · ۲۴ زبان · بدون اینترنت",emailLabel:"ایمیل",emailPlaceholder:"name@company.com",passLabel:"رمز عبور",loginBtn:"ورود",errEmpty:"ایمیل و رمز عبور الزامی است.",errInvalid:"ایمیل یا رمز عبور اشتباه است.",errFailed:"ورود ناموفق بود."},
-    ur:{tagline:"اسمارٹ POS · 24 زبانیں · آف لائن",emailLabel:"ای میل",emailPlaceholder:"name@company.com",passLabel:"پاس ورڈ",loginBtn:"لاگ ان کریں",errEmpty:"ای میل اور پاس ورڈ ضروری ہیں۔",errInvalid:"ای میل یا پاس ورڈ غلط ہے۔",errFailed:"لاگ ان ناکام ہوگیا۔"},
-    hi:{tagline:"स्मार्ट POS · 24 भाषाएं · ऑफ़लाइन-फ़र्स्ट",emailLabel:"ईमेल",emailPlaceholder:"naam@company.com",passLabel:"पासवर्ड",loginBtn:"लॉग इन करें",errEmpty:"ईमेल और पासवर्ड आवश्यक हैं।",errInvalid:"ईमेल या पासवर्ड गलत है।",errFailed:"लॉगिन विफल।"},
-    bn:{tagline:"স্মার্ট POS · ২৪ ভাষা · অফলাইন-ফার্স্ট",emailLabel:"ইমেইল",emailPlaceholder:"naam@company.com",passLabel:"পাসওয়ার্ড",loginBtn:"লগ ইন করুন",errEmpty:"ইমেইল এবং পাসওয়ার্ড আবশ্যক।",errInvalid:"ইমেইল বা পাসওয়ার্ড ভুল।",errFailed:"লগইন ব্যর্থ হয়েছে।"},
-    id:{tagline:"POS pintar · 24 bahasa · Offline-First",emailLabel:"Email",emailPlaceholder:"nama@perusahaan.com",passLabel:"Kata sandi",loginBtn:"Masuk",errEmpty:"Email dan kata sandi wajib diisi.",errInvalid:"Email atau kata sandi salah.",errFailed:"Gagal masuk."},
-    vi:{tagline:"POS thông minh · 24 ngôn ngữ · Offline-First",emailLabel:"Email",emailPlaceholder:"ten@congty.com",passLabel:"Mật khẩu",loginBtn:"Đăng nhập",errEmpty:"Cần nhập email và mật khẩu.",errInvalid:"Email hoặc mật khẩu không đúng.",errFailed:"Đăng nhập không thành công."},
-    th:{tagline:"POS อัจฉริยะ · 24 ภาษา · ทำงานออฟไลน์ได้",emailLabel:"อีเมล",emailPlaceholder:"name@company.com",passLabel:"รหัสผ่าน",loginBtn:"เข้าสู่ระบบ",errEmpty:"ต้องระบุอีเมลและรหัสผ่าน",errInvalid:"อีเมลหรือรหัสผ่านไม่ถูกต้อง",errFailed:"เข้าสู่ระบบไม่สำเร็จ"},
-    fil:{tagline:"Matalinong POS · 24 Wika · Offline-First",emailLabel:"Email",emailPlaceholder:"pangalan@kumpanya.com",passLabel:"Password",loginBtn:"Mag-login",errEmpty:"Kailangan ang email at password.",errInvalid:"Mali ang email o password.",errFailed:"Hindi matagumpay ang pag-login."},
-    sw:{tagline:"POS Mahiri · Lugha 24 · Hufanya Kazi Bila Mtandao",emailLabel:"Barua pepe",emailPlaceholder:"jina@kampuni.com",passLabel:"Nenosiri",loginBtn:"Ingia",errEmpty:"Barua pepe na nenosiri vinahitajika.",errInvalid:"Barua pepe au nenosiri si sahihi.",errFailed:"Kuingia kumeshindwa."},
-    ha:{tagline:"POS Mai Hikima · Harsuna 24 · Yana Aiki Ba Yanar Gizo",emailLabel:"Imel",emailPlaceholder:"suna@kamfani.com",passLabel:"Kalmar Sirri",loginBtn:"Shiga",errEmpty:"Ana bukatar imel da kalmar sirri.",errInvalid:"Imel ko kalmar sirri ba daidai ba.",errFailed:"Shiga ya kasa."},
-    kk:{tagline:"Ақылды POS · 24 тіл · Офлайн режим",emailLabel:"Электрондық пошта",emailPlaceholder:"name@company.com",passLabel:"Құпия сөз",loginBtn:"Кіру",errEmpty:"Электрондық пошта және құпия сөз қажет.",errInvalid:"Электрондық пошта немесе құпия сөз қате.",errFailed:"Кіру сәтсіз аяқталды."},
-    uz:{tagline:"Aqlli POS · 24 til · Offline-First",emailLabel:"Elektron pochta",emailPlaceholder:"ism@kompaniya.com",passLabel:"Parol",loginBtn:"Kirish",errEmpty:"Elektron pochta va parol talab qilinadi.",errInvalid:"Elektron pochta yoki parol xato.",errFailed:"Kirish amalga oshmadi."},
-    tk:{tagline:"Akylly POS · 24 dil · Onlaýnsyz işleýär",emailLabel:"E-poçta",emailPlaceholder:"ady@kompaniya.com",passLabel:"Parol",loginBtn:"Girmek",errEmpty:"E-poçta we parol gerek.",errInvalid:"E-poçta ýa-da parol nädogry.",errFailed:"Girmek başartmady."}
+    en:{tagline:"Smart POS · 24 Languages · Offline-First",emailLabel:"Email",emailPlaceholder:"name@company.com",passLabel:"Password",loginBtn:"Sign In",errEmpty:"Email and password are required.",errInvalid:"Incorrect email or password.",errFailed:"Sign in failed.",orDivider:"OR",continueWithApple:"Continue with Apple",continueWithGoogle:"Continue with Google",signupPrompt:"Don't have an account? Sign Up",signupBackPrompt:"Already have an account? Sign In",signupBtn:"Sign Up",errEmailInUse:"This email is already registered.",errWeakPassword:"Password is too weak.",errShortPassword:"Password must be at least 6 characters.",signupFailed:"Registration failed."},
+    tr:{tagline:"Akıllı POS · 24 Dil · Offline-First",emailLabel:"E-posta",emailPlaceholder:"ornek@sirket.com",passLabel:"Şifre",loginBtn:"Giriş Yap",errEmpty:"E-posta ve şifre gerekli.",errInvalid:"E-posta veya şifre hatalı.",errFailed:"Giriş başarısız.",orDivider:"VEYA",continueWithApple:"Apple ile devam et",continueWithGoogle:"Google ile devam et",signupPrompt:"Hesabın yok mu? Kayıt Ol",signupBackPrompt:"Zaten hesabın var mı? Giriş Yap",signupBtn:"Kayıt Ol",errEmailInUse:"Bu e-posta zaten kayıtlı.",errWeakPassword:"Şifre çok zayıf.",errShortPassword:"Şifre en az 6 karakter olmalı.",signupFailed:"Kayıt başarısız."},
+    de:{tagline:"Intelligente Kasse · 24 Sprachen · Offline-First",emailLabel:"E-Mail",emailPlaceholder:"name@firma.com",passLabel:"Passwort",loginBtn:"Anmelden",errEmpty:"E-Mail und Passwort erforderlich.",errInvalid:"E-Mail oder Passwort falsch.",errFailed:"Anmeldung fehlgeschlagen.",orDivider:"ODER",continueWithApple:"Mit Apple fortfahren",continueWithGoogle:"Mit Google fortfahren",signupPrompt:"Kein Konto? Registrieren",signupBackPrompt:"Schon ein Konto? Anmelden",signupBtn:"Registrieren",errEmailInUse:"Diese E-Mail ist bereits registriert.",errWeakPassword:"Passwort ist zu schwach.",errShortPassword:"Passwort muss mindestens 6 Zeichen haben.",signupFailed:"Registrierung fehlgeschlagen."},
+    fr:{tagline:"Caisse intelligente · 24 langues · Hors ligne",emailLabel:"E-mail",emailPlaceholder:"nom@entreprise.com",passLabel:"Mot de passe",loginBtn:"Se connecter",errEmpty:"E-mail et mot de passe requis.",errInvalid:"E-mail ou mot de passe incorrect.",errFailed:"Connexion échouée.",orDivider:"OU",continueWithApple:"Continuer avec Apple",continueWithGoogle:"Continuer avec Google",signupPrompt:"Pas de compte ? S'inscrire",signupBackPrompt:"Déjà un compte ? Se connecter",signupBtn:"S'inscrire",errEmailInUse:"Cet e-mail est déjà enregistré.",errWeakPassword:"Mot de passe trop faible.",errShortPassword:"Le mot de passe doit contenir au moins 6 caractères.",signupFailed:"Échec de l'inscription."},
+    es:{tagline:"TPV inteligente · 24 idiomas · Sin conexión",emailLabel:"Correo",emailPlaceholder:"nombre@empresa.com",passLabel:"Contraseña",loginBtn:"Iniciar sesión",errEmpty:"Correo y contraseña requeridos.",errInvalid:"Correo o contraseña incorrectos.",errFailed:"Error al iniciar sesión.",orDivider:"O",continueWithApple:"Continuar con Apple",continueWithGoogle:"Continuar con Google",signupPrompt:"¿No tienes cuenta? Regístrate",signupBackPrompt:"¿Ya tienes cuenta? Inicia sesión",signupBtn:"Regístrate",errEmailInUse:"Este correo ya está registrado.",errWeakPassword:"La contraseña es demasiado débil.",errShortPassword:"La contraseña debe tener al menos 6 caracteres.",signupFailed:"Registro fallido."},
+    pt:{tagline:"PDV inteligente · 24 idiomas · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nome@empresa.com",passLabel:"Senha",loginBtn:"Entrar",errEmpty:"E-mail e senha são obrigatórios.",errInvalid:"E-mail ou senha incorretos.",errFailed:"Falha ao entrar.",orDivider:"OU",continueWithApple:"Continuar com Apple",continueWithGoogle:"Continuar com Google",signupPrompt:"Não tem conta? Cadastre-se",signupBackPrompt:"Já tem conta? Entrar",signupBtn:"Cadastre-se",errEmailInUse:"Este e-mail já está cadastrado.",errWeakPassword:"Senha muito fraca.",errShortPassword:"A senha deve ter pelo menos 6 caracteres.",signupFailed:"Falha no cadastro."},
+    it:{tagline:"POS intelligente · 24 lingue · Offline-First",emailLabel:"Email",emailPlaceholder:"nome@azienda.com",passLabel:"Password",loginBtn:"Accedi",errEmpty:"Email e password obbligatorie.",errInvalid:"Email o password errati.",errFailed:"Accesso non riuscito.",orDivider:"O",continueWithApple:"Continua con Apple",continueWithGoogle:"Continua con Google",signupPrompt:"Non hai un account? Registrati",signupBackPrompt:"Hai già un account? Accedi",signupBtn:"Registrati",errEmailInUse:"Questa email è già registrata.",errWeakPassword:"Password troppo debole.",errShortPassword:"La password deve contenere almeno 6 caratteri.",signupFailed:"Registrazione non riuscita."},
+    nl:{tagline:"Slimme kassa · 24 talen · Offline-First",emailLabel:"E-mail",emailPlaceholder:"naam@bedrijf.com",passLabel:"Wachtwoord",loginBtn:"Inloggen",errEmpty:"E-mail en wachtwoord vereist.",errInvalid:"E-mail of wachtwoord onjuist.",errFailed:"Inloggen mislukt.",orDivider:"OF",continueWithApple:"Doorgaan met Apple",continueWithGoogle:"Doorgaan met Google",signupPrompt:"Geen account? Registreren",signupBackPrompt:"Al een account? Inloggen",signupBtn:"Registreren",errEmailInUse:"Dit e-mailadres is al geregistreerd.",errWeakPassword:"Wachtwoord is te zwak.",errShortPassword:"Wachtwoord moet minstens 6 tekens bevatten.",signupFailed:"Registratie mislukt."},
+    pl:{tagline:"Inteligentny POS · 24 języki · Offline-First",emailLabel:"E-mail",emailPlaceholder:"nazwa@firma.com",passLabel:"Hasło",loginBtn:"Zaloguj się",errEmpty:"Wymagany e-mail i hasło.",errInvalid:"Nieprawidłowy e-mail lub hasło.",errFailed:"Logowanie nie powiodło się.",orDivider:"LUB",continueWithApple:"Kontynuuj z Apple",continueWithGoogle:"Kontynuuj z Google",signupPrompt:"Nie masz konta? Zarejestruj się",signupBackPrompt:"Masz już konto? Zaloguj się",signupBtn:"Zarejestruj się",errEmailInUse:"Ten e-mail jest już zarejestrowany.",errWeakPassword:"Hasło jest za słabe.",errShortPassword:"Hasło musi mieć co najmniej 6 znaków.",signupFailed:"Rejestracja nie powiodła się."},
+    ru:{tagline:"Умная касса · 24 языка · Офлайн-режим",emailLabel:"Эл. почта",emailPlaceholder:"имя@компания.com",passLabel:"Пароль",loginBtn:"Войти",errEmpty:"Введите e-mail и пароль.",errInvalid:"Неверный e-mail или пароль.",errFailed:"Не удалось войти.",orDivider:"ИЛИ",continueWithApple:"Продолжить с Apple",continueWithGoogle:"Продолжить с Google",signupPrompt:"Нет аккаунта? Зарегистрироваться",signupBackPrompt:"Уже есть аккаунт? Войти",signupBtn:"Зарегистрироваться",errEmailInUse:"Этот адрес уже зарегистрирован.",errWeakPassword:"Слишком слабый пароль.",errShortPassword:"Пароль должен содержать не менее 6 символов.",signupFailed:"Регистрация не удалась."},
+    ar:{tagline:"كاشير ذكي · 24 لغة · يعمل دون إنترنت",emailLabel:"البريد الإلكتروني",emailPlaceholder:"name@company.com",passLabel:"كلمة المرور",loginBtn:"تسجيل الدخول",errEmpty:"البريد الإلكتروني وكلمة المرور مطلوبان.",errInvalid:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",errFailed:"فشل تسجيل الدخول.",orDivider:"أو",continueWithApple:"المتابعة مع Apple",continueWithGoogle:"المتابعة مع Google",signupPrompt:"ليس لديك حساب؟ إنشاء حساب",signupBackPrompt:"لديك حساب بالفعل؟ تسجيل الدخول",signupBtn:"التسجيل",errEmailInUse:"هذا البريد الإلكتروني مسجل بالفعل.",errWeakPassword:"كلمة المرور ضعيفة جدًا.",errShortPassword:"يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",signupFailed:"فشل التسجيل."},
+    fa:{tagline:"صندوق هوشمند · ۲۴ زبان · بدون اینترنت",emailLabel:"ایمیل",emailPlaceholder:"name@company.com",passLabel:"رمز عبور",loginBtn:"ورود",errEmpty:"ایمیل و رمز عبور الزامی است.",errInvalid:"ایمیل یا رمز عبور اشتباه است.",errFailed:"ورود ناموفق بود.",orDivider:"یا",continueWithApple:"ادامه با Apple",continueWithGoogle:"ادامه با Google",signupPrompt:"حساب ندارید؟ ثبت‌نام کنید",signupBackPrompt:"قبلاً حساب دارید؟ ورود",signupBtn:"ثبت‌نام",errEmailInUse:"این ایمیل قبلاً ثبت شده است.",errWeakPassword:"رمز عبور خیلی ضعیف است.",errShortPassword:"رمز عبور باید حداقل ۶ کاراکتر باشد.",signupFailed:"ثبت‌نام ناموفق بود."},
+    ur:{tagline:"اسمارٹ POS · 24 زبانیں · آف لائن",emailLabel:"ای میل",emailPlaceholder:"name@company.com",passLabel:"پاس ورڈ",loginBtn:"لاگ ان کریں",errEmpty:"ای میل اور پاس ورڈ ضروری ہیں۔",errInvalid:"ای میل یا پاس ورڈ غلط ہے۔",errFailed:"لاگ ان ناکام ہوگیا۔",orDivider:"یا",continueWithApple:"Apple کے ساتھ جاری رکھیں",continueWithGoogle:"Google کے ساتھ جاری رکھیں",signupPrompt:"اکاؤنٹ نہیں ہے؟ رجسٹر کریں",signupBackPrompt:"پہلے سے اکاؤنٹ ہے؟ لاگ ان کریں",signupBtn:"رجسٹر کریں",errEmailInUse:"یہ ای میل پہلے سے رجسٹرڈ ہے۔",errWeakPassword:"پاس ورڈ بہت کمزور ہے۔",errShortPassword:"پاس ورڈ کم از کم 6 حروف کا ہونا چاہیے۔",signupFailed:"رجسٹریشن ناکام ہوگئی۔"},
+    hi:{tagline:"स्मार्ट POS · 24 भाषाएं · ऑफ़लाइन-फ़र्स्ट",emailLabel:"ईमेल",emailPlaceholder:"naam@company.com",passLabel:"पासवर्ड",loginBtn:"लॉग इन करें",errEmpty:"ईमेल और पासवर्ड आवश्यक हैं।",errInvalid:"ईमेल या पासवर्ड गलत है।",errFailed:"लॉगिन विफल।",orDivider:"या",continueWithApple:"Apple से जारी रखें",continueWithGoogle:"Google से जारी रखें",signupPrompt:"खाता नहीं है? पंजीकरण करें",signupBackPrompt:"पहले से खाता है? लॉग इन करें",signupBtn:"पंजीकरण करें",errEmailInUse:"यह ईमेल पहले से पंजीकृत है।",errWeakPassword:"पासवर्ड बहुत कमज़ोर है।",errShortPassword:"पासवर्ड कम से कम 6 वर्णों का होना चाहिए।",signupFailed:"पंजीकरण विफल।"},
+    bn:{tagline:"স্মার্ট POS · ২৪ ভাষা · অফলাইন-ফার্স্ট",emailLabel:"ইমেইল",emailPlaceholder:"naam@company.com",passLabel:"পাসওয়ার্ড",loginBtn:"লগ ইন করুন",errEmpty:"ইমেইল এবং পাসওয়ার্ড আবশ্যক।",errInvalid:"ইমেইল বা পাসওয়ার্ড ভুল।",errFailed:"লগইন ব্যর্থ হয়েছে।",orDivider:"অথবা",continueWithApple:"Apple দিয়ে চালিয়ে যান",continueWithGoogle:"Google দিয়ে চালিয়ে যান",signupPrompt:"অ্যাকাউন্ট নেই? নিবন্ধন করুন",signupBackPrompt:"আগে থেকেই অ্যাকাউন্ট আছে? লগ ইন করুন",signupBtn:"নিবন্ধন করুন",errEmailInUse:"এই ইমেইলটি ইতিমধ্যে নিবন্ধিত।",errWeakPassword:"পাসওয়ার্ড খুব দুর্বল।",errShortPassword:"পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",signupFailed:"নিবন্ধন ব্যর্থ হয়েছে।"},
+    id:{tagline:"POS pintar · 24 bahasa · Offline-First",emailLabel:"Email",emailPlaceholder:"nama@perusahaan.com",passLabel:"Kata sandi",loginBtn:"Masuk",errEmpty:"Email dan kata sandi wajib diisi.",errInvalid:"Email atau kata sandi salah.",errFailed:"Gagal masuk.",orDivider:"ATAU",continueWithApple:"Lanjutkan dengan Apple",continueWithGoogle:"Lanjutkan dengan Google",signupPrompt:"Belum punya akun? Daftar",signupBackPrompt:"Sudah punya akun? Masuk",signupBtn:"Daftar",errEmailInUse:"Email ini sudah terdaftar.",errWeakPassword:"Kata sandi terlalu lemah.",errShortPassword:"Kata sandi harus minimal 6 karakter.",signupFailed:"Pendaftaran gagal."},
+    vi:{tagline:"POS thông minh · 24 ngôn ngữ · Offline-First",emailLabel:"Email",emailPlaceholder:"ten@congty.com",passLabel:"Mật khẩu",loginBtn:"Đăng nhập",errEmpty:"Cần nhập email và mật khẩu.",errInvalid:"Email hoặc mật khẩu không đúng.",errFailed:"Đăng nhập không thành công.",orDivider:"HOẶC",continueWithApple:"Tiếp tục với Apple",continueWithGoogle:"Tiếp tục với Google",signupPrompt:"Chưa có tài khoản? Đăng ký",signupBackPrompt:"Đã có tài khoản? Đăng nhập",signupBtn:"Đăng ký",errEmailInUse:"Email này đã được đăng ký.",errWeakPassword:"Mật khẩu quá yếu.",errShortPassword:"Mật khẩu phải có ít nhất 6 ký tự.",signupFailed:"Đăng ký không thành công."},
+    th:{tagline:"POS อัจฉริยะ · 24 ภาษา · ทำงานออฟไลน์ได้",emailLabel:"อีเมล",emailPlaceholder:"name@company.com",passLabel:"รหัสผ่าน",loginBtn:"เข้าสู่ระบบ",errEmpty:"ต้องระบุอีเมลและรหัสผ่าน",errInvalid:"อีเมลหรือรหัสผ่านไม่ถูกต้อง",errFailed:"เข้าสู่ระบบไม่สำเร็จ",orDivider:"หรือ",continueWithApple:"ดำเนินการต่อด้วย Apple",continueWithGoogle:"ดำเนินการต่อด้วย Google",signupPrompt:"ยังไม่มีบัญชี? สมัครสมาชิก",signupBackPrompt:"มีบัญชีอยู่แล้ว? เข้าสู่ระบบ",signupBtn:"สมัครสมาชิก",errEmailInUse:"อีเมลนี้ลงทะเบียนแล้ว",errWeakPassword:"รหัสผ่านอ่อนแอเกินไป",errShortPassword:"รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",signupFailed:"การสมัครไม่สำเร็จ"},
+    fil:{tagline:"Matalinong POS · 24 Wika · Offline-First",emailLabel:"Email",emailPlaceholder:"pangalan@kumpanya.com",passLabel:"Password",loginBtn:"Mag-login",errEmpty:"Kailangan ang email at password.",errInvalid:"Mali ang email o password.",errFailed:"Hindi matagumpay ang pag-login.",orDivider:"O",continueWithApple:"Magpatuloy gamit ang Apple",continueWithGoogle:"Magpatuloy gamit ang Google",signupPrompt:"Walang account? Mag-sign Up",signupBackPrompt:"May account ka na? Mag-login",signupBtn:"Mag-sign Up",errEmailInUse:"Nakarehistro na ang email na ito.",errWeakPassword:"Masyadong mahina ang password.",errShortPassword:"Dapat may hindi bababa sa 6 na karakter ang password.",signupFailed:"Nabigo ang pagrehistro."},
+    sw:{tagline:"POS Mahiri · Lugha 24 · Hufanya Kazi Bila Mtandao",emailLabel:"Barua pepe",emailPlaceholder:"jina@kampuni.com",passLabel:"Nenosiri",loginBtn:"Ingia",errEmpty:"Barua pepe na nenosiri vinahitajika.",errInvalid:"Barua pepe au nenosiri si sahihi.",errFailed:"Kuingia kumeshindwa.",orDivider:"AU",continueWithApple:"Endelea na Apple",continueWithGoogle:"Endelea na Google",signupPrompt:"Huna akaunti? Jisajili",signupBackPrompt:"Una akaunti tayari? Ingia",signupBtn:"Jisajili",errEmailInUse:"Barua pepe hii tayari imesajiliwa.",errWeakPassword:"Nenosiri ni dhaifu sana.",errShortPassword:"Nenosiri lazima liwe na herufi 6 au zaidi.",signupFailed:"Usajili umeshindwa."},
+    ha:{tagline:"POS Mai Hikima · Harsuna 24 · Yana Aiki Ba Yanar Gizo",emailLabel:"Imel",emailPlaceholder:"suna@kamfani.com",passLabel:"Kalmar Sirri",loginBtn:"Shiga",errEmpty:"Ana bukatar imel da kalmar sirri.",errInvalid:"Imel ko kalmar sirri ba daidai ba.",errFailed:"Shiga ya kasa.",orDivider:"KO",continueWithApple:"Ci gaba da Apple",continueWithGoogle:"Ci gaba da Google",signupPrompt:"Ba ka da asusu? Yi rijista",signupBackPrompt:"Kana da asusu tuni? Shiga",signupBtn:"Yi Rijista",errEmailInUse:"An riga an yi rijistar wannan imel.",errWeakPassword:"Kalmar sirri ta yi rauni sosai.",errShortPassword:"Kalmar sirri dole ta kasance akalla haruffa 6.",signupFailed:"Rijista ta kasa."},
+    kk:{tagline:"Ақылды POS · 24 тіл · Офлайн режим",emailLabel:"Электрондық пошта",emailPlaceholder:"name@company.com",passLabel:"Құпия сөз",loginBtn:"Кіру",errEmpty:"Электрондық пошта және құпия сөз қажет.",errInvalid:"Электрондық пошта немесе құпия сөз қате.",errFailed:"Кіру сәтсіз аяқталды.",orDivider:"НЕМЕСЕ",continueWithApple:"Apple арқылы жалғастыру",continueWithGoogle:"Google арқылы жалғастыру",signupPrompt:"Есептік жазба жоқ па? Тіркелу",signupBackPrompt:"Есептік жазбаңыз бар ма? Кіру",signupBtn:"Тіркелу",errEmailInUse:"Бұл электрондық пошта тіркелген.",errWeakPassword:"Құпия сөз тым әлсіз.",errShortPassword:"Құпия сөз кемінде 6 таңбадан тұруы керек.",signupFailed:"Тіркеу сәтсіз аяқталды."},
+    uz:{tagline:"Aqlli POS · 24 til · Offline-First",emailLabel:"Elektron pochta",emailPlaceholder:"ism@kompaniya.com",passLabel:"Parol",loginBtn:"Kirish",errEmpty:"Elektron pochta va parol talab qilinadi.",errInvalid:"Elektron pochta yoki parol xato.",errFailed:"Kirish amalga oshmadi.",orDivider:"YOKI",continueWithApple:"Apple bilan davom etish",continueWithGoogle:"Google bilan davom etish",signupPrompt:"Hisobingiz yo'qmi? Ro'yxatdan o'ting",signupBackPrompt:"Hisobingiz bormi? Kirish",signupBtn:"Ro'yxatdan o'tish",errEmailInUse:"Bu email allaqachon ro'yxatdan o'tgan.",errWeakPassword:"Parol juda zaif.",errShortPassword:"Parol kamida 6 ta belgidan iborat bo'lishi kerak.",signupFailed:"Roʻyxatdan oʻtish muvaffaqiyatsiz tugadi."},
+    tk:{tagline:"Akylly POS · 24 dil · Onlaýnsyz işleýär",emailLabel:"E-poçta",emailPlaceholder:"ady@kompaniya.com",passLabel:"Parol",loginBtn:"Girmek",errEmpty:"E-poçta we parol gerek.",errInvalid:"E-poçta ýa-da parol nädogry.",errFailed:"Girmek başartmady.",orDivider:"ÝA-DA",continueWithApple:"Apple bilen dowam etmek",continueWithGoogle:"Google bilen dowam etmek",signupPrompt:"Hasabyňyz ýokmy? Hasaba durmak",signupBackPrompt:"Hasabyňyz barmy? Girmek",signupBtn:"Hasaba durmak",errEmailInUse:"Bu e-poçta eýýäm hasaba alyndy.",errWeakPassword:"Parol gaty gowşak.",errShortPassword:"Parol azyndan 6 nyşandan ybarat bolmaly.",signupFailed:"Hasaba durmak başartmady."}
   };
   var SUPPORTED = Object.keys(LOGIN_I18N);
 
@@ -1681,7 +1699,8 @@ body {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
+         onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
          collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot }
@@ -1713,6 +1732,15 @@ const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 
 onAuthStateChanged(auth, u => u ? initApp(u) : showLogin());
 
+let isSignupMode=false;
+window.toggleAuthMode = () => {
+  const t = window.PRUVA_LOGIN_T || {};
+  isSignupMode=!isSignupMode;
+  document.getElementById('login-btn-text').textContent = isSignupMode?(t.signupBtn||'Kayıt Ol'):(t.loginBtn||'Giriş Yap');
+  document.getElementById('login-mode-toggle').textContent = isSignupMode?(t.signupBackPrompt||'Zaten hesabın var mı? Giriş Yap'):(t.signupPrompt||'Hesabın yok mu? Kayıt Ol');
+  document.getElementById('login-pass').autocomplete = isSignupMode?'new-password':'current-password';
+  document.getElementById('login-error').textContent='';
+};
 window.doLogin = async () => {
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
@@ -1720,14 +1748,31 @@ window.doLogin = async () => {
   const t = window.PRUVA_LOGIN_T || {};
   err.textContent='';
   if(!email||!pass){err.textContent=t.errEmpty||'E-posta ve şifre gerekli.';return;}
+  if(isSignupMode && pass.length<6){err.textContent=t.errShortPassword||'Şifre en az 6 karakter olmalı.';return;}
   document.getElementById('login-btn-text').style.display='none';
   document.getElementById('login-spinner').style.display='block';
-  try { await signInWithEmailAndPassword(auth,email,pass); }
+  try {
+    if(isSignupMode) { await createUserWithEmailAndPassword(auth,email,pass); }
+    else { await signInWithEmailAndPassword(auth,email,pass); }
+  }
   catch(e){
     document.getElementById('login-btn-text').style.display='block';
     document.getElementById('login-spinner').style.display='none';
-    err.textContent=e.code==='auth/invalid-credential'?(t.errInvalid||'E-posta veya şifre hatalı.'):(t.errFailed||'Giriş başarısız.');
+    if(e.code==='auth/email-already-in-use') err.textContent=t.errEmailInUse||'Bu e-posta zaten kayıtlı.';
+    else if(e.code==='auth/invalid-credential') err.textContent=t.errInvalid||'E-posta veya şifre hatalı.';
+    else if(e.code==='auth/weak-password') err.textContent=t.errWeakPassword||'Şifre çok zayıf.';
+    else err.textContent = isSignupMode?(t.signupFailed||'Kayıt başarısız.'):(t.errFailed||'Giriş başarısız.');
   }
+};
+window.doGoogleLogin = async () => {
+  const err=document.getElementById('login-error'); err.textContent='';
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch(e){ if(e.code!=='auth/popup-closed-by-user') err.textContent=(window.PRUVA_LOGIN_T||{}).errFailed||'Giriş başarısız.'; }
+};
+window.doAppleLogin = async () => {
+  const err=document.getElementById('login-error'); err.textContent='';
+  try { await signInWithPopup(auth, new OAuthProvider('apple.com')); }
+  catch(e){ if(e.code!=='auth/popup-closed-by-user') err.textContent=(window.PRUVA_LOGIN_T||{}).errFailed||'Giriş başarısız.'; }
 };
 window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
 function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
