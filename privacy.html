@@ -6570,8 +6570,8 @@ footer a{color:var(--p2);text-decoration:none}
         <li><strong>Mağaza bilgileri:</strong> İşletme adı, mağaza kimliği</li>
         <li><strong>Personel:</strong> Ad, rol, PIN (yerel cihazda şifreli)</li>
         <li><strong>Satış / stok:</strong> Ürün adı, barkod, fiyat, tarih, ödeme yöntemi, KDV</li>
-        <li><strong>Veresiye:</strong> Müşteri adı, telefon, borç (yalnızca yerel cihazda)</li>
-        <li><strong>Ürün fotoğrafları:</strong> Cihazda şifreli; sunucuya gönderilmez</li>
+        <li><strong>Veresiye:</strong> Müşteri adı, telefon, borç hareketleri — bulut hesabınızda da saklanır ve diğer cihazlarınızla senkronize edilir. Bu veriler işletmenin kendi müşterilerine aittir; işletme bu veriler bakımından veri sorumlusudur.</li>
+        <li><strong>Ürün fotoğrafları:</strong> Cihazda saklanır, ayrıca bulut hesabınıza yedeklenir ve diğer cihazlarınıza aktarılır</li>
         <li><strong>Topluluk katkıları:</strong> Barkod + ürün adı (anonim)</li>
         <li><strong>Konum (isteğe bağlı):</strong> Yalnızca kurye rolü aktifse</li>
       </ul>
@@ -6593,7 +6593,7 @@ footer a{color:var(--p2);text-decoration:none}
       <ul>
         <li><strong>Hesap verileri:</strong> Hesap aktif olduğu sürece saklanır. Silme talebi iletildiğinde hesap anlık olarak devre dışı bırakılır, tüm veriler 90 gün içinde kalıcı olarak silinir.</li>
         <li><strong>Satış kayıtları:</strong> TTK gereği 5 yıl (yasal zorunluluk).</li>
-        <li><strong>Konum:</strong> Anlık işlenir, hiçbir sunucuda saklanmaz.</li>
+        <li><strong>Konum:</strong> Yalnızca kurye rolü aktifken teslimat sırasında işlenir; acil durum bildiriminde konum sunucuya iletilir ve olayın incelenmesi amacıyla saklanabilir.</li>
       </ul>
     </div>
     <div class="section">
@@ -6612,7 +6612,7 @@ footer a{color:var(--p2);text-decoration:none}
       <ul>
         <li><strong>Satıcı bilgileri:</strong> Ad/takma ad, iletişim tercihleri (esnafla paylaşılır)</li>
         <li><strong>Ürün fotoğrafları:</strong> Cihazda şifreli saklanır; onay sonrası CDN'e yüklenir</li>
-        <li><strong>Yapay zeka analizi:</strong> Fotoğraflar Anthropic API'ye gönderilir (yalnızca analiz için; Anthropic verilerinizi model eğitiminde kullanmaz — <a href="https://www.anthropic.com/privacy" target="_blank">Anthropic Gizlilik Politikası</a>)</li>
+        <li><strong>Yapay zeka analizi:</strong> Fotoğraflar ve ilgili metin, Google Vertex AI (Gemini) üzerinden işlenir (yalnızca analiz için; Vertex AI müşteri verisini model eğitiminde kullanmaz — <a href="https://cloud.google.com/terms/service-terms" target="_blank">Google Cloud Hizmet Şartları</a>)</li>
         <li><strong>Hak ediş kayıtları:</strong> Satış tutarı, komisyon oranı, ödeme tarihi (5 yıl TTK gereği saklanır)</li>
         <li><strong>Kürasyon geçmişi:</strong> Hangi teklifin onaylandığı/reddedildiği (denetim izi)</li>
       </ul>
@@ -6641,8 +6641,8 @@ footer a{color:var(--p2);text-decoration:none}
         <li><strong>Business data:</strong> Store name, store ID</li>
         <li><strong>Staff data:</strong> Name, role, PIN (stored encrypted on device only)</li>
         <li><strong>Transaction data:</strong> Product name, barcode, price, date, payment method, VAT</li>
-        <li><strong>Customer credit records:</strong> Name, phone, balance (local device only, never uploaded)</li>
-        <li><strong>Product photos:</strong> Encrypted on device; not sent to servers</li>
+        <li><strong>Customer credit records:</strong> Name, phone, debt movements — also stored in your cloud account and synced to your other devices. This data belongs to the business's own customers; the business is the data controller for it.</li>
+        <li><strong>Product photos:</strong> Stored on the device and also backed up to your cloud account and transferred to your other devices</li>
         <li><strong>Community contributions:</strong> Barcode + product name (anonymous)</li>
         <li><strong>Location (optional):</strong> Only when courier feature is active</li>
       </ul>
@@ -6685,7 +6685,7 @@ footer a{color:var(--p2);text-decoration:none}
       <ul>
         <li><strong>Seller information:</strong> Name/alias, contact preferences (shared with the shop owner)</li>
         <li><strong>Product photos:</strong> Stored encrypted on device; uploaded to CDN upon approval</li>
-        <li><strong>AI analysis:</strong> Photos are sent to Anthropic API for analysis only — Anthropic does not use your data for model training (<a href="https://www.anthropic.com/privacy" target="_blank">Anthropic Privacy Policy</a>)</li>
+        <li><strong>AI analysis:</strong> Photos and related text are processed through Google Vertex AI (Gemini) for analysis only — Vertex AI does not use customer data for model training (<a href="https://cloud.google.com/terms/service-terms" target="_blank">Google Cloud Service Terms</a>)</li>
         <li><strong>Earnings records:</strong> Sale amount, commission rate, payment date (retained 5 years for legal compliance)</li>
         <li><strong>Curation history:</strong> Which offers were approved/rejected (audit trail)</li>
       </ul>
@@ -6712,8 +6712,8 @@ footer a{color:var(--p2);text-decoration:none}
       <ul>
         <li>Email address, store name, staff name and role</li>
         <li>Sales and stock records, payment methods, VAT</li>
-        <li>Customer credit records (local device only)</li>
-        <li>Product photos (local device only)</li>
+        <li>Customer credit records (device and your cloud account)</li>
+        <li>Product photos (device and your cloud account)</li>
         <li>Location (optional, courier feature only)</li>
       </ul>
     </div>
