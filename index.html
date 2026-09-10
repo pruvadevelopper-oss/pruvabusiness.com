@@ -9561,7 +9561,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
      arkada Pruva AI yazıları ve ANA SAYFA mockup'ı belirir; damla ana sayfadaki kendi
      yerine oturur; sonra Pruva AI sohbet (sheet) ekranı damlanın noktasından açılır.
      Kareler: uygulamanın MOCKUP_ADS_SHEET=orb modu → simülatör videosu → şeffaf WebP
-     (media/orb/800|480/NNN.webp, 90 kare = 3 sn, ileri-geri döngü). Eski statik #ai bölümü kaldırıldı. -->
+     (media/orb/v2/800|480/NNN.webp, 90 kare = 3 sn, ileri-geri döngü; gövde opak). Eski statik #ai bölümü kaldırıldı. -->
 <section class="ai-story" id="ai" aria-label="Pruva AI">
   <div class="ai-sticky">
     <div class="ai-stage">
@@ -10604,7 +10604,8 @@ document.querySelectorAll('#sorun-cozum .sorun-card').forEach(card=>{
     if(loaded) return; loaded=true;
     const dir=Math.min(innerWidth,innerHeight)*(devicePixelRatio||1)>900?'800':'480';
     const order=[]; for(let i=0;i<N;i+=6) order.push(i); for(let i=0;i<N;i++) if(i%6) order.push(i);
-    order.forEach(i=>{ const im=new Image(); im.decoding='async'; im.src='media/orb/'+dir+'/'+String(i).padStart(3,'0')+'.webp'; frames[i]=im; });
+    order.forEach(i=>{ const im=new Image(); im.decoding='async'; // ⚠️ v2: kareler değişince klasörü v3 yap — aynı dosya adı tarayıcı önbelleğinden ESKİ kareyi getiriyordu
+      im.src='media/orb/v2/'+dir+'/'+String(i).padStart(3,'0')+'.webp'; frames[i]=im; });
   }
   let pShown=null;
   function target(){
