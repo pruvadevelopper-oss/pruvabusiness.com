@@ -10505,7 +10505,7 @@ const demoPhone3d=document.getElementById('demoPhone3d');
 const demoPhoneCtrl=setupMockupPhone(demoPhone3d,[
   pruvaTex('sales'),      // 1) Barkodu okut  — gerçek kasa ekranı
   pruvaTex('payment'),    // 2) Ödemeyi al    — gerçek ödeme sayfası
-  pruvaTex('zreport'),    // 3) Günü kapat    — gerçek Z raporu
+  pruvaTex('receipt'),    // 3) Fiş & rapor   — gerçek satış onay kartı
 ]);
 attachLocalTilt(demoPhone3d,145);
 
@@ -10573,7 +10573,7 @@ window.addEventListener('scroll',()=>{
     if(demoPhoneCtrl)demoPhoneCtrl.setTexture([
       pruvaTex('sales'),
       pruvaTex('payment'),
-      pruvaTex('zreport'),
+      pruvaTex('receipt'),
     ][idx]);
   }
 });
