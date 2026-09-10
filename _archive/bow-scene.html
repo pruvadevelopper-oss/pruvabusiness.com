@@ -1,0 +1,119 @@
+<!-- ARŞİV — Pruva "gemi pruvası" kaydırma sahnesi (2026-09-09'da index.html'den çıkarıldı)
+     SEBEP: site beyaz/minimalist temaya geçti; koyu yeşil yelken beyaz zeminde
+     kartların üstüne binip metni okunamaz yapıyordu. Animasyonun kendisi sağlam.
+
+     GERİ GETİRMEK İÇİN:
+       1. Aşağıdaki bloğu index.html'de #sorun-cozum bölümünün yerine yapıştır.
+       2. CSS (/* ── BOW SCENE ── */) ve JS (// ── BOW SCENE IIFE) index.html'de
+          ZATEN DURUYOR, silinmedi. JS kendini koruyor (`if(!scene) return;`),
+          o yüzden bölüm yokken hata vermiyor.
+       3. #bowBack koyu yeşil; beyaz temada kalacaksa rengi markaya çekilmeli.
+-->
+<section id="bowScene">
+  <div id="bowPin">
+
+    <!-- ARKA KATMAN: 3 Çözüm (yeşil) -->
+    <div id="bowBack">
+      <div id="bowBackContent" style="text-align:center;max-width:780px;width:90%;padding:0 16px">
+        <div style="font-size:11px;font-weight:700;color:#34D399;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px">Pruva'nın Cevabı</div>
+        <h2 style="font-size:clamp(28px,4.5vw,56px);font-weight:900;letter-spacing:-2.5px;line-height:1.06;color:#fff;margin:0">
+          Her soruna <em style="font-style:normal;color:#34D399">bir yanıt.</em>
+        </h2>
+        <div class="bow-sol-grid">
+          <div class="bow-sol-card">
+            <div style="font-size:26px">📡</div>
+            <h4>İnternet kesilse de çalışır</h4>
+            <p>7 güne kadar tam offline. Bağlantı gelince otomatik senkronize.</p>
+          </div>
+          <div class="bow-sol-card">
+            <div style="font-size:26px">🏪</div>
+            <h4>Online görünürlük dahil</h4>
+            <p>Pazaryerine otomatik listelenir. Müşteri sizi bulur, siz bir şey yapmazsınız.</p>
+          </div>
+          <div class="bow-sol-card">
+            <div style="font-size:26px">🔧</div>
+            <h4>Hepsi tek uygulamada</h4>
+            <p>Kasa, stok, kurye, muhasebe — hepsi Pruva'da. Tek açılış, sıfır geçiş.</p>
+          </div>
+        </div>
+        <div style="margin-top:28px">
+          <a href="https://apps.apple.com" style="display:inline-flex;align-items:center;gap:10px;
+            background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);
+            border-radius:100px;padding:13px 30px;font-size:14px;font-weight:700;
+            color:#34D399;text-decoration:none;letter-spacing:.01em">
+            Pruva ile başla →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÖN KATMAN: 3 sorun kartı — gemi tam bunların üzerinden geçip altlarındaki
+         çözüm panelini (bowBack) açığa çıkarıyor -->
+    <div id="bowFront">
+      <div class="sorun-grid bow-front-grid">
+        <div class="sorun-card c-red">
+          <span class="sorun-emoji" data-i18n="sorun.s1.icon">📡</span>
+          <h3 data-i18n="sorun.s1.title">İnternet gidince kasa da gidiyor</h3>
+          <p data-i18n="sorun.s1.body">Kasa yazılımınız internete bağlı çalışıyorsa bağlantı kesilince siz de kesiliyorsunuz. Müşteri bekliyor, siz sistem hatası görüyorsunuz.</p>
+        </div>
+        <div class="sorun-card c-blue">
+          <span class="sorun-emoji" data-i18n="sorun.s2.icon">🏪</span>
+          <h3 data-i18n="sorun.s2.title">Dükkanınız var ama online görünmüyorsunuz</h3>
+          <p data-i18n="sorun.s2.body">Müşteri sizi arayıp bulmak zorunda. Web siteniz yok, online mağazanız yok — rakibinizin var.</p>
+        </div>
+        <div class="sorun-card c-purple">
+          <span class="sorun-emoji" data-i18n="sorun.s3.icon">🔧</span>
+          <h3 data-i18n="sorun.s3.title">Her iş için ayrı uygulama</h3>
+          <p data-i18n="sorun.s3.body">Kasa başka uygulama, stok başka, kurye başka, muhasebe başka. Hepsini açıp kapatmak, birinden diğerine geçmek zaman çalıyor.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GEMİ: tepeden bakış, düz renk, sivri pruva YUKARDA -->
+    <div id="bowShipWrap">
+      <svg viewBox="0 0 60 170" xmlns="http://www.w3.org/2000/svg"
+           style="display:block;filter:drop-shadow(0 0 14px rgba(200,225,255,.3))">
+        <path d="M 30,3 C 54,46 58,100 58,132 L 58,152 Q 58,167 30,167 Q 2,167 2,152 L 2,132 C 2,100 6,46 30,3 Z"
+              fill="rgba(210,228,252,0.88)"/>
+      </svg>
+    </div>
+
+    <!-- DALGA ÇİZGİLERİ (V-şekli, dinamik SVG) -->
+    <svg id="bowWakeSvg"></svg>
+
+    <!-- SCROLL İPUCU -->
+    <div id="bowScrollHint">
+      <span style="font-size:11px;font-weight:700;color:rgba(14,24,56,.35);letter-spacing:.1em;text-transform:uppercase">Kaydırın</span>
+      <svg width="18" height="26" viewBox="0 0 18 26">
+        <rect x="6" y="1" width="6" height="11" rx="3" stroke="rgba(14,24,56,.28)" stroke-width="1.4" fill="none"/>
+        <circle cx="9" cy="6" r="1.8" fill="rgba(14,24,56,.38)">
+          <animate attributeName="cy" values="5;8;5" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.1;1" dur="1.4s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M 4,17 L 9,22 L 14,17" stroke="rgba(14,24,56,.25)" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- KIYI DALGASI (bow-shore) — gemi sahnesinin altındaki animasyonlu dalga şeridi.
+     Sahne kaldırılınca öksüz kaldı, 2026-09-09'da index.html'den çıkarıldı.
+     CSS'i (.bow-shore, shoreSway, shoreFoamPulse) index.html'de DURUYOR. -->
+<div class="bow-shore" aria-hidden="true">
+  <svg class="shore-wave" viewBox="0 0 1440 100" preserveAspectRatio="none">
+    <path fill="#061812" d="M0.0,34.0 Q40.0,39.9 60.0,41.0 Q80.0,42.1 100.0,41.6 Q120.0,41.2 140.0,40.8 Q160.0,40.5 180.0,41.1 Q200.0,41.7 220.0,42.0 Q240.0,42.2 260.0,40.5 Q280.0,38.9 300.0,35.7 Q320.0,32.5 340.0,30.0 Q360.0,27.4 380.0,26.8 Q400.0,26.3 420.0,26.8 Q440.0,27.3 460.0,27.3 Q480.0,27.2 500.0,26.5 Q520.0,25.7 540.0,25.9 Q560.0,26.0 580.0,28.2 Q600.0,30.4 620.0,33.6 Q640.0,36.9 660.0,38.9 Q680.0,41.0 700.0,41.1 Q720.0,41.3 740.0,40.9 Q760.0,40.4 780.0,40.8 Q800.0,41.3 820.0,42.0 Q840.0,42.8 860.0,42.2 Q880.0,41.5 900.0,38.8 Q920.0,36.2 940.0,33.1 Q960.0,30.0 980.0,28.4 Q1000.0,26.9 1020.0,27.1 Q1040.0,27.2 1060.0,27.4 Q1080.0,27.6 1100.0,26.9 Q1120.0,26.1 1140.0,25.5 Q1160.0,24.9 1180.0,26.1 Q1200.0,27.3 1220.0,30.3 Q1240.0,33.3 1260.0,36.1 Q1280.0,38.9 1300.0,39.9 Q1320.0,40.9 1340.0,40.6 Q1360.0,40.3 1380.0,40.5 Q1400.0,40.6 1420.0,41.6 L1440.0,42.6 L1440,0 L0,0 Z">
+      <animate attributeName="d" dur="7s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1" values="
+        M0.0,31.6 Q40.0,30.4 60.0,30.1 Q80.0,29.8 100.0,28.6 Q120.0,27.3 140.0,25.6 Q160.0,23.8 180.0,23.6 Q200.0,23.4 220.0,25.4 Q240.0,27.5 260.0,30.3 Q280.0,33.2 300.0,34.9 Q320.0,36.6 340.0,37.0 Q360.0,37.3 380.0,37.9 Q400.0,38.4 420.0,40.0 Q440.0,41.7 460.0,43.2 Q480.0,44.8 500.0,44.4 Q520.0,44.1 540.0,41.6 Q560.0,39.2 580.0,36.5 Q600.0,33.9 620.0,32.7 Q640.0,31.4 660.0,31.2 Q680.0,30.9 700.0,30.0 Q720.0,29.1 740.0,27.2 Q760.0,25.3 780.0,24.1 Q800.0,22.8 820.0,23.8 Q840.0,24.8 860.0,27.5 Q880.0,30.1 900.0,32.5 Q920.0,34.8 940.0,35.6 Q960.0,36.4 980.0,36.7 Q1000.0,37.0 1020.0,38.4 Q1040.0,39.7 1060.0,41.7 Q1080.0,43.7 1100.0,44.5 Q1120.0,45.2 1140.0,43.7 Q1160.0,42.1 1180.0,39.4 Q1200.0,36.6 1220.0,34.8 Q1240.0,32.9 1260.0,32.4 Q1280.0,31.9 1300.0,31.3 Q1320.0,30.8 1340.0,29.1 Q1360.0,27.4 1380.0,25.4 Q1400.0,23.5 1420.0,23.3 L1440.0,23.1 L1440,0 L0,0 Z;
+        M0.0,34.0 Q40.0,39.9 60.0,41.0 Q80.0,42.1 100.0,41.6 Q120.0,41.2 140.0,40.8 Q160.0,40.5 180.0,41.1 Q200.0,41.7 220.0,42.0 Q240.0,42.2 260.0,40.5 Q280.0,38.9 300.0,35.7 Q320.0,32.5 340.0,30.0 Q360.0,27.4 380.0,26.8 Q400.0,26.3 420.0,26.8 Q440.0,27.3 460.0,27.3 Q480.0,27.2 500.0,26.5 Q520.0,25.7 540.0,25.9 Q560.0,26.0 580.0,28.2 Q600.0,30.4 620.0,33.6 Q640.0,36.9 660.0,38.9 Q680.0,41.0 700.0,41.1 Q720.0,41.3 740.0,40.9 Q760.0,40.4 780.0,40.8 Q800.0,41.3 820.0,42.0 Q840.0,42.8 860.0,42.2 Q880.0,41.5 900.0,38.8 Q920.0,36.2 940.0,33.1 Q960.0,30.0 980.0,28.4 Q1000.0,26.9 1020.0,27.1 Q1040.0,27.2 1060.0,27.4 Q1080.0,27.6 1100.0,26.9 Q1120.0,26.1 1140.0,25.5 Q1160.0,24.9 1180.0,26.1 Q1200.0,27.3 1220.0,30.3 Q1240.0,33.3 1260.0,36.1 Q1280.0,38.9 1300.0,39.9 Q1320.0,40.9 1340.0,40.6 Q1360.0,40.3 1380.0,40.5 Q1400.0,40.6 1420.0,41.6 L1440.0,42.6 L1440,0 L0,0 Z;
+        M0.0,31.6 Q40.0,30.4 60.0,30.1 Q80.0,29.8 100.0,28.6 Q120.0,27.3 140.0,25.6 Q160.0,23.8 180.0,23.6 Q200.0,23.4 220.0,25.4 Q240.0,27.5 260.0,30.3 Q280.0,33.2 300.0,34.9 Q320.0,36.6 340.0,37.0 Q360.0,37.3 380.0,37.9 Q400.0,38.4 420.0,40.0 Q440.0,41.7 460.0,43.2 Q480.0,44.8 500.0,44.4 Q520.0,44.1 540.0,41.6 Q560.0,39.2 580.0,36.5 Q600.0,33.9 620.0,32.7 Q640.0,31.4 660.0,31.2 Q680.0,30.9 700.0,30.0 Q720.0,29.1 740.0,27.2 Q760.0,25.3 780.0,24.1 Q800.0,22.8 820.0,23.8 Q840.0,24.8 860.0,27.5 Q880.0,30.1 900.0,32.5 Q920.0,34.8 940.0,35.6 Q960.0,36.4 980.0,36.7 Q1000.0,37.0 1020.0,38.4 Q1040.0,39.7 1060.0,41.7 Q1080.0,43.7 1100.0,44.5 Q1120.0,45.2 1140.0,43.7 Q1160.0,42.1 1180.0,39.4 Q1200.0,36.6 1220.0,34.8 Q1240.0,32.9 1260.0,32.4 Q1280.0,31.9 1300.0,31.3 Q1320.0,30.8 1340.0,29.1 Q1360.0,27.4 1380.0,25.4 Q1400.0,23.5 1420.0,23.3 L1440.0,23.1 L1440,0 L0,0 Z"/>
+    </path>
+    <path class="shore-foam" fill="none" stroke="rgba(190,230,255,.55)" stroke-width="1.3" stroke-linecap="round" d="M0.0,31.8 Q40.0,37.7 60.0,38.8 Q80.0,39.9 100.0,39.4 Q120.0,39.0 140.0,38.6 Q160.0,38.3 180.0,38.9 Q200.0,39.5 220.0,39.8 Q240.0,40.0 260.0,38.3 Q280.0,36.7 300.0,33.5 Q320.0,30.3 340.0,27.8 Q360.0,25.2 380.0,24.6 Q400.0,24.1 420.0,24.6 Q440.0,25.1 460.0,25.1 Q480.0,25.0 500.0,24.3 Q520.0,23.5 540.0,23.7 Q560.0,23.8 580.0,26.0 Q600.0,28.2 620.0,31.4 Q640.0,34.7 660.0,36.7 Q680.0,38.8 700.0,38.9 Q720.0,39.1 740.0,38.7 Q760.0,38.2 780.0,38.6 Q800.0,39.1 820.0,39.8 Q840.0,40.6 860.0,40.0 Q880.0,39.3 900.0,36.6 Q920.0,34.0 940.0,30.9 Q960.0,27.8 980.0,26.2 Q1000.0,24.7 1020.0,24.9 Q1040.0,25.0 1060.0,25.2 Q1080.0,25.4 1100.0,24.7 Q1120.0,23.9 1140.0,23.3 Q1160.0,22.7 1180.0,23.9 Q1200.0,25.1 1220.0,28.1 Q1240.0,31.1 1260.0,33.9 Q1280.0,36.7 1300.0,37.7 Q1320.0,38.7 1340.0,38.4 Q1360.0,38.1 1380.0,38.3 Q1400.0,38.4 1420.0,39.4 L1440.0,40.4">
+      <animate attributeName="d" dur="7s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1" values="
+        M0.0,29.4 Q40.0,28.2 60.0,27.9 Q80.0,27.6 100.0,26.4 Q120.0,25.1 140.0,23.4 Q160.0,21.6 180.0,21.4 Q200.0,21.2 220.0,23.2 Q240.0,25.3 260.0,28.1 Q280.0,31.0 300.0,32.7 Q320.0,34.4 340.0,34.8 Q360.0,35.1 380.0,35.7 Q400.0,36.2 420.0,37.8 Q440.0,39.5 460.0,41.0 Q480.0,42.6 500.0,42.2 Q520.0,41.9 540.0,39.4 Q560.0,37.0 580.0,34.3 Q600.0,31.7 620.0,30.5 Q640.0,29.2 660.0,29.0 Q680.0,28.7 700.0,27.8 Q720.0,26.9 740.0,25.0 Q760.0,23.1 780.0,21.9 Q800.0,20.6 820.0,21.6 Q840.0,22.6 860.0,25.3 Q880.0,27.9 900.0,30.3 Q920.0,32.6 940.0,33.4 Q960.0,34.2 980.0,34.5 Q1000.0,34.8 1020.0,36.2 Q1040.0,37.5 1060.0,39.5 Q1080.0,41.5 1100.0,42.3 Q1120.0,43.0 1140.0,41.5 Q1160.0,39.9 1180.0,37.2 Q1200.0,34.4 1220.0,32.6 Q1240.0,30.7 1260.0,30.2 Q1280.0,29.7 1300.0,29.1 Q1320.0,28.6 1340.0,26.9 Q1360.0,25.2 1380.0,23.2 Q1400.0,21.3 1420.0,21.1 L1440.0,20.9;
+        M0.0,31.8 Q40.0,37.7 60.0,38.8 Q80.0,39.9 100.0,39.4 Q120.0,39.0 140.0,38.6 Q160.0,38.3 180.0,38.9 Q200.0,39.5 220.0,39.8 Q240.0,40.0 260.0,38.3 Q280.0,36.7 300.0,33.5 Q320.0,30.3 340.0,27.8 Q360.0,25.2 380.0,24.6 Q400.0,24.1 420.0,24.6 Q440.0,25.1 460.0,25.1 Q480.0,25.0 500.0,24.3 Q520.0,23.5 540.0,23.7 Q560.0,23.8 580.0,26.0 Q600.0,28.2 620.0,31.4 Q640.0,34.7 660.0,36.7 Q680.0,38.8 700.0,38.9 Q720.0,39.1 740.0,38.7 Q760.0,38.2 780.0,38.6 Q800.0,39.1 820.0,39.8 Q840.0,40.6 860.0,40.0 Q880.0,39.3 900.0,36.6 Q920.0,34.0 940.0,30.9 Q960.0,27.8 980.0,26.2 Q1000.0,24.7 1020.0,24.9 Q1040.0,25.0 1060.0,25.2 Q1080.0,25.4 1100.0,24.7 Q1120.0,23.9 1140.0,23.3 Q1160.0,22.7 1180.0,23.9 Q1200.0,25.1 1220.0,28.1 Q1240.0,31.1 1260.0,33.9 Q1280.0,36.7 1300.0,37.7 Q1320.0,38.7 1340.0,38.4 Q1360.0,38.1 1380.0,38.3 Q1400.0,38.4 1420.0,39.4 L1440.0,40.4;
+        M0.0,29.4 Q40.0,28.2 60.0,27.9 Q80.0,27.6 100.0,26.4 Q120.0,25.1 140.0,23.4 Q160.0,21.6 180.0,21.4 Q200.0,21.2 220.0,23.2 Q240.0,25.3 260.0,28.1 Q280.0,31.0 300.0,32.7 Q320.0,34.4 340.0,34.8 Q360.0,35.1 380.0,35.7 Q400.0,36.2 420.0,37.8 Q440.0,39.5 460.0,41.0 Q480.0,42.6 500.0,42.2 Q520.0,41.9 540.0,39.4 Q560.0,37.0 580.0,34.3 Q600.0,31.7 620.0,30.5 Q640.0,29.2 660.0,29.0 Q680.0,28.7 700.0,27.8 Q720.0,26.9 740.0,25.0 Q760.0,23.1 780.0,21.9 Q800.0,20.6 820.0,21.6 Q840.0,22.6 860.0,25.3 Q880.0,27.9 900.0,30.3 Q920.0,32.6 940.0,33.4 Q960.0,34.2 980.0,34.5 Q1000.0,34.8 1020.0,36.2 Q1040.0,37.5 1060.0,39.5 Q1080.0,41.5 1100.0,42.3 Q1120.0,43.0 1140.0,41.5 Q1160.0,39.9 1180.0,37.2 Q1200.0,34.4 1220.0,32.6 Q1240.0,30.7 1260.0,30.2 Q1280.0,29.7 1300.0,29.1 Q1320.0,28.6 1340.0,26.9 Q1360.0,25.2 1380.0,23.2 Q1400.0,21.3 1420.0,21.1 L1440.0,20.9"/>
+    </path>
+  </svg>
+</div>
