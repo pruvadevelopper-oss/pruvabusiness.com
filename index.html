@@ -8568,7 +8568,15 @@ html[dir="rtl"] .pc-feats{padding-right:0}
    orb'lar burada keyfi/rahatsız edici görünüyordu — diğer bölümler gibi (demo-bg,
    hero-aurora) kasıtlı, üst kenardan yumuşakça açılan bir arka plan veriyoruz */
 .sorun-bg{position:absolute;inset:-80px 0 0 0;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse 65% 55% at 50% 0%,rgba(30,58,138,.1) 0%,rgba(30,58,138,.04) 45%,transparent 75%)}
+  background:radial-gradient(ellipse 65% 55% at 50% 0%,rgba(30,58,138,.1) 0%,rgba(30,58,138,.04) 45%,transparent 75%);
+  /* ⚠️ Gradyanın merkezi 50% 0% — yani katmanın ÜST kenarında en koyu hâlinde ve
+     orada sertçe bitiyordu; sayfa boyunca uzanan ince yatay bir dikiş görünüyordu
+     (Safari'de belirgin). Bölüm Demo'nun üstüne alınınca hero'nun hemen altına
+     geldi ve dikiş göze girdi. Maske üst kenarı yumuşatıyor.
+     ⚠️ Maskeyi kaldırma; inset:-80px'i kaldırmak da çözer ama gradyanın
+     hero'ya taşan yumuşak geçişini yok eder. */
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 140px);
+  mask-image:linear-gradient(180deg,transparent 0,#000 140px)}
 @media(max-width:768px){.sorun-section{padding:80px 20px}}
 .sorun-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
 @media(max-width:900px){.sorun-grid{grid-template-columns:1fr;gap:16px}}
