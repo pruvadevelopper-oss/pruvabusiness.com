@@ -432,7 +432,7 @@ tr: {
   "nav.about": "Hakkımızda",
   "nav.privacy": "Gizlilik",
   "nav.cta": "Tarayıcıda Kullan →",
-  "hero.word1": "Dükkânınız",
+  "hero.word1": "İşletmeniz",
   "hero.word2": "artık",
   "hero.word3": "cebinizde.",
   "hero.sub": "Barkodu okutun, ödemeyi alın, günü kapatın. Hızlı, sade — internet gitse bile çalışır.",
@@ -9279,7 +9279,14 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .ai-phone{height:min(76vh,660px);height:min(76svh,660px);width:auto;aspect-ratio:1206/2622;padding:9px}
 .ai-phone img{position:absolute;inset:9px;width:calc(100% - 18px);height:calc(100% - 18px);object-fit:cover;border-radius:clamp(24px,5vh,40px)}
 /* Sheet damlanın noktasından (ana sayfada 1056,2111 / 1206×2622) büyüyerek açılır */
-.ai-phone .ai-sheet-img{opacity:0;transform-origin:87.6% 80.5%;transform:scale(.12)}
+/* Sheet: ai.jpg'den YALNIZCA mor cam kart görünür (kart 42,288 → 1163,2471; köşe ~141px / 1206×2622),
+   damlanın noktasından büyür — ekran görüntüsünün tamamı büyümesin (kullanıcı geri bildirimi). */
+.ai-phone .ai-sheet-img{opacity:0;transform-origin:87.6% 80.5%;transform:scale(.12);z-index:3;-webkit-clip-path:inset(10.98% 3.48% 5.72% 3.48% round 11.69% / 5.38%);clip-path:inset(10.98% 3.48% 5.72% 3.48% round 11.69% / 5.38%)}
+/* 3 ekran sırası: damlasız ana sayfa → (damla oturunca) damlalı ana sayfa → Pruva AI sheet */
+.ai-phone .ai-home-orb{opacity:0;z-index:1}
+.ai-dim{position:absolute;inset:9px;border-radius:clamp(24px,5vh,40px);background:rgba(0,0,0,.35);opacity:0;pointer-events:none;z-index:2}
+/* Damla inince yuvasından yayılan halka (uygulamadaki "plof" hissi) — konum ana sayfadaki damla yuvası */
+.ai-ripple{z-index:2;position:absolute;left:calc(9px + (100% - 18px) * .876);top:calc(9px + (100% - 18px) * .805);width:14%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(167,139,250,.9);box-shadow:0 0 18px rgba(139,92,246,.45);transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;z-index:2}
 .ai-orb{position:absolute;left:0;top:0;width:1080px;height:1080px;transform-origin:0 0;pointer-events:none;will-change:transform,opacity;z-index:3;opacity:1;-webkit-mask-image:radial-gradient(closest-side,#000 62%,transparent 98%);mask-image:radial-gradient(closest-side,#000 62%,transparent 98%)}
 @media(max-width:900px){
   .ai-story{height:300vh}
@@ -9530,7 +9537,10 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       </div>
       <div class="ai-phone-slot">
         <div class="shot-phone ai-phone">
-          <img data-shot="home" src="shots/en/home.jpg" alt="" width="1206" height="2622">
+          <img data-shot="home-clean" src="shots/en/home-clean.jpg" alt="" width="1206" height="2622">
+          <img class="ai-home-orb" data-shot="home-orb" src="shots/en/home-orb.jpg" alt="" width="1206" height="2622">
+          <span class="ai-ripple" aria-hidden="true"></span>
+          <span class="ai-dim" aria-hidden="true"></span>
           <img class="ai-sheet-img" data-shot="ai" src="shots/en/ai.jpg" alt="Pruva AI" width="1206" height="2622">
         </div>
       </div>
@@ -10318,13 +10328,17 @@ function setupMockupPhone(viewerEl, textureUrls){
   if(!viewerEl) return null;
   let screenMat=null, glassMat=null, ready=false, lastUrl=null, shownUrl=null, fadeTok=0;
   // Ekran değişiminde "tak" diye değil, ekran kararıp yenisi aydınlanarak geçsin (emissive fade)
-  function fadeScreen(from,to,ms){
+  // ⚠️ tok: bu geçişe ait jeton. Yeni bir geçiş başlarsa eski animasyon HEMEN durur ve
+  //    ekrana dokunmaz. Eskiden devam edip emissive'i 0'da bırakıyordu → hızlı kaydırınca
+  //    demo telefonu simsiyah kalıyordu (kullanıcı raporu 2026-09-10).
+  function fadeScreen(from,to,ms,tok){
     return new Promise(res=>{
       const t0=performance.now();
       const tick=now=>{
+        if(tok!==fadeTok) return res(false);
         const k=Math.min(1,(now-t0)/ms), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2, v=from+(to-from)*e;
         screenMat.setEmissiveFactor([v,v,v]);
-        k<1?requestAnimationFrame(tick):res();
+        k<1?requestAnimationFrame(tick):res(true);
       };
       requestAnimationFrame(tick);
     });
@@ -10371,12 +10385,12 @@ function setupMockupPhone(viewerEl, textureUrls){
         texCache[url]=tex;
       }
       const tok=++fadeTok, animate=shownUrl&&shownUrl!==url&&viewerEl.classList.contains('tex-ready');
-      if(animate){ await fadeScreen(1,0,170); if(tok!==fadeTok) return; }
+      if(animate){ await fadeScreen(1,0,170,tok); if(tok!==fadeTok) return; }
       screenMat.pbrMetallicRoughness.baseColorTexture.setTexture(texCache[url]);
       screenMat.pbrMetallicRoughness.setBaseColorFactor([0,0,0,1]);
       screenMat.emissiveTexture.setTexture(texCache[url]);
       shownUrl=url;
-      if(animate) await fadeScreen(0,1,280); else screenMat.setEmissiveFactor([1,1,1]);
+      if(animate) await fadeScreen(0,1,280,tok); else screenMat.setEmissiveFactor([1,1,1]);
     }catch(err){console.warn('Mockup phone texture swap failed',err)}
   }
   viewerEl.addEventListener('load',async()=>{
@@ -10528,7 +10542,7 @@ document.querySelectorAll('#sorun-cozum .sorun-card').forEach(card=>{
   if(!sec||!sec.classList.contains('ai-story')) return;
   const sticky=sec.querySelector('.ai-sticky'), cv=sec.querySelector('.ai-orb'), ctx=cv.getContext('2d');
   const copy=sec.querySelector('.ai-copy'), slot=sec.querySelector('.ai-phone-slot');
-  const home=sec.querySelector('img[data-shot="home"]'), sheet=sec.querySelector('.ai-sheet-img');
+  const home=sec.querySelector('img[data-shot="home-clean"]'), ripple=sec.querySelector('.ai-ripple'), dim=sec.querySelector('.ai-dim'), homeOrb=sec.querySelector('.ai-home-orb'), sheet=sec.querySelector('.ai-sheet-img');
   const N=90, FPS=30, ORB_FRAC=0.60, SPOT={x:1056/1206,y:2111/2622,d:180/1206};
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const frames=[]; let loaded=false, lastIdx=-1, near=false, running=false;
@@ -10560,20 +10574,36 @@ document.querySelectorAll('#sorun-cozum .sorun-card').forEach(card=>{
       copy.style.opacity=1; copy.style.transform='none'; slot.style.opacity=1; slot.style.transform='none';
       sheet.style.transform='none'; sheet.style.opacity=p>.5?1:0; cv.style.opacity=0; return;
     }
-    const shrink=inOut(seg(p,.06,.46)), seat=seg(p,.46,.54), open=out(seg(p,.62,.84)), show=out(seg(p,.12,.44));
+    // Koreografi (2026-09-10 geri bildirim: "saydamlaşıp belirme ve yerleşme kötü"):
+    //  1) telefon+yazı ÖNCE ve TAM OPAK gelir (.04–.24) — damla yarı saydam ekranın üstünde küçülmez
+    //  2) damla kavisle iner ve küçülür (.10–.50): x ease-in, y ease-out
+    //  3) değince hafif basılıp toparlanır + yuvadan halka yayılır (.50–.62); ardından uçan damla
+    //     söner ve DAMLALI ana sayfa ekran görüntüsü belirir (.56–.62) — iki damla üst üste görünmez
+    //  4) sheet açılışı (.63–.86): mor kart damlanın noktasından büyür, arka plan kararır
+    const show=out(seg(p,.04,.24));
     copy.style.opacity=show; copy.style.transform=`translate3d(0,${(1-show)*24}px,0)`;
     slot.style.opacity=show; slot.style.transform=`translate3d(0,${(1-show)*40}px,0)`;
+    const k=seg(p,.10,.50), shrink=inOut(k);
+    const kx=Math.pow(k,1.7), ky=1-Math.pow(1-k,1.7);   // kavis: yatay yavaş başlar, dikey hızlı başlar
     const hr=home.getBoundingClientRect(), sr=sticky.getBoundingClientRect();
     const tx=hr.left+hr.width*SPOT.x-sr.left, ty=hr.top+hr.height*SPOT.y-sr.top, td=hr.width*SPOT.d;
     const bigD=W<=900?Math.min(W*.8,H*.5):Math.min(W*.5,H*.62);
+    const land=seg(p,.50,.58), squash=Math.sin(Math.PI*land)*(1-land*.35);
+    const swap=seg(p,.56,.62);
     const d=bigD+(td-bigD)*shrink;
-    const cx=W/2+(tx-W/2)*shrink, cy=H/2+(ty-H/2)*shrink;
-    const S=d/ORB_FRAC;
-    cv.style.transform=`translate3d(${cx-S/2}px,${cy-S/2}px,0) scale(${S/1080})`;
-    cv.style.opacity=String(1-seat);
-    // canlı ışıklar: zamana bağlı ileri-geri (ping-pong) — döngü sonunda sıçrama yok
-    if(loaded&&seat<1){ const f=Math.floor(now/1000*FPS)%(2*N-2); draw(f<N?f:2*N-2-f); }
-    sheet.style.opacity=open; sheet.style.transform=`scale(${.12+.88*open})`;
+    const cx=W/2+(tx-W/2)*kx, cy=H/2+(ty-H/2)*ky;
+    const sc=d/ORB_FRAC/1080, sx=sc*(1+.10*squash), sy=sc*(1-.14*squash);
+    cv.style.transform=`translate3d(${cx}px,${cy+ (d*.07*squash)}px,0) scale(${sx},${sy}) translate(-540px,-540px)`;
+    cv.style.opacity=String(1-swap);
+    homeOrb.style.opacity=String(swap);
+    const rp=seg(p,.51,.64);
+    ripple.style.opacity=String(rp>0&&rp<1?.85*(1-rp):0);
+    ripple.style.transform=`translate(-50%,-50%) scale(${.6+2.2*out(rp)})`;
+    if(loaded&&swap<1){ const f=Math.floor(now/1000*FPS)%(2*N-2); draw(f<N?f:2*N-2-f); }
+    const open=out(seg(p,.63,.86));
+    // sheet: uygulamadaki gibi opaklık hızlı gelir, boyut yayla büyür; arka plan kararır
+    sheet.style.opacity=String(clamp(open*3.5)); sheet.style.transform=`scale(${.10+.90*open})`;
+    dim.style.opacity=String(open);
   }
   function loop(now){
     if(!near){ running=false; return; }
