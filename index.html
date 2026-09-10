@@ -9088,10 +9088,10 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .offline-chip{position:absolute;z-index:2;bottom:56px;left:-14px;background:#fff;border:1px solid rgba(14,24,56,.08);border-radius:14px;padding:10px 14px;font-size:12.5px;font-weight:700;color:#0E1838;display:flex;align-items:center;gap:8px;box-shadow:0 14px 34px rgba(14,24,56,.12);max-width:240px;animation:floatBadge 3.4s ease-in-out infinite alternate-reverse}
 .offline-chip svg{flex-shrink:0}
 .ai-section{background:linear-gradient(135deg,#F4EEFF 0%,#FFFFFF 50%,#EEF3FF 100%);border-color:rgba(124,58,237,.16)}
-.ai-section .offline-pretitle{color:#6D28D9}
-.ai-section .offline-pretitle::before{background:#8B5CF6}
-.ai-section .offline-title em{background:linear-gradient(135deg,#8B5CF6,#4C1D95);-webkit-background-clip:text;background-clip:text}
-.ai-section .offline-check::before{background-color:rgba(124,58,237,.10);border-color:rgba(124,58,237,.4);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%236D28D9' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.ai-section .offline-pretitle,.ai-story .offline-pretitle{color:#6D28D9}
+.ai-section .offline-pretitle::before,.ai-story .offline-pretitle::before{background:#8B5CF6}
+.ai-section .offline-title em,.ai-story .offline-title em{background:linear-gradient(135deg,#8B5CF6,#4C1D95);-webkit-background-clip:text;background-clip:text}
+.ai-section .offline-check::before,.ai-story .offline-check::before{background-color:rgba(124,58,237,.10);border-color:rgba(124,58,237,.4);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%236D28D9' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .ai-section .shot-phone{background:#1B1036;box-shadow:0 40px 90px rgba(76,29,149,.25),0 0 0 1px rgba(76,29,149,.12)}
 @media(max-width:900px){.shot-phone{width:240px}.offline-chip{left:0}.offline-badge-float{right:0}.ai-visual{order:2}}
 
@@ -9267,6 +9267,39 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   footer{padding:24px 28px;flex-direction:row;text-align:start}
 }
 
+
+/* ─── PRUVA AI SAHNESİ (demo → offline) — bkz. #ai HTML notu ve JS "PRUVA AI SAHNESİ" ───
+   ⚠️ Damla canvas'ı sticky'nin İÇİNDE, stage'in üstünde; konumu/boyutu her karede JS'den.
+   ⚠️ Kareler ŞEFFAF WebP — mix-blend-mode KULLANMA (sticky kendi katmanını açar, beyaz görünür). */
+.ai-story{position:relative;height:460vh}
+.ai-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.ai-stage{position:relative;height:100%;max-width:1180px;margin:0 auto;padding:88px 60px 40px;display:grid;grid-template-columns:1fr auto;gap:72px;align-items:center}
+.ai-copy{opacity:0;transform:translateY(24px);will-change:opacity,transform}
+.ai-phone-slot{position:relative;opacity:0;transform:translateY(40px);will-change:opacity,transform;display:flex;justify-content:center}
+.ai-phone{height:min(76vh,660px);height:min(76svh,660px);width:auto;aspect-ratio:1206/2622;padding:9px}
+.ai-phone img{position:absolute;inset:9px;width:calc(100% - 18px);height:calc(100% - 18px);object-fit:cover;border-radius:clamp(24px,5vh,40px)}
+/* Sheet damlanın noktasından (ana sayfada 1056,2111 / 1206×2622) büyüyerek açılır */
+.ai-phone .ai-sheet-img{opacity:0;transform-origin:87.6% 80.5%;transform:scale(.12)}
+.ai-orb{position:absolute;left:0;top:0;width:1080px;height:1080px;transform-origin:0 0;pointer-events:none;will-change:transform,opacity;z-index:3;opacity:0;-webkit-mask-image:radial-gradient(closest-side,#000 62%,transparent 98%);mask-image:radial-gradient(closest-side,#000 62%,transparent 98%)}
+@media(max-width:900px){
+  .ai-story{height:420vh}
+  .ai-stage{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:14px;padding:72px 20px 18px;align-items:start;justify-items:center;text-align:center}
+  .ai-copy .offline-pretitle{justify-content:center;margin-bottom:10px}
+  .ai-copy .offline-title{font-size:clamp(26px,7.5vw,38px);letter-spacing:-1px;margin-bottom:8px}
+  .ai-copy .offline-body{font-size:14px;line-height:1.55;margin:0 auto;max-width:460px}
+  .ai-copy .offline-checks{display:none}
+  .ai-phone-slot{align-self:stretch;min-height:0;height:100%}
+  .ai-phone{height:100%;max-height:560px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .ai-stage{grid-template-columns:1fr auto;grid-template-rows:none;padding:52px 28px 10px;gap:28px;text-align:start;justify-items:stretch;align-items:center}
+  .ai-copy .offline-pretitle{justify-content:flex-start}
+  .ai-copy .offline-title{font-size:clamp(22px,8vh,34px)}
+  .ai-copy .offline-body{font-size:13px;margin:0}
+  .ai-copy .offline-checks{display:none}
+  .ai-phone-slot{align-self:center;height:auto}
+  .ai-phone{height:84vh}
+}
 </style>
 </head>
 <body>
@@ -9474,6 +9507,38 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 <!-- padding-top 80→160: dalganın hemen ardından offline-section'ın kendi koyu
      gradient'i (#0d1117) çok yakın başlıyordu, lacivert "nefes alanı" çok ince
      kalıp dalganın altında da koyu bir katman varmış gibi görünüyordu. -->
+<!-- PRUVA AI SAHNESİ (2026-09-10) — demo ile offline ARASI, ikisini bağlayan geçiş.
+     Kullanıcı tarifi: "Barkodu siz okutun"dan sonra büyük Pruva damlası alttan yükselir
+     (içindeki ışıklar uygulamadaki gibi hareketli), ekrana tam oturunca yavaşça küçülür;
+     arkada Pruva AI yazıları ve ANA SAYFA mockup'ı belirir; damla ana sayfadaki kendi
+     yerine oturur; sonra Pruva AI sohbet (sheet) ekranı damlanın noktasından açılır.
+     Kareler: uygulamanın MOCKUP_ADS_SHEET=orb modu → simülatör videosu → şeffaf WebP
+     (media/orb/960|540/NNN.webp, 60 kare). Eski statik #ai bölümü kaldırıldı. -->
+<section class="ai-story" id="ai" aria-label="Pruva AI">
+  <div class="ai-sticky">
+    <div class="ai-stage">
+      <div class="ai-copy">
+        <div class="offline-pretitle" data-i18n="ai.tag">Pruva AI</div>
+        <h2 class="offline-title" data-i18n="ai.title" data-i18n-html="true">Just ask. <em>Pruva AI</em> answers.</h2>
+        <p class="offline-body" data-i18n="ai.body">Skip digging through reports. Type “How are sales today?” or “What's running low?” and Pruva AI answers in seconds. It can change prices and stock too — only after you confirm.</p>
+        <div class="offline-checks">
+          <div class="offline-check" data-i18n="ai.s1">Daily revenue and best sellers</div>
+          <div class="offline-check" data-i18n="ai.s2">Low stock and run-out forecast</div>
+          <div class="offline-check" data-i18n="ai.s3">Price and stock changes, with your OK</div>
+          <div class="offline-check" data-i18n="ai.s4">Import your product list from Excel</div>
+        </div>
+      </div>
+      <div class="ai-phone-slot">
+        <div class="shot-phone ai-phone">
+          <img data-shot="home" src="shots/en/home.jpg" alt="" width="1206" height="2622">
+          <img class="ai-sheet-img" data-shot="ai" src="shots/en/ai.jpg" alt="Pruva AI" width="1206" height="2622">
+        </div>
+      </div>
+    </div>
+    <canvas class="ai-orb" width="1080" height="1080" aria-hidden="true"></canvas>
+  </div>
+</section>
+
 <!-- Başlık hero'dan buraya taşındı (2026-09-10). Kanıt: uygulamanın gerçek çevrimdışı ekranı
      (MOCKUP_ADS_OFFLINE=1, shots/<dil>/offline.jpg). Eski sahte HTML telefon kaldırıldı. -->
 <section class="reveal-on" id="offline" style="padding:120px 0 40px;position:relative;z-index:1">
@@ -9658,28 +9723,6 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       <p data-i18n="feat.n4p">Save your suppliers once. When stock runs low, Pruva writes the order for you — send it on WhatsApp.</p>
     </div>
   </div>
-</section>
-
-<!-- PRUVA AI (2026-09-10) — gerçek ekran: MOCKUP_ADS_TAB=menu MOCKUP_ADS_SHEET=ai → shots/<dil>/ai.jpg -->
-<section class="reveal-on" id="ai" style="padding:20px 0 100px;position:relative;z-index:1">
-<div class="offline-section ai-section">
-  <div class="offline-inner">
-    <div class="offline-visual rv ai-visual">
-      <div class="offline-phone-wrap"><div class="shot-phone"><img data-shot="ai" src="shots/en/ai.jpg" alt="Pruva AI" loading="lazy" width="1206" height="2622"></div></div>
-    </div>
-    <div>
-      <div class="offline-pretitle rv" data-i18n="ai.tag">Pruva AI</div>
-      <h2 class="offline-title rv" data-i18n="ai.title" data-i18n-html="true">Just ask. <em>Pruva AI</em> answers.</h2>
-      <p class="offline-body rv" data-i18n="ai.body">Skip digging through reports. Type “How are sales today?” or “What's running low?” and Pruva AI answers in seconds. It can change prices and stock too — only after you confirm.</p>
-      <div class="offline-checks rv">
-        <div class="offline-check" data-i18n="ai.s1">Daily revenue and best sellers</div>
-        <div class="offline-check" data-i18n="ai.s2">Low stock and run-out forecast</div>
-        <div class="offline-check" data-i18n="ai.s3">Price and stock changes, with your OK</div>
-        <div class="offline-check" data-i18n="ai.s4">Import your product list from Excel</div>
-      </div>
-    </div>
-  </div>
-</div>
 </section>
 
 <!-- MVP-KİLİT: "Pazaryeri" (#pazaryeri) bölümü gizlendi.
@@ -10471,6 +10514,78 @@ document.querySelectorAll('#sorun-cozum .sorun-card').forEach(card=>{
   card.addEventListener('click',toggle);
   card.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
 });
+
+// ── PRUVA AI SAHNESİ — büyük damla yükselir → küçülüp ana sayfadaki yerine oturur → sheet açılır
+// Faz eşikleri (p = sahne ilerlemesi 0..1): yükselme 0–.26, bekleme, küçülme .36–.68,
+// yazı/telefon .40–.66, oturma (canvas söner) .66–.74, sheet .80–.95.
+// ⚠️ Hedef damla konumu ana sayfa görüntüsünde SABİT (24 dilde, RTL dahil ölçüldü): 1056,2111 çap 180 / 1206×2622.
+(function(){
+  const sec=document.getElementById('ai');
+  if(!sec||!sec.classList.contains('ai-story')) return;
+  const sticky=sec.querySelector('.ai-sticky'), cv=sec.querySelector('.ai-orb'), ctx=cv.getContext('2d');
+  const copy=sec.querySelector('.ai-copy'), slot=sec.querySelector('.ai-phone-slot');
+  const home=sec.querySelector('img[data-shot="home"]'), sheet=sec.querySelector('.ai-sheet-img');
+  const N=60, ORB_FRAC=0.60, SPOT={x:1056/1206,y:2111/2622,d:180/1206};
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const frames=[]; let loaded=false, lastIdx=-1, wantIdx=0;
+  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+  const seg=(p,a,b)=>clamp((p-a)/(b-a));
+  const inOut=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const out=t=>1-Math.pow(1-t,3);
+  const ok=im=>im&&im.complete&&im.naturalWidth>0;
+  // İstenen kare henüz inmediyse EN YAKIN inmiş kareyi çiz — sahne hiç boş kalmasın
+  function draw(i){
+    let k=-1;
+    for(let o=0;o<N;o++){ if(ok(frames[i-o])){k=i-o;break} if(ok(frames[i+o])){k=i+o;break} }
+    if(k<0||k===lastIdx) return;
+    ctx.clearRect(0,0,1080,1080); ctx.drawImage(frames[k],0,0,1080,1080); lastIdx=k;
+  }
+  function load(){
+    if(loaded||reduce) return; loaded=true;
+    const dir=Math.min(innerWidth,innerHeight)*(devicePixelRatio||1)>900?'960':'540';
+    // Kademeli: önce her 4. kare (hızlı iskelet), sonra aradakiler
+    const order=[]; for(let i=0;i<N;i+=4) order.push(i); for(let i=0;i<N;i++) if(i%4) order.push(i);
+    order.forEach(i=>{
+      const im=new Image(); im.decoding='async';
+      im.onload=()=>{ if(Math.abs(i-wantIdx)<Math.abs(lastIdx-wantIdx)||lastIdx<0) draw(wantIdx); };
+      im.src='media/orb/'+dir+'/'+String(i).padStart(3,'0')+'.webp';
+      frames[i]=im;
+    });
+  }
+  new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)) load(); },{rootMargin:'150% 0px'}).observe(sec);
+
+  function update(){
+    const r=sec.getBoundingClientRect(), H=innerHeight, W=innerWidth;
+    if(r.bottom<-50||r.top>H+50) return;
+    const p=clamp(-r.top/Math.max(1,sec.offsetHeight-H));
+    if(reduce){
+      copy.style.opacity=1; copy.style.transform='none'; slot.style.opacity=1; slot.style.transform='none';
+      sheet.style.transform='none'; sheet.style.opacity=p>.5?1:0; return;
+    }
+    const rise=inOut(seg(p,0,.26)), shrink=inOut(seg(p,.36,.68)), seat=seg(p,.66,.74), open=out(seg(p,.80,.95));
+    const show=out(seg(p,.40,.66));
+    copy.style.opacity=show; copy.style.transform=`translateY(${(1-show)*24}px)`;
+    slot.style.opacity=show; slot.style.transform=`translateY(${(1-show)*40}px)`;
+    // hedef: ana sayfa mockup'ındaki damla (sticky koordinatında)
+    const hr=home.getBoundingClientRect(), sr=sticky.getBoundingClientRect();
+    const tx=hr.left+hr.width*SPOT.x-sr.left, ty=hr.top+hr.height*SPOT.y-sr.top, td=hr.width*SPOT.d;
+    const bigD=W<=900?Math.min(W*.8,H*.5):Math.min(W*.5,H*.62);
+    const cx0=W/2, cy0=H/2, startY=H+bigD;
+    const cyRise=startY+(cy0-startY)*rise;
+    const d=bigD+(td-bigD)*shrink;
+    const cx=cx0+(tx-cx0)*shrink, cy=cyRise+(ty-cy0)*shrink;
+    const S=d/ORB_FRAC;
+    cv.style.transform=`translate3d(${cx-S/2}px,${cy-S/2}px,0) scale(${S/1080})`;
+    cv.style.opacity=String(1-seat);
+    wantIdx=Math.min(N-1,Math.floor(seg(p,0,.74)*(N-1)));
+    if(loaded) draw(wantIdx);
+    sheet.style.opacity=open; sheet.style.transform=`scale(${.12+.88*open})`;
+  }
+  let raf=0; const req=()=>{ if(!raf) raf=requestAnimationFrame(()=>{ raf=0; update(); }); };
+  addEventListener('scroll',req,{passive:true}); addEventListener('resize',req);
+  if(window.pruvaLenis) window.pruvaLenis.on('scroll',req);
+  req();
+})();
 
 // ── BUSINESS MODELS SLIDER
 let bizIdx = 0, bizTimer;
