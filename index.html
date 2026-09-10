@@ -8422,7 +8422,12 @@ tk: {
    oluyor). #demo bölümündeki .demo-sticky bu yüzden scroll'un ortasında erkenden
    kayıp gidiyor, geri kalan 300vh'lik alan bomboş görünüyordu. overflow-x:clip
    aynı yatay-taşma kesmesini yapar ama scroll container oluşturmaz, sticky bozulmaz. */
-html{scroll-behavior:smooth;overflow-x:clip;max-width:100%}
+html{overflow-x:clip;max-width:100%}
+/* Lenis "buz üstü" kaydırma — native scroll-behavior:smooth Lenis ile ÇAKIŞIR, geri ekleme */
+html.lenis,html.lenis body{height:auto}
+.lenis:not(.lenis-autoToggle).lenis-stopped{overflow:clip}
+.lenis [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-smooth iframe{pointer-events:none}
 body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;overflow-x:clip}
 
 #canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
@@ -9243,11 +9248,11 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   <p class="hero-sub" data-i18n="hero.sub">Barcode scanning, stock tracking, end-of-day reports — all in one. Works without internet, so you can stop worrying about the rest.</p>
 
   <div class="hero-btns">
-    <button class="btn-glow" onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})">
+    <button class="btn-glow" onclick="pruvaGo('models')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       <span data-i18n="hero.btnDownload">Download on the App Store</span>
     </button>
-    <button class="btn-ghost" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})" data-i18n="hero.btnHow">How does it work? →</button>
+    <button class="btn-ghost" onclick="pruvaGo('demo')" data-i18n="hero.btnHow">How does it work? →</button>
   </div>
 
   <!-- HERO PHONE: gerçek simülatör ekran görüntüsü tam/kırpılmadan, sadece
@@ -9671,11 +9676,11 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   <h2 data-i18n="cta.title" data-i18n-html="true" class="rv">One app. Every role.</h2>
   <p class="cta-sub rv" style="transition-delay:.1s" data-i18n="cta.sub">Sales, stock, customer tabs, end-of-day — all in one app. Free to use right now, no credit card.</p>
   <div class="store-btns">
-    <button class="sbtn rv" onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})">
+    <button class="sbtn rv" onclick="pruvaGo('models')">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="sbtn-ico"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       <div class="sbtn-txt"><small data-i18n="cta.download">Download</small><strong>App Store</strong></div>
     </button>
-    <button class="sbtn rv" style="transition-delay:.1s" onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})">
+    <button class="sbtn rv" style="transition-delay:.1s" onclick="pruvaGo('models')">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="sbtn-ico"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       <div class="sbtn-txt"><small data-i18n="cta.download">Download</small><strong>Mac App Store</strong></div>
     </button>
@@ -9709,6 +9714,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
      geminin animasyonsuz/yanlış konumda donup kalmasına yol açıyordu. -->
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
 <script type="module" src="vendor/model-viewer.min.js"></script>
 <script>
 // ── PRICING ENGINE
@@ -10430,6 +10436,31 @@ document.querySelectorAll('.pay-method').forEach(m=>{
     m.classList.add('selected');
   });
 });
+
+// ── BUZ ÜSTÜ KAYDIRMA (Lenis) — tekerlek/trackpad kaydırması inertiayla süzülür,
+// hedefe yaklaşınca yavaşlar. Dokunmatikte iOS/Android'in kendi momentum'u kalır
+// (syncTouch:false — telefonda yapay kaydırma "ağır" hissettiriyor).
+// ⚠️ html{scroll-behavior:smooth} GERİ EKLEME — Lenis'le çift yumuşatma yapıp titretir.
+// ⚠️ Hareket azaltma tercihi olan kullanıcıda kapalı (native kaydırma).
+const PRUVA_EASE=t=>1-Math.pow(1-t,4); // ease-out quart: hızlı başlar, sonda uzun süzülür
+function pruvaGo(id){
+  const el=document.getElementById(id); if(!el) return;
+  if(window.pruvaLenis) window.pruvaLenis.scrollTo(el,{offset:-72,duration:1.6,easing:PRUVA_EASE});
+  else el.scrollIntoView({behavior:'smooth'});
+}
+(function(){
+  if(typeof Lenis==='undefined'||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const lenis=new Lenis({lerp:0.075,wheelMultiplier:0.9,smoothWheel:true,syncTouch:false,
+                         anchors:{offset:-72,duration:1.6,easing:PRUVA_EASE}});
+  window.pruvaLenis=lenis;
+  if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+    lenis.on('scroll',ScrollTrigger.update);
+    gsap.ticker.add(t=>lenis.raf(t*1000));
+    gsap.ticker.lagSmoothing(0);
+  }else{
+    (function raf(t){lenis.raf(t);requestAnimationFrame(raf)})(performance.now());
+  }
+})();
 
 // ── BOW SCENE (Dikey Yükseliş — alttan yukarı)
 (function(){
