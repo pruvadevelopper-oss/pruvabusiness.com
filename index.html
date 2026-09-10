@@ -9083,8 +9083,13 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .offline-screen{position:absolute;inset:3px;background:#0a0e14;border-radius:37px;overflow:hidden;display:flex;flex-direction:column;padding:48px 14px 14px;gap:8px}
 
 /* Gerçek ekran görüntüsü çerçevesi (offline + Pruva AI) — shots/<dil>/*.jpg, ÇEVRİLMEMİŞ */
-.shot-phone{width:290px;aspect-ratio:1206/2622;border-radius:48px;padding:9px;background:#0E1838;box-shadow:0 40px 90px rgba(14,24,56,.22),0 0 0 1px rgba(14,24,56,.08);margin:0 auto;position:relative}
-.shot-phone img{width:100%;height:100%;object-fit:cover;border-radius:40px;display:block;background:#F2F2F7}
+/* ⚠️ İç ekran oranı ekran görüntüsüyle BİREBİR olmalı (1206/2622=.45995). Padding genişliğe oranlı
+   Çerçeve dış oranı .47802; ekran MUTLAK konumlu: yatay kenar %3.5 (genişliğe göre), dikey kenar
+   %1.673 (yüksekliğe göre = .035*.47802) → aynı piksel kalınlığı, iç oran tam .45995.
+   ⚠️ PADDING KULLANMA: yüzde padding çerçevenin DEĞİL kapsayıcısının genişliğine göre hesaplanıyor,
+   geniş kapsayıcıda kenar kalınlaşıp görüntü yanlardan kırpılıyordu (kullanıcı raporu 2026-09-10). */
+.shot-phone{width:290px;aspect-ratio:.47802;border-radius:16.5% / 7.6%;padding:0;background:#0E1838;box-shadow:0 40px 90px rgba(14,24,56,.22),0 0 0 1px rgba(14,24,56,.08);margin:0 auto;position:relative}
+.shot-phone img{position:absolute;top:1.673%;left:3.5%;width:93%;height:96.654%;object-fit:cover;border-radius:13% / 6%;display:block;background:#F2F2F7}
 .offline-chip{position:absolute;z-index:2;bottom:56px;left:-14px;background:#fff;border:1px solid rgba(14,24,56,.08);border-radius:14px;padding:10px 14px;font-size:12.5px;font-weight:700;color:#0E1838;display:flex;align-items:center;gap:8px;box-shadow:0 14px 34px rgba(14,24,56,.12);max-width:240px;animation:floatBadge 3.4s ease-in-out infinite alternate-reverse}
 .offline-chip svg{flex-shrink:0}
 .ai-section{background:linear-gradient(135deg,#F4EEFF 0%,#FFFFFF 50%,#EEF3FF 100%);border-color:rgba(124,58,237,.16)}
@@ -9249,8 +9254,7 @@ html[dir="rtl"] .pc-feats{padding-right:0}
   .offline-body{font-size:14px;line-height:1.6;margin-bottom:16px}
   .offline-checks{gap:8px}
   .offline-check{font-size:13px}
-  .shot-phone{width:calc(82vh * 0.46);border-radius:32px;padding:6px}
-  .shot-phone img{border-radius:27px}
+  .shot-phone{width:calc(82vh * 0.478)}
   .offline-chip{display:none}
   .offline-badge-float{top:8px;right:-10px;font-size:11px;padding:7px 11px}
   .ai-visual{order:0}
@@ -9276,17 +9280,18 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 .ai-stage{position:relative;height:100%;max-width:1180px;margin:0 auto;padding:88px 60px 40px;display:grid;grid-template-columns:1fr auto;gap:72px;align-items:center}
 .ai-copy{opacity:0;transform:translateY(24px);will-change:opacity,transform}
 .ai-phone-slot{position:relative;opacity:0;transform:translateY(40px);will-change:opacity,transform;display:flex;justify-content:center}
-.ai-phone{height:min(76vh,660px);height:min(76svh,660px);width:auto;aspect-ratio:1206/2622;padding:9px}
-.ai-phone img{position:absolute;inset:9px;width:calc(100% - 18px);height:calc(100% - 18px);object-fit:cover;border-radius:clamp(24px,5vh,40px)}
+.ai-phone{height:min(76vh,660px);height:min(76svh,660px);width:auto}
+.ai-screen{position:absolute;top:1.673%;left:3.5%;width:93%;height:96.654%;border-radius:13% / 6%;overflow:hidden;isolation:isolate}
+.ai-screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0}
 /* Sheet damlanın noktasından (ana sayfada 1056,2111 / 1206×2622) büyüyerek açılır */
 /* Sheet: ai.jpg'den YALNIZCA mor cam kart görünür (kart 42,288 → 1163,2471; köşe ~141px / 1206×2622),
    damlanın noktasından büyür — ekran görüntüsünün tamamı büyümesin (kullanıcı geri bildirimi). */
 .ai-phone .ai-sheet-img{opacity:0;transform-origin:87.6% 80.5%;transform:scale(.12);z-index:3;-webkit-clip-path:inset(10.98% 3.48% 5.72% 3.48% round 11.69% / 5.38%);clip-path:inset(10.98% 3.48% 5.72% 3.48% round 11.69% / 5.38%)}
 /* 3 ekran sırası: damlasız ana sayfa → (damla oturunca) damlalı ana sayfa → Pruva AI sheet */
 .ai-phone .ai-home-orb{opacity:0;z-index:1}
-.ai-dim{position:absolute;inset:9px;border-radius:clamp(24px,5vh,40px);background:rgba(0,0,0,.35);opacity:0;pointer-events:none;z-index:2}
+.ai-dim{position:absolute;inset:0;border-radius:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;z-index:2}
 /* Damla inince yuvasından yayılan halka (uygulamadaki "plof" hissi) — konum ana sayfadaki damla yuvası */
-.ai-ripple{z-index:2;position:absolute;left:calc(9px + (100% - 18px) * .876);top:calc(9px + (100% - 18px) * .805);width:14%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(167,139,250,.9);box-shadow:0 0 18px rgba(139,92,246,.45);transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;z-index:2}
+.ai-ripple{z-index:2;position:absolute;left:87.6%;top:80.5%;width:14%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(167,139,250,.9);box-shadow:0 0 18px rgba(139,92,246,.45);transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;z-index:2}
 .ai-orb{position:absolute;left:0;top:0;width:1080px;height:1080px;transform-origin:0 0;pointer-events:none;will-change:transform,opacity;z-index:3;opacity:1;-webkit-mask-image:radial-gradient(closest-side,#000 62%,transparent 98%);mask-image:radial-gradient(closest-side,#000 62%,transparent 98%)}
 @media(max-width:900px){
   .ai-story{height:300vh}
@@ -9537,11 +9542,13 @@ html[dir="rtl"] .pc-feats{padding-right:0}
       </div>
       <div class="ai-phone-slot">
         <div class="shot-phone ai-phone">
-          <img data-shot="home-clean" src="shots/en/home-clean.jpg" alt="" width="1206" height="2622">
-          <img class="ai-home-orb" data-shot="home-orb" src="shots/en/home-orb.jpg" alt="" width="1206" height="2622">
-          <span class="ai-ripple" aria-hidden="true"></span>
-          <span class="ai-dim" aria-hidden="true"></span>
-          <img class="ai-sheet-img" data-shot="ai" src="shots/en/ai.jpg" alt="Pruva AI" width="1206" height="2622">
+          <div class="ai-screen">
+            <img data-shot="home-clean" src="shots/en/home-clean.jpg" alt="" width="1206" height="2622">
+            <img class="ai-home-orb" data-shot="home-orb" src="shots/en/home-orb.jpg" alt="" width="1206" height="2622">
+            <span class="ai-ripple" aria-hidden="true"></span>
+            <span class="ai-dim" aria-hidden="true"></span>
+            <img class="ai-sheet-img" data-shot="ai" src="shots/en/ai.jpg" alt="Pruva AI" width="1206" height="2622">
+          </div>
         </div>
       </div>
     </div>
