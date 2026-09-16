@@ -1,3 +1,19 @@
+// ⛔ ÖLÜ DOSYA — HİÇBİR SAYFA BUNU YÜKLEMİYOR. BURAYA ANAHTAR EKLEME.
+//
+// Bu dosya `window.RIVOLY_I18N` tanımlıyor (eski marka adı). Canlı sözlük
+// index.html'in İÇİNDE gömülü ve `window.PRUVA_I18N` adıyla okunuyor.
+// Hiçbir HTML dosyası i18n.js'i <script src> ile çağırmıyor (tarandı).
+//
+// 🔴 BU BİR KEZ GERÇEK HATAYA YOL AÇTI (2026-09-16): "footer.support" anahtarı
+//    24 dile BURAYA eklendi ve sitede hiçbir etkisi olmadı — footer bağlantısı
+//    her dilde İngilizce "Support" göründü. Çeviriler 2026-09-17'de buradan
+//    alınıp index.html'deki canlı sözlüğe taşındı.
+//
+// ➡️ Yeni çeviri: ana sayfa için index.html içindeki PRUVA_I18N'e,
+//    destek sayfası için support-i18n.js'e yaz.
+// ℹ️ Dosya silinmedi çünkü içinde canlı sözlükte olmayan çeviriler kalmış
+//    olabilir; taşınmadan önce silme.
+
 window.RIVOLY_I18N = {
 
 en: {

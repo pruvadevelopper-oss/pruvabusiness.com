@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pruva Business — Support</title>
+<title data-i18n="sup.metaTitle">Pruva Business — Support</title>
 <meta name="description" content="Pruva Business support: contact, frequently asked questions, account deletion and data requests.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,17 +16,14 @@ a:hover{text-decoration:underline}
 nav{position:sticky;top:0;z-index:100;background:rgba(13,13,18,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px}
 nav .logo{font-weight:800;font-size:17px;color:var(--t);letter-spacing:.5px}
 nav .logo span{color:var(--p1)}
-nav .back{margin-left:auto;font-size:13px;color:var(--m)}
+nav .back{font-size:13px;color:var(--m)}
+.lang-select{margin-left:auto;background:var(--card);border:1px solid var(--border);color:var(--t);font-family:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.lang-select:focus-visible{outline:2px solid var(--p2);outline-offset:1px}
+html[dir="rtl"] .lang-select{margin-left:0;margin-right:auto}
 .hero{padding:56px 24px 32px;text-align:center;border-bottom:1px solid var(--border)}
 .hero h1{font-size:clamp(24px,4vw,36px);font-weight:800;margin-bottom:8px}
 .hero p{color:var(--m);font-size:14px}
-.region-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--s1)}
-.region-label{color:var(--m);font-size:13px;white-space:nowrap}
-.region-pills{display:flex;flex-wrap:wrap;gap:6px}
-.pill{background:var(--card);border:1px solid var(--border);color:var(--m);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:.15s;font-family:inherit}
-.pill:hover,.pill.active{background:var(--p2);border-color:var(--p2);color:#fff}
 .container{max-width:780px;margin:0 auto;padding:40px 24px 80px}
-.region-content{display:none}.region-content.visible{display:block}
 .section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
 .section-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .num{width:28px;height:28px;border-radius:8px;background:var(--p2);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -48,181 +45,146 @@ footer a{color:var(--p2)}
 
 <nav>
   <span class="logo">PRUVA <span>Business</span></span>
-  <a href="index.html" class="back">← Ana Sayfa / Home</a>
+  <select class="lang-select" id="langSelect" aria-label="Language">
+    <option value="en">English</option><option value="tr">Türkçe</option>
+    <option value="de">Deutsch</option><option value="fr">Français</option>
+    <option value="es">Español</option><option value="pt">Português</option>
+    <option value="it">Italiano</option><option value="nl">Nederlands</option>
+    <option value="pl">Polski</option><option value="ru">Русский</option>
+    <option value="ar">العربية</option><option value="fa">فارسی</option>
+    <option value="ur">اردو</option><option value="hi">हिन्दी</option>
+    <option value="bn">বাংলা</option><option value="id">Bahasa Indonesia</option>
+    <option value="vi">Tiếng Việt</option><option value="th">ไทย</option>
+    <option value="fil">Filipino</option><option value="sw">Kiswahili</option>
+    <option value="ha">Hausa</option><option value="kk">Қазақша</option>
+    <option value="uz">Oʻzbekcha</option><option value="tk">Türkmençe</option>
+  </select>
+  <a href="index.html" class="back" data-i18n="sup.back">← Home</a>
 </nav>
 
 <div class="hero">
-  <h1>Destek / Support</h1>
-  <p>Yardım, sık sorulan sorular ve iletişim — Help, FAQ and contact</p>
-</div>
-
-<div class="region-bar">
-  <span class="region-label">Dil / Language:</span>
-  <div class="region-pills">
-    <button class="pill" data-region="tr" onclick="setRegion('tr')">🇹🇷 Türkçe</button>
-    <button class="pill" data-region="en" onclick="setRegion('en')">🌍 English</button>
-  </div>
+  <h1 data-i18n="sup.heroTitle">Support</h1>
+  <p data-i18n="sup.heroSub">Help, FAQ and contact</p>
 </div>
 
 <div class="container">
 
-<!-- ============ TÜRKÇE ============ -->
-<div class="region-content" id="region-tr">
-
   <div class="contact-box">
-    <p>Her konuda bize doğrudan yazabilirsiniz</p>
+    <p data-i18n="sup.contactLead">Write to us about anything</p>
     <a class="mail" href="mailto:pruvadevelopper@gmail.com">pruvadevelopper@gmail.com</a>
-    <p style="margin-top:10px">Genellikle 1 iş günü içinde yanıtlıyoruz.</p>
+    <p style="margin-top:10px" data-i18n="sup.contactReply">We usually reply within one business day.</p>
   </div>
 
   <div class="section">
-    <div class="section-head"><span class="num">1</span><h2>Uygulamanın içinden yardım alın</h2></div>
-    <p>En hızlı yol uygulamanın kendisidir: <strong>Seçenekler → Yardım &amp; Destek</strong>.</p>
+    <div class="section-head"><span class="num">1</span><h2 data-i18n="sup.s1Title">Get help inside the app</h2></div>
+    <p data-i18n="sup.s1Lead" data-i18n-html="true">The fastest route is the app itself: <strong>Options → Help &amp; Support</strong>.</p>
     <ul>
-      <li>Sorunuzu yazın, uygulama içi asistan adım adım anlatır.</li>
-      <li>Çözülmezse <strong>“Yetkiliye ilet”</strong> ile bize kayıt açabilirsiniz. Kaydınızın durumunu aynı ekrandaki <strong>“Kayıtlarım”</strong> bölümünden takip edersiniz.</li>
-      <li>Telefonu sallamak da doğrudan destek sohbetini açar.</li>
+      <li data-i18n="sup.s1a">Type your question and the in-app assistant walks you through it.</li>
+      <li data-i18n="sup.s1b" data-i18n-html="true">If that does not solve it, <strong>“Escalate to a person”</strong> opens a ticket with us. You can follow its status under <strong>“My tickets”</strong> on the same screen.</li>
+      <li data-i18n="sup.s1c">Shaking the phone also opens the support chat directly.</li>
     </ul>
-    <div class="highlight">Destek kaydı açmadan önce sizden izin istenir — konuşma geçmişiniz onayınız olmadan gönderilmez.</div>
+    <div class="highlight" data-i18n="sup.s1Note">You are asked for consent before a ticket is opened — your conversation is never sent without your approval.</div>
   </div>
 
   <div class="section">
-    <div class="section-head"><span class="num">2</span><h2>Sık sorulan sorular</h2></div>
+    <div class="section-head"><span class="num">2</span><h2 data-i18n="sup.s2Title">Frequently asked questions</h2></div>
 
-    <p class="q">İnternetim yokken kasa çalışır mı?</p>
-    <p>Evet. Her satış önce cihaza yazılır; hat kesildiğinde kasa durmaz. Bağlantı gelince buluta kendiliğinden eşitlenir.</p>
+    <p class="q" data-i18n="sup.q1">Does the till work without internet?</p>
+    <p data-i18n="sup.a1">Yes. Every sale is written to the device first, so the till never stops when the line drops. It syncs to the cloud on its own once you are back online.</p>
 
-    <p class="q">Yüzlerce ürünün fiyatını tek tek girmek zorunda mıyım?</p>
-    <p>Hayır. Dört yol var: <strong>Hızlı Fiyat ve Stok</strong> ekranı, A4 liste yazdırıp elle doldurup fotoğrafını çekme, Excel/CSV içe aktarma, ya da hiç hazırlık yapmadan kasada bilinmeyen ürünü okutup fiyatı bir kez yazma.</p>
+    <p class="q" data-i18n="sup.q2">Do I have to type in hundreds of prices one by one?</p>
+    <p data-i18n="sup.a2" data-i18n-html="true">No. There are four ways in: the <strong>Quick Price &amp; Stock</strong> screen, printing an A4 sheet and filling it in by hand then photographing it, importing from Excel or CSV, or preparing nothing at all — scan an unknown item at the till and type its price once.</p>
 
-    <p class="q">Barkodu olmayan ürünü nasıl satarım?</p>
-    <p>Dahili barkod üreteciyle kendi etiketinizi basabilir, ya da ürünü kilo fiyatıyla tartılı satabilirsiniz.</p>
+    <p class="q" data-i18n="sup.q3">How do I sell an item with no barcode?</p>
+    <p data-i18n="sup.a3">Print your own label with the built-in barcode generator, or sell the item loose by weight at a price per kilo.</p>
 
-    <p class="q">Çalışanım kendi hesabıyla nasıl girer?</p>
-    <p>Personel Yönetimi'nden çalışan ekleyin; her çalışana kendine özel bir giriş kodu üretilir. Kodu QR olarak gösterebilir ya da doğrudan paylaşabilirsiniz. Envanter ve iade gibi yetkiler çalışan bazında açılıp kapatılır.</p>
+    <p class="q" data-i18n="sup.q4">How does an employee sign in?</p>
+    <p data-i18n="sup.a4">Add them under Staff Management; each employee gets a personal access code you can show as a QR or share directly. Permissions such as inventory access and refunds are granted per employee.</p>
 
-    <p class="q">Yanlış satışı nasıl geri alırım?</p>
-    <p>İade ekranından orijinal fişi seçin. Stok geri yüklenir ve iade kaydı fişe bağlanır; aynı fiş ikinci kez iade edilemez.</p>
+    <p class="q" data-i18n="sup.q5">How do I reverse a mistaken sale?</p>
+    <p data-i18n="sup.a5">Open Refunds and pick the original receipt. Stock is restored and the refund is tied to that receipt; the same receipt cannot be refunded twice.</p>
 
-    <p class="q">Birden fazla şubem var, hepsi tek hesapta olur mu?</p>
-    <p>Olur. <strong>Seçenekler → Mağazalarım</strong>'dan yeni mağaza açabilir ve aralarında geçiş yapabilirsiniz. Her mağazanın verisi ayrıdır, birbirine karışmaz.</p>
+    <p class="q" data-i18n="sup.q6">Can I run several branches on one account?</p>
+    <p data-i18n="sup.a6" data-i18n-html="true">Yes. Use <strong>Options → My Stores</strong> to create another store and switch between them. Each store keeps its own data; nothing is mixed.</p>
 
-    <p class="q">Verilerim nerede tutuluyor?</p>
-    <p>Cihazınızda şifreli olarak ve — bulut açıksa — Google Firebase üzerinde. Ayrıntılar için <a href="privacy.html">Gizlilik Politikası</a>.</p>
+    <p class="q" data-i18n="sup.q7">Where is my data kept?</p>
+    <p data-i18n="sup.a7" data-i18n-html="true">Encrypted on your device and — when cloud sync is on — on Google Firebase. See the <a href="privacy.html">Privacy Policy</a> for details.</p>
 
-    <p class="q">Uygulama ücretli mi?</p>
-    <p>Şu an ücretsiz, kredi kartı gerekmez.</p>
+    <p class="q" data-i18n="sup.q8">Is the app paid?</p>
+    <p data-i18n="sup.a8">It is free right now, no card required.</p>
   </div>
 
   <div class="section">
-    <div class="section-head"><span class="num">3</span><h2>Hesabımı silmek istiyorum</h2></div>
-    <p>Uygulama içinden yapılır: <strong>Seçenekler → Hesap &amp; Güvenlik → Hesabı Sil</strong>.</p>
-    <p>İşletme sahibiyseniz hesabınızla birlikte sahip olduğunuz tüm mağazalar, ürünler ve satış geçmişi kalıcı olarak silinir ve bu işlem geri alınamaz. Silme ekranı bunu size adım adım gösterir.</p>
-    <p>Uygulamaya erişemiyorsanız yukarıdaki e-posta adresinden bize yazın.</p>
+    <div class="section-head"><span class="num">3</span><h2 data-i18n="sup.s3Title">Deleting your account</h2></div>
+    <p data-i18n="sup.s3a" data-i18n-html="true">You can do this inside the app: <strong>Options → Account &amp; Security → Delete Account</strong>.</p>
+    <p data-i18n="sup.s3b">If you are the business owner, deleting your account also permanently deletes every store you own along with its products and sales history. This cannot be undone, and the deletion screen spells it out step by step.</p>
+    <p data-i18n="sup.s3c">If you cannot reach the app, write to the email address above.</p>
   </div>
 
   <div class="section">
-    <div class="section-head"><span class="num">4</span><h2>Yasal</h2></div>
+    <div class="section-head"><span class="num">4</span><h2 data-i18n="sup.s4Title">Legal</h2></div>
     <ul>
-      <li><a href="privacy.html">Gizlilik Politikası</a></li>
-      <li><a href="terms.html">Kullanım Koşulları</a></li>
-    </ul>
-  </div>
-
-</div>
-
-<!-- ============ ENGLISH ============ -->
-<div class="region-content" id="region-en">
-
-  <div class="contact-box">
-    <p>Write to us about anything</p>
-    <a class="mail" href="mailto:pruvadevelopper@gmail.com">pruvadevelopper@gmail.com</a>
-    <p style="margin-top:10px">We usually reply within one business day.</p>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><span class="num">1</span><h2>Get help inside the app</h2></div>
-    <p>The fastest route is the app itself: <strong>Options → Help &amp; Support</strong>.</p>
-    <ul>
-      <li>Type your question and the in-app assistant walks you through it.</li>
-      <li>If that does not solve it, <strong>“Escalate to a person”</strong> opens a ticket with us. You can follow its status under <strong>“My tickets”</strong> on the same screen.</li>
-      <li>Shaking the phone also opens the support chat directly.</li>
-    </ul>
-    <div class="highlight">You are asked for consent before a ticket is opened — your conversation is never sent without your approval.</div>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><span class="num">2</span><h2>Frequently asked questions</h2></div>
-
-    <p class="q">Does the till work without internet?</p>
-    <p>Yes. Every sale is written to the device first, so the till never stops when the line drops. It syncs to the cloud on its own once you are back online.</p>
-
-    <p class="q">Do I have to type in hundreds of prices one by one?</p>
-    <p>No. There are four ways in: the <strong>Quick Price &amp; Stock</strong> screen, printing an A4 sheet and filling it in by hand then photographing it, importing from Excel or CSV, or preparing nothing at all — scan an unknown item at the till and type its price once.</p>
-
-    <p class="q">How do I sell an item with no barcode?</p>
-    <p>Print your own label with the built-in barcode generator, or sell the item loose by weight at a price per kilo.</p>
-
-    <p class="q">How does an employee sign in?</p>
-    <p>Add them under Staff Management; each employee gets a personal access code you can show as a QR or share directly. Permissions such as inventory access and refunds are granted per employee.</p>
-
-    <p class="q">How do I reverse a mistaken sale?</p>
-    <p>Open Refunds and pick the original receipt. Stock is restored and the refund is tied to that receipt; the same receipt cannot be refunded twice.</p>
-
-    <p class="q">Can I run several branches on one account?</p>
-    <p>Yes. Use <strong>Options → My Stores</strong> to create another store and switch between them. Each store keeps its own data; nothing is mixed.</p>
-
-    <p class="q">Where is my data kept?</p>
-    <p>Encrypted on your device and — when cloud sync is on — on Google Firebase. See the <a href="privacy.html">Privacy Policy</a> for details.</p>
-
-    <p class="q">Is the app paid?</p>
-    <p>It is free right now, no card required.</p>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><span class="num">3</span><h2>Deleting your account</h2></div>
-    <p>You can do this inside the app: <strong>Options → Account &amp; Security → Delete Account</strong>.</p>
-    <p>If you are the business owner, deleting your account also permanently deletes every store you own along with its products and sales history. This cannot be undone, and the deletion screen spells it out step by step.</p>
-    <p>If you cannot reach the app, write to the email address above.</p>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><span class="num">4</span><h2>Legal</h2></div>
-    <ul>
-      <li><a href="privacy.html">Privacy Policy</a></li>
-      <li><a href="terms.html">Terms of Service</a></li>
+      <li><a href="privacy.html" data-i18n="sup.legalPrivacy">Privacy Policy</a></li>
+      <li><a href="terms.html" data-i18n="sup.legalTerms">Terms of Service</a></li>
     </ul>
   </div>
-
-</div>
 
 </div>
 
 <footer>
-  © <span id="yr"></span> Pruva Business · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="index.html">Home</a>
+  © <span id="yr"></span> Pruva Business ·
+  <a href="privacy.html" data-i18n="sup.legalPrivacy">Privacy Policy</a> ·
+  <a href="terms.html" data-i18n="sup.legalTerms">Terms of Service</a> ·
+  <a href="index.html" data-i18n="sup.back">← Home</a>
 </footer>
 
+<script src="support-i18n.js"></script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
-var REGIONS = ['tr','en'];
-function setRegion(code){
-  REGIONS.forEach(function(r){
-    var el = document.getElementById('region-'+r);
-    if(el) el.classList.toggle('visible', r===code);
-    var pill = document.querySelector('.pill[data-region="'+r+'"]');
-    if(pill) pill.classList.toggle('active', r===code);
-  });
-  try{ localStorage.setItem('pruvaSupportLang', code); }catch(e){}
-}
+// ⚠️ Bu çalışma zamanı index.html'deki i18n RUNTIME ile BİREBİR aynı davranmalı:
+//    aynı SUPPORTED listesi, aynı RTL listesi, aynı 'pruvaLang' localStorage anahtarı
+//    ve aynı ?lang= parametresi. Ayrışırsa kullanıcı ana sayfadan destek sayfasına
+//    geçerken dili sıfırlanır.
 (function(){
-  var saved = '';
-  try{ saved = localStorage.getItem('pruvaSupportLang')||''; }catch(e){}
-  if(!saved){
-    var nav = (navigator.languages||[navigator.language||'en'])[0].toLowerCase().split('-')[0];
-    saved = (nav === 'tr') ? 'tr' : 'en';
+  var SUPPORTED = ['en','tr','de','fr','es','pt','it','nl','pl','ru','ar','fa','ur','hi','bn','id','vi','th','fil','sw','ha','kk','uz','tk'];
+  var RTL = ['ar','fa','ur'];
+  var dict = window.PRUVA_SUPPORT_I18N || {};
+
+  function detectLang(){
+    var p = new URLSearchParams(location.search).get('lang');
+    if(p && SUPPORTED.includes(p)) return p;
+    var ls;
+    try { ls = localStorage.getItem('pruvaLang'); } catch(e){}
+    if(ls && SUPPORTED.includes(ls)) return ls;
+    var navLangs = (navigator.languages||[navigator.language||'en']);
+    for(var i=0;i<navLangs.length;i++){
+      var code = navLangs[i].toLowerCase().split('-')[0];
+      if(SUPPORTED.includes(code)) return code;
+    }
+    return 'en';
   }
-  if(!REGIONS.includes(saved)) saved = 'en';
-  setRegion(saved);
+
+  function applyLang(code){
+    if(!SUPPORTED.includes(code)) code='en';
+    var d = dict[code]||{}, en = dict['en']||{};
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      var val = d[key] !== undefined ? d[key] : en[key];
+      if(val === undefined) return;
+      if(el.getAttribute('data-i18n-html') === 'true') el.innerHTML = val;
+      else el.textContent = val;
+    });
+    document.documentElement.lang = code;
+    document.documentElement.dir = RTL.includes(code) ? 'rtl' : 'ltr';
+    var sel = document.getElementById('langSelect');
+    if(sel) sel.value = code;
+    try { localStorage.setItem('pruvaLang', code); } catch(e){}
+    history.replaceState(null,'','?lang='+code);
+  }
+
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.addEventListener('change', function(){ applyLang(sel.value); });
+  applyLang(detectLang());
 })();
 </script>
 </body>
