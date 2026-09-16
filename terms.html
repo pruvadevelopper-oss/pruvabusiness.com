@@ -6,52 +6,14 @@
 <title>Pruva Business — Terms of Service & User Agreement</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0d0d12;--s1:#13131a;--p1:#c084fc;--p2:#a855f7;--t:#f1f0f5;--m:#9b99a8;--border:#2a2a3a;--card:#1a1a24}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7}
-a{color:var(--p2);text-decoration:none}
-a:hover{text-decoration:underline}
-nav{position:sticky;top:0;z-index:100;background:rgba(13,13,18,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px}
-nav .logo{font-weight:800;font-size:17px;color:var(--t);letter-spacing:.5px}
-nav .logo span{color:var(--p1)}
-nav .back{margin-left:auto;font-size:13px;color:var(--m)}
-.hero{padding:56px 24px 32px;text-align:center;border-bottom:1px solid var(--border)}
-.hero h1{font-size:clamp(24px,4vw,36px);font-weight:800;margin-bottom:8px}
-.hero p{color:var(--m);font-size:14px}
-.region-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--s1)}
-.region-label{color:var(--m);font-size:13px;white-space:nowrap}
-.region-pills{display:flex;flex-wrap:wrap;gap:6px}
-.pill{background:var(--card);border:1px solid var(--border);color:var(--m);padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:.15s}
-.pill:hover,.pill.active{background:var(--p2);border-color:var(--p2);color:#fff}
-.container{max-width:780px;margin:0 auto;padding:40px 24px 80px}
-.region-content{display:none}.region-content.visible{display:block}
-.badge-reg{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:28px}
-.badge-tr{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#f87171}
-.badge-en{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
-.badge-de{background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:#fde047}
-.badge-eu{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);color:#93c5fd}
-.last-updated{color:var(--m);font-size:12px;margin-bottom:32px}
-.section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
-.section-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.num{width:28px;height:28px;border-radius:8px;background:var(--p2);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.section-head h2{font-size:16px;font-weight:700}
-.section p,.section li{color:#ccc;font-size:14px;margin-bottom:6px}
-.section ul,.section ol{padding-left:18px}
-.section li{margin-bottom:5px}
-.highlight{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);border-radius:10px;padding:14px 16px;margin-top:10px;font-size:13px;color:#d4b8f0}
-.warning{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px 16px;margin-top:10px;font-size:13px;color:#fca5a5}
-.contact-box{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-top:28px}
-.contact-box p{color:var(--m);font-size:13px;margin-bottom:6px}
-.contact-box a{font-size:15px;font-weight:600;color:var(--p1)}
-footer{border-top:1px solid var(--border);padding:24px;text-align:center;color:var(--m);font-size:12px}
-footer a{color:var(--p2)}
-</style>
+<link rel="stylesheet" href="pages.css">
 </head>
 <body>
 
 <nav>
-  <span class="logo">PRUVA <span>Business</span></span>
+  <a class="logo" href="index.html" aria-label="Pruva">
+    <span class="logo-mark" role="img" aria-label="Pruva"></span>
+  </a>
   <a href="index.html" class="back">← Ana Sayfa / Home</a>
 </nav>
 

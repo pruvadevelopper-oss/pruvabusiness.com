@@ -1,0 +1,117 @@
+/* ============================================================================
+   pages.css — privacy.html · terms.html · support.html ORTAK stili
+   ----------------------------------------------------------------------------
+   ⚠️ Bu üç sayfa 2026-09-17'ye kadar ÜÇ AYRI tasarım sistemi kullanıyordu:
+        index.html    beyaz · lacivert #2B4CC9          (2026-09-09'da yenilendi)
+        privacy.html  koyu lacivert #0B1628 · MOR #6C47FF   ← terk edilmiş marka rengi
+        support.html  koyu siyah #0d0d12 · mor #c084fc
+        terms.html    support ile aynı
+      Renk değerlerini buraya BİR KEZ yazıp üç sayfaya bağladık. Yeni bir alt
+      sayfa açarsan bu dosyayı bağla, kendi <style> bloğunu yazma.
+   ⚠️ Değerler index.html'in :root'undan alındı. Ana sayfanın teması değişirse
+      BURAYI da güncelle, yoksa site yine üçe bölünür.
+
+   🔴 LOGO: pruva-logo-transparent.png BEYAZ bir PNG. <img> ile koyarsan beyaz
+      zeminde GÖRÜNMEZ — privacy.html'de tam olarak bu oluyordu. Maskeyle
+      boyanıyor (.logo-mark); <img>'e geri dönme.
+   ============================================================================ */
+
+:root{
+  --p:#2B4CC9; --p2:#1E3A8A; --g:#1D9E75; --o:#BA7517;
+  --bg:#FFFFFF; --dark:#F4F7FC; --card:#FFFFFF;
+  --t:#0E1838; --m:rgba(14,24,56,0.58);
+  --line:rgba(14,24,56,0.10);
+  --ease-out:cubic-bezier(0,0,.5,1);
+  --ease-inout:cubic-bezier(.4,0,.6,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);
+  font-family:'Inter',-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;
+  font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--p);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---- nav ---------------------------------------------------------------- */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:16px;
+  padding:14px 24px;background:rgba(255,255,255,.82);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;text-decoration:none}
+.logo:hover{text-decoration:none}
+.logo-mark{display:block;height:22px;width:190px;max-width:44vw;background:var(--t);
+  -webkit-mask:url(pruva-logo-transparent.png) left center/contain no-repeat;
+  mask:url(pruva-logo-transparent.png) left center/contain no-repeat}
+.back,.back-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--m)}
+.back:hover,.back-btn:hover{color:var(--t);text-decoration:none}
+.lang-select{background:var(--dark);border:1px solid var(--line);color:var(--t);
+  font-family:inherit;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.lang-select:focus-visible{outline:2px solid var(--p);outline-offset:1px}
+nav .lang-select{margin-left:auto}
+nav .lang-select + .back,nav .lang-select + .back-btn{margin-left:0}
+html[dir="rtl"] nav .lang-select{margin-left:0;margin-right:auto}
+
+/* ---- hero --------------------------------------------------------------- */
+.hero,.hero-band{padding:56px 24px 32px;text-align:center;border-bottom:1px solid var(--line);
+  background:var(--dark)}
+.hero h1,.hero-band h1{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.02em;
+  margin-bottom:8px;text-wrap:balance}
+.hero p,.hero-band p{color:var(--m);font-size:14.5px}
+.last-updated{color:var(--m);font-size:13px;margin-top:6px}
+
+/* ---- dil çubuğu (privacy/terms hâlâ blok kopyalama kullanıyor) ---------- */
+.region-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg)}
+.region-label{color:var(--m);font-size:13px;white-space:nowrap}
+.region-pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{background:var(--dark);border:1px solid var(--line);color:var(--m);
+  padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;
+  transition:.15s var(--ease-inout);font-family:inherit}
+.pill:hover,.pill.active{background:var(--p);border-color:var(--p);color:#fff}
+.region-content{display:none}.region-content.visible{display:block}
+
+/* ---- içerik ------------------------------------------------------------- */
+.container{max-width:780px;margin:0 auto;padding:40px 24px 80px}
+.section{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:24px;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(14,24,56,.04),0 8px 24px -16px rgba(14,24,56,.14)}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.num{width:28px;height:28px;border-radius:9px;
+  background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;
+  font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0}
+.section-head h2{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.section p,.section li{color:var(--m);font-size:14px;margin-bottom:6px}
+.section ul,.section ol{padding-left:18px}
+html[dir="rtl"] .section ul,html[dir="rtl"] .section ol{padding-left:0;padding-right:18px}
+.section li{margin-bottom:5px}
+.q{color:var(--t);font-weight:600;font-size:14px;margin-top:16px;margin-bottom:4px}
+.q:first-of-type{margin-top:0}
+.highlight{background:rgba(43,76,201,.06);border:1px solid rgba(43,76,201,.18);
+  border-radius:12px;padding:14px 16px;margin-top:10px;font-size:13px;color:var(--p2)}
+.warning{background:rgba(186,117,23,.07);border:1px solid rgba(186,117,23,.22);
+  border-radius:12px;padding:14px 16px;margin-top:10px;font-size:13px;color:var(--o)}
+
+/* ---- iletişim kutusu ---------------------------------------------------- */
+.contact-box{background:var(--dark);border:1px solid var(--line);border-radius:14px;
+  padding:24px;text-align:center;margin-bottom:16px}
+.contact-box p{color:var(--m);font-size:13px;margin-bottom:6px}
+.contact-box a.mail,.mail{font-size:18px;font-weight:700;color:var(--p);word-break:break-all}
+
+/* ---- rozetler ----------------------------------------------------------- */
+.badge-reg,.badge-kvkk,.badge-gdpr,.badge-en,.badge-tr,.badge-de,.badge-eu{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;
+  padding:3px 9px;border-radius:20px;margin-right:6px;
+  background:rgba(43,76,201,.08);color:var(--p2);border:1px solid rgba(43,76,201,.2)}
+html[dir="rtl"] [class^="badge-"]{margin-right:0;margin-left:6px}
+
+/* ---- footer ------------------------------------------------------------- */
+footer{border-top:1px solid var(--line);padding:24px;text-align:center;
+  color:var(--m);font-size:12.5px;background:var(--dark)}
+footer a{color:var(--p)}
+
+@media(max-width:600px){
+  nav{padding:12px 16px}
+  .container{padding:28px 16px 60px}
+  .section{padding:18px}
+  .hero,.hero-band{padding:40px 16px 26px}
+}
