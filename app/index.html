@@ -1714,8 +1714,31 @@ const app  = initializeApp({
   projectId:"qwick-pos-3f05e",
   storageBucket:"qwick-pos-3f05e.firebasestorage.app",
   messagingSenderId:"142541051514",
-  appId:"1:142541051514:ios:88e2c5ac4b706184548dc3"
+  appId:"1:142541051514:web:c4a44cf5ace76eec548dc3"
 });
+
+// ── App Check ───────────────────────────────────────────────────────────
+// ⚠️ SIRA ÖNEMLİ: App Check, auth/firestore/AI KULLANILMADAN ÖNCE kurulmalı.
+// ⚠️ Anahtar boşken HİÇBİR ŞEY yapılmaz — bugünkü davranış birebir korunur.
+//    Yanlış/boş bir site key ile initializeAppCheck çağırmak attestation'ı
+//    başarısız yapar; APIs sekmesinde Enforce açıksa panel SESSİZCE çalışmaz
+//    (kullanıcıya sebep söyleyen mesaj çıkmaz, yalnızca konsolda hata olur).
+// ➡️ Console ▸ App Check ▸ Apps ▸ "Pruva Business (Web)" reCAPTCHA Enterprise
+//    ile kaydedilince site key'i BURAYA yaz ve İKİ KOPYAYA da deploy et
+//    (public/app/index.html + site deposundaki app/index.html).
+// ⚠️ EN SON adım Console ▸ App Check ▸ APIs ▸ Firebase AI Logic ▸ Enforce.
+//    `Authentication` ve `Cloud Firestore`u bu turda ZORUNLU YAPMA — orada
+//    yanlış yapılandırma gerçek kullanıcıları uygulamadan tamamen kilitler.
+const APPCHECK_SITE_KEY = "";
+if (APPCHECK_SITE_KEY) {
+  const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
+    await import('https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js');
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
+
 const auth = getAuth(app);
 const db   = getFirestore(app);
 // iOS ile aynı kural: backend .vertexAI() olmalı, .googleAI() DEĞİL — Blaze planına bağlı, ücretsiz kredi gerektirmez.
