@@ -2117,7 +2117,11 @@ window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart
 function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
 
 /* Kategori adları — uygulamanın StoreCategory rawValue'ları ve Türkçe adlarıyla BİREBİR. */
+const RESTAURANT_UNLOCKED=false; // iOS RestaurantModule.featureUnlocked ile aynı — açınca web'de de açılır
 window.PRUVA_CAT={grocery:'Market',market:'Süpermarket',minimarket:'Minimarket',bakkal:'Bakkal',manav:'Manav',kasap:'Kasap',pharmacy:'Eczane',electronics:'Elektronik',clothing:'Giyim',cosmetics:'Kozmetik',bookstore:'Kitapçı',pet_shop:'Pet Shop',other:'Diğer',restaurant:'Restoran',cafe:'Kafe',bar:'Bar',bakery:'Fırın',patisserie:'Pastane',fast_food:'Fast Food',pizzeria:'Pizzacı',kebab:'Kebapçı',seafood:'Balık Restoran',fine_dining:'Fine Dining'};
+// ⛔ Restoran modülü KİLİTLİ (uygulamada RestaurantModule.featureUnlocked = false): bu kategoriler
+// kilit açılana kadar HİÇBİR YERDE adıyla gösterilmez — mağaza genel adla ('Mağaza') görünür.
+if(!RESTAURANT_UNLOCKED) for(const k of ['restaurant','cafe','bar','bakery','patisserie','fast_food','pizzeria','kebab','seafood','fine_dining']) window.PRUVA_CAT[k]='Mağaza';
 /* ── Mağaza bulma + kurulum ───────────────────────────────────────────
    iOS akışının aynısı: hesap → (mağazası yoksa) rol seçimi → Adım 0 kişisel
    (ad + cinsiyet) → Adım 1 mağaza (ad, kısa not, davet kodu — hepsi isteğe
@@ -2125,7 +2129,6 @@ window.PRUVA_CAT={grocery:'Market',market:'Süpermarket',minimarket:'Minimarket'
    ⚠️ Mağaza kodu SUNUCUDA üretilir (generateStoreCode). İstemcide kod üretip
    yazma: kural ^[A-Z0-9]{6}$ ister ve benzersizliği yalnızca CF doğrulayabilir.
    ⚠️ Eskiden mağaza bulunamazsa storeId = user.uid sayılıp BOŞ panel açılıyordu. */
-const RESTAURANT_UNLOCKED=false; // iOS RestaurantModule.featureUnlocked ile aynı
 const OB_CURRENCIES=[['TRY','₺'],['USD','$'],['EUR','€'],['GBP','£'],['RUB','₽'],['SAR','ر.س'],['INR','₹'],['BRL','R$'],['PLN','zł'],['UZS',"so'm"],['PKR','₨'],['BDT','৳'],['TMT','T'],['KZT','₸'],['IDR','Rp'],['KES','KSh'],['NGN','₦'],['THB','฿'],['VND','₫'],['PHP','₱'],['IRR','﷼'],['AED','د.إ'],['EGP','E£'],['MAD','DH'],['DZD','DA'],['TZS','TSh'],['UGX','USh'],['GHS','₵'],['ZAR','R'],['ETB','Br'],['AZN','₼'],['UAH','₴'],['CNY','¥']];
 const ob={step:'role',first:'',gender:'male',category:'grocery',name:'',note:'',invite:'',currency:null,busy:false,user:null};
 function obGuessCurrency(){const r=(navigator.language||'').split('-')[1]||'';const m={TR:'TRY',US:'USD',GB:'GBP',RU:'RUB',SA:'SAR',IN:'INR',BR:'BRL',PL:'PLN',UZ:'UZS',PK:'PKR',BD:'BDT',TM:'TMT',KZ:'KZT',ID:'IDR',KE:'KES',NG:'NGN',TH:'THB',VN:'VND',PH:'PHP',IR:'IRR',AE:'AED',EG:'EGP',MA:'MAD',DZ:'DZD',TZ:'TZS',UG:'UGX',GH:'GHS',ZA:'ZAR',ET:'ETB',AZ:'AZN',UA:'UAH',CN:'CNY'};return m[r]||(['FR','DE','ES','IT','NL','PT','AT','BE','IE','FI','GR'].includes(r)?'EUR':'TRY');}
@@ -2137,7 +2140,7 @@ function obRender(){
   if(ob.step==='role'){
     b.innerHTML=`<h1 class="ob-h">Hoşgeldiniz! Ne yapmak istiyorsunuz?</h1><p class="ob-p">${obEsc(ob.user?.email)}</p>
     <button class="ob-role" onclick="obPickRole('grocery')"><div class="ic" style="background:#DBEAFE">🏪</div><div><b>Market / İşletme Sahibiyim</b><span>Satış yap, stok yönet, rapor al</span></div></button>
-    <button class="ob-role" ${RESTAURANT_UNLOCKED?'':'disabled'} onclick="obPickRole('restaurant')"><div class="ic" style="background:#FEE2E2">🍽️</div><div><b>Restoran & Kafe & Bar</b><span>Masa servisi, menü, mutfak ekranı</span></div>${RESTAURANT_UNLOCKED?'':'<em>Yakında</em>'}</button>
+    ${RESTAURANT_UNLOCKED?`<button class="ob-role" onclick="obPickRole('restaurant')"><div class="ic" style="background:#FEE2E2">🍽️</div><div><b>Restoran & Kafe & Bar</b><span>Masa servisi, menü, mutfak ekranı</span></div></button>`:''}
     <button class="ob-role" onclick="obStaff()"><div class="ic" style="background:#EDE9FE">👤</div><div><b>Çalışan Girişi</b><span>Yöneticinizden aldığınız kodla bağlanın</span></div></button>
     <div class="ob-err" id="ob-err"></div><button class="ob-link" onclick="obSignOut()">Farklı hesapla giriş yap</button>`;
   }else if(ob.step==='personal'){
@@ -4273,6 +4276,8 @@ function optApplyRole(isOwner){ window.__isOwner=isOwner;
 let currentTab='home';
 window.switchTab=(tab,fromOpt)=>{
   if(tab==='ai'){ openAIDroplet(); return; }   // eski bağlantılar için
+  // ⛔ Restoran modülü kilitli: masa servisi / mutfak / menü editörü HİÇBİR yoldan açılmaz.
+  if(!RESTAURANT_UNLOCKED && ['tables','kds','menu'].includes(tab)) return;
   if(!fromOpt) optStack=[];
   currentTab=tab; window.__curTab=tab;
   const sub=!MAIN_TABS.includes(tab);
