@@ -1059,30 +1059,12 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
            MVP-KİLİT: menü editörü, masa servisi, mutfak ekranı (restoran modülü), kurye,
            kampanyalar uygulamada kilitli/kaldırıldı — burada da gizli; kodları duruyor,
            açmak için ilgili satırdaki style="display:none"u kaldır. -->
-      <div class="nav-section-label">Kasa</div>
+      <!-- Uygulamanın sekme çubuğuyla aynı: Seçenekler · Ana Sayfa · Hızlı Satış · Ürünlerim.
+           Diğer her ekran Seçenekler'in içinden açılır (iç içe sayfa, geri tuşlu). -->
+      <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">☰</div><div class="nav-label">Seçenekler</div></div>
       <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><div class="nav-icon">🏠</div><div class="nav-label">Ana Sayfa</div></div>
-      <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon">▦</div><div class="nav-label">Hızlı Satış</div></div>
+      <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon">🛒</div><div class="nav-label">Hızlı Satış</div></div>
       <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon">📦</div><div class="nav-label">Ürünlerim</div></div>
-      <div class="nav-section-label">Raporlar</div>
-      <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
-      <div class="nav-item" id="nav-zreport" onclick="switchTab('zreport')"><div class="nav-icon">🧾</div><div class="nav-label">Z Raporu</div></div>
-      <div class="nav-item" id="nav-forecast" onclick="switchTab('forecast')"><div class="nav-icon">📈</div><div class="nav-label">Stok Tahmini</div></div>
-      <div class="nav-section-label">İşlemler</div>
-      <div class="nav-item" id="nav-veresiye" onclick="switchTab('veresiye')"><div class="nav-icon">📋</div><div class="nav-label">Veresiye</div></div>
-      <div class="nav-item" id="nav-refund" onclick="switchTab('refund')"><div class="nav-icon">↩️</div><div class="nav-label">İade</div></div>
-      <div class="nav-item" id="nav-loss" onclick="switchTab('loss')"><div class="nav-icon">🗑️</div><div class="nav-label">Fire &amp; Kayıp</div></div>
-      <div class="nav-item" id="nav-invoices" onclick="switchTab('invoices')"><div class="nav-icon">📄</div><div class="nav-label">Fatura Arşivi</div></div>
-      <div class="nav-section-label">Ekip</div>
-      <div class="nav-item" id="nav-staff" onclick="switchTab('staff')"><div class="nav-icon">👥</div><div class="nav-label">Personel</div></div>
-      <div class="nav-item" id="nav-chat" onclick="switchTab('chat')"><div class="nav-icon">💬</div><div class="nav-label">Personel Sohbeti</div></div>
-      <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçiler</div></div>
-      <div class="nav-item" id="nav-menu" onclick="switchTab('menu')" style="display:none"><div class="nav-icon">📖</div><div class="nav-label">Menü Editörü</div></div>
-      <div class="nav-item" id="nav-tables" onclick="switchTab('tables')" style="display:none"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
-      <div class="nav-item" id="nav-kds" onclick="switchTab('kds')" style="display:none"><div class="nav-icon">👨‍🍳</div><div class="nav-label">Mutfak Ekranı</div></div>
-      <div class="nav-item" id="nav-courier" onclick="switchTab('courier')" style="display:none"><div class="nav-icon">🛵</div><div class="nav-label">Kurye Çağır</div></div>
-      <div class="nav-item" id="nav-campaigns" onclick="switchTab('campaigns')" style="display:none"><div class="nav-icon">🎁</div><div class="nav-label">Kampanyalar</div></div>
-      <div class="nav-section-label">Hesap</div>
-      <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Seçenekler</div></div>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="switchTab('settings')">
@@ -1094,6 +1076,7 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
 
   <div class="main-area app-screen">
     <div class="topbar">
+      <button class="topbar-back hidden" id="topbar-back" onclick="optBack()">‹ <span id="topbar-back-label">Seçenekler</span></button>
       <div class="topbar-title" id="topbar-title">Ana Sayfa</div>
       <div class="topbar-date" id="topbar-date"></div>
       <div class="topbar-badge"><span>Pruva</span><span>Pro</span></div>
@@ -1420,32 +1403,106 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
 
       <!-- SETTINGS -->
       <div class="tab-panel" id="tab-settings">
-        <div class="settings-grid">
-          <div class="settings-group">
-            <div class="settings-group-title">Hesap</div>
-            <div class="settings-row" onclick="openStoreModal()">
-              <div class="settings-icon" style="background:#E4EBFB">🏪</div>
-              <div class="settings-text"><div class="settings-title" id="settings-store-name">Mağazam</div><div class="settings-sub" id="settings-email">—</div></div>
-              <div class="settings-arrow">›</div>
-            </div>
-            <div class="settings-row" onclick="openStoreModal()"><div class="settings-icon" style="background:#E4EBFB">✏️</div><div class="settings-text"><div class="settings-title">Mağaza Profilini Düzenle</div><div class="settings-sub">Ad, açıklama, telefon, kategori, pazaryeri görünürlüğü</div></div><div class="settings-arrow">›</div></div>
+        <div class="opt-wrap">
+          <!-- Uygulamanın Seçenekler sayfası: hesap kartı → Pruva AI → Hızlı Erişim →
+               Yönetici Modu → tek kartta 4 katlanır satır (Araçlar, Ayarlar, Hakkında,
+               Hesap & Güvenlik). Bölüm başlığı YOK (uygulamada kaldırıldı). -->
+          <div class="opt-account" onclick="openStoreModal()">
+            <div class="opt-avatar" id="opt-avatar">🏪</div>
+            <div style="flex:1;min-width:0"><div class="opt-acc-name" id="settings-store-name">Mağazam</div><div class="opt-acc-sub" id="settings-email">—</div></div>
+            <div class="settings-arrow">›</div>
           </div>
+          <div class="opt-ai" onclick="openAIDroplet()"><div class="opt-ai-drop"></div><div><div class="opt-ai-t">Pruva AI</div><div class="opt-ai-s">Satış, stok, rapor — sor, yapsın</div></div></div>
           <div class="settings-group">
-            <div class="settings-group-title">Tercihler</div>
-            <div class="settings-row" onclick="showToast('Para birimi iOS uygulamasından yönetilir')"><div class="settings-icon" style="background:#D1FAE5">💱</div><div class="settings-text"><div class="settings-title">Para Birimi</div><div class="settings-sub">TRY — Türk Lirası · iOS uygulamasından değiştirilir</div></div><div class="settings-arrow">›</div></div>
-            <div class="settings-row" onclick="switchTab('zreport')"><div class="settings-icon" style="background:#DBEAFE">🧾</div><div class="settings-text"><div class="settings-title">Z Raporu</div><div class="settings-sub">Gün sonu raporu görüntüle ve yazdır</div></div><div class="settings-arrow">›</div></div>
-            <div class="settings-row" onclick="openPaymentModal()"><div class="settings-icon" style="background:var(--teal-light)">💳</div><div class="settings-text"><div class="settings-title">Ödeme Yöntemleri</div><div class="settings-sub">IBAN, UPI, PayPal — müşteri ödeme bilgileri</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" data-mgmt onclick="optOpen('quickps')"><div class="settings-icon" style="background:#FEF3C7">🏷️</div><div class="settings-text"><div class="settings-title">Hızlı Fiyat ve Stok Gir</div><div class="settings-sub">Fiyatı ya da stoğu eksik ürünleri tek ekranda tamamla</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" data-owner onclick="optOpen('stores')"><div class="settings-icon" style="background:#E0E7FF">🏢</div><div class="settings-text"><div class="settings-title">Mağazalarım</div><div class="settings-sub"><span id="opt-stores-sub">Mağazalar arasında geç, yeni mağaza aç</span></div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" data-owner onclick="optOpen('reco')"><div class="settings-icon" style="background:#FCE7F3">🎁</div><div class="settings-text"><div class="settings-title">Davet Kampanyası</div><div class="settings-sub">Davet et, ücretsiz kullanım kazan</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row"  onclick="optOpen('chat')"><div class="settings-icon" style="background:#DBEAFE">💬</div><div class="settings-text"><div class="settings-title">Personel Sohbeti</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" data-mgmt onclick="optOpen('veresiye')"><div class="settings-icon" style="background:#FEE2E2">📋</div><div class="settings-text"><div class="settings-title">Veresiye</div><div class="settings-sub">Müşteri borçları ve tahsilat</div></div><div class="settings-arrow">›</div></div>
+            <div class="settings-row" data-fin onclick="optOpen('zreport')"><div class="settings-icon" style="background:#E0F2FE">🧾</div><div class="settings-text"><div class="settings-title">Z Raporu</div><div class="settings-sub">Gün sonu raporu</div></div><div class="settings-arrow">›</div></div>
           </div>
-          <div class="settings-group">
-            <div class="settings-group-title">iOS Uygulaması</div>
-            <div class="settings-row" onclick="showToast('App Store\'dan indir')"><div class="settings-icon" style="background:#F3F4F6">📱</div><div class="settings-text"><div class="settings-title">Pruva Business iOS</div><div class="settings-sub">Barkod tarama, AR depo, tedarikçi bağlantısı</div></div><div class="settings-arrow">›</div></div>
+          <div class="opt-owner" data-mgmt onclick="optOpen('owner')">
+            <div class="opt-owner-ic">👑</div>
+            <div style="flex:1"><div class="opt-owner-t">Yönetici Modu</div><div class="opt-owner-s">Mağaza, personel, raporlar, tedarik</div></div>
+            <div class="settings-arrow" style="color:#fff">›</div>
           </div>
-          <div class="settings-group">
-            <div class="settings-group-title">Oturum</div>
-            <div class="settings-row" onclick="doLogout()"><div class="settings-icon" style="background:#FEE2E2">🚪</div><div class="settings-text"><div class="settings-title" style="color:var(--red)">Çıkış Yap</div></div></div>
+          <div class="settings-group opt-folders">
+            <div data-mgmt><details class="opt-folder" id="fold-tools"><summary class="settings-row"><div class="settings-icon" style="background:#E5E7EB">🧰</div><div class="settings-text"><div class="settings-title">Araçlar</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row"  onclick="openImportExportModal()"><div class="settings-icon" style="background:#D1FAE5">⬇️</div><div class="settings-text"><div class="settings-title">Excel İçe Aktar</div><div class="settings-sub">CSV / XLSX</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="ieExportCSV()"><div class="settings-icon" style="background:#DBEAFE">⬆️</div><div class="settings-text"><div class="settings-title">Excel Dışa Aktar</div><div class="settings-sub">Tüm ürünler CSV</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="openBarcodeModal()"><div class="settings-icon" style="background:#EDE9FE">▦</div><div class="settings-text"><div class="settings-title">Barkod Oluşturucu</div></div><div class="settings-arrow">›</div></div></div></details></div>
+            <details class="opt-folder" id="fold-settings"><summary class="settings-row"><div class="settings-icon" style="background:#E5E7EB">⚙️</div><div class="settings-text"><div class="settings-title">Ayarlar</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row" data-mgmt onclick="optOpen('currency')"><div class="settings-icon" style="background:#D1FAE5">💱</div><div class="settings-text"><div class="settings-title">Para Birimi</div><div class="settings-sub"><span id="opt-cur-sub">—</span></div></div><div class="settings-arrow">›</div></div><div class="settings-row" data-mgmt onclick="optOpen('tax')"><div class="settings-icon" style="background:#CFFAFE">％</div><div class="settings-text"><div class="settings-title">Vergi Oranı</div><div class="settings-sub">Varsayılan KDV oranı</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="optOpen('help')"><div class="settings-icon" style="background:#FEF3C7">🛟</div><div class="settings-text"><div class="settings-title">Yardım &amp; Destek</div></div><div class="settings-arrow">›</div></div></div></details>
+            <details class="opt-folder" id="fold-about"><summary class="settings-row"><div class="settings-icon" style="background:#E5E7EB">ℹ️</div><div class="settings-text"><div class="settings-title">Hakkında</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row"  onclick="window.open('https://pruvabusiness.com/privacy','_blank')"><div class="settings-icon" style="background:#E0E7FF">🔒</div><div class="settings-text"><div class="settings-title">Gizlilik (KVKK)</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="window.open('https://pruvabusiness.com/terms','_blank')"><div class="settings-icon" style="background:#E0E7FF">📜</div><div class="settings-text"><div class="settings-title">Kullanım Koşulları</div></div><div class="settings-arrow">›</div></div><div class="settings-row" style="cursor:default"><div class="settings-icon" style="background:#F3F4F6">📱</div><div class="settings-text"><div class="settings-title">Sürüm</div></div><div class="settings-sub">Web 1.0</div></div><div class="settings-row" style="cursor:default"><div class="settings-icon" style="background:#F3F4F6">🔨</div><div class="settings-text"><div class="settings-title">Geliştirici</div></div><div class="settings-sub">Pruva</div></div></div></details>
+            <details class="opt-folder" id="fold-account"><summary class="settings-row"><div class="settings-icon" style="background:#E5E7EB">👤</div><div class="settings-text"><div class="settings-title">Hesap &amp; Güvenlik</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row" onclick="doLogout()"><div class="settings-icon" style="background:#FEE2E2">🚪</div><div class="settings-text"><div class="settings-title" style="color:var(--red)">Çıkış Yap</div></div></div></div></details>
           </div>
         </div>
       </div>
+
+      <!-- ── Yönetici Modu (uygulamadaki OwnerModeView kategorileri) ── -->
+      <div class="tab-panel" id="tab-owner"><div class="opt-wrap">
+        <div class="settings-group"><div class="settings-group-title">Mağaza</div>
+          <div class="settings-row"  onclick="openStoreModal()"><div class="settings-icon" style="background:#EDE9FE">🏪</div><div class="settings-text"><div class="settings-title">Mağaza Profili</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('staff','owner')"><div class="settings-icon" style="background:#DBEAFE">👥</div><div class="settings-text"><div class="settings-title">Personel</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('currency','owner')"><div class="settings-icon" style="background:#D1FAE5">💱</div><div class="settings-text"><div class="settings-title">Para Birimi</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('tax','owner')"><div class="settings-icon" style="background:#CFFAFE">％</div><div class="settings-text"><div class="settings-title">Vergi Oranı</div></div><div class="settings-arrow">›</div></div>
+        </div>
+        <div class="settings-group"><div class="settings-group-title">Tedarik &amp; Stok</div>
+          <div class="settings-row"  onclick="optOpen('supplier','owner')"><div class="settings-icon" style="background:#FEF3C7">🚚</div><div class="settings-text"><div class="settings-title">Tedarikçiler</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('invoices','owner')"><div class="settings-icon" style="background:#DBEAFE">📄</div><div class="settings-text"><div class="settings-title">Fatura Arşivi</div></div><div class="settings-arrow">›</div></div>
+        </div>
+        <div class="settings-group"><div class="settings-group-title">Raporlar</div>
+          <div class="settings-row" data-fin onclick="optOpen('reports','owner')"><div class="settings-icon" style="background:#FCE7F3">📊</div><div class="settings-text"><div class="settings-title">Satış Geçmişi</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('refund','owner')"><div class="settings-icon" style="background:#DBEAFE">↩️</div><div class="settings-text"><div class="settings-title">Fiş Kayıtları ve İade</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('loss','owner')"><div class="settings-icon" style="background:#FEE2E2">📉</div><div class="settings-text"><div class="settings-title">Fire &amp; Kayıp</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="optOpen('forecast','owner')"><div class="settings-icon" style="background:#D1FAE5">📈</div><div class="settings-text"><div class="settings-title">Stok Tahmini</div></div><div class="settings-arrow">›</div></div>
+        </div>
+      </div></div>
+
+      <!-- ── Hızlı Fiyat ve Stok Gir ── -->
+      <div class="tab-panel" id="tab-quickps"><div class="opt-wrap">
+        <div class="qps-head">
+          <div class="qps-seg"><button id="qps-seg-missing" class="on" onclick="qpsScope(false)">Eksikler</button><button id="qps-seg-all" onclick="qpsScope(true)">Tümü</button></div>
+          <input class="qps-search" id="qps-search" placeholder="Ürün ara…" oninput="qpsRender()">
+        </div>
+        <div class="qps-summary" id="qps-summary"></div>
+        <div class="settings-group" id="qps-list"></div>
+      </div></div>
+
+      <!-- ── Mağazalarım ── -->
+      <div class="tab-panel" id="tab-stores"><div class="opt-wrap">
+        <div class="settings-group" id="stores-list"><div class="settings-row">Yükleniyor…</div></div>
+        <div class="settings-group"><div class="settings-row"  onclick="optNewStore()"><div class="settings-icon" style="background:#D1FAE5">➕</div><div class="settings-text"><div class="settings-title">Yeni Mağaza</div><div class="settings-sub">Aynı hesapla başka bir mağaza aç</div></div><div class="settings-arrow">›</div></div></div>
+      </div></div>
+
+      <!-- ── Davet Kampanyası ── -->
+      <div class="tab-panel" id="tab-reco"><div class="opt-wrap">
+        <div class="reco-card"><div class="reco-l">Davet kodun</div><div class="reco-code" id="reco-code">—</div>
+          <div class="reco-actions"><button onclick="recoCopy()">Linki Kopyala</button></div>
+          <div class="reco-note">Davet ettiğin mağaza ilk 14 gününün en az 3 farklı gününde satış yaparsa davet sayılır.</div></div>
+        <div class="reco-stats"><div><b id="reco-q">0</b><span>Sayılan davet</span></div><div><b id="reco-p">0</b><span>Bekleyen</span></div></div>
+      </div></div>
+
+      <!-- ── Para Birimi ── -->
+      <div class="tab-panel" id="tab-currency"><div class="opt-wrap">
+        <div class="opt-hint">Kasa, raporlar ve fişlerde bu birim kullanılır. Mağazanın tüm cihazlarında geçerli olur.</div>
+        <div class="ob-cur opt-cur" id="cur-grid"></div>
+      </div></div>
+
+      <!-- ── Vergi Oranı ── -->
+      <div class="tab-panel" id="tab-tax"><div class="opt-wrap">
+        <div class="settings-group" style="padding:16px">
+          <div class="settings-title" style="margin-bottom:8px">Varsayılan KDV oranı (%)</div>
+          <input class="qps-search" id="tax-rate" inputmode="decimal" placeholder="20" style="max-width:160px">
+          <div class="opt-hint" style="margin:10px 0">Yeni eklenen her ürün bu oranı alır. Kategoriye özel istisnalar uygulamadaki Vergi Oranı ekranından eklenir ve burada korunur.</div>
+          <button class="btn-primary" onclick="taxSave()">Kaydet</button>
+        </div>
+      </div></div>
+
+      <!-- ── Yardım & Destek ── -->
+      <div class="tab-panel" id="tab-help"><div class="opt-wrap">
+        <div class="settings-group">
+          <div class="settings-row"  onclick="window.open('https://pruvabusiness.com/support','_blank')"><div class="settings-icon" style="background:#DBEAFE">📘</div><div class="settings-text"><div class="settings-title">Destek sayfası</div><div class="settings-sub">Sık sorulan sorular ve rehberler</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="location.href='mailto:pruvadevelopper@gmail.com'"><div class="settings-icon" style="background:#FEF3C7">✉️</div><div class="settings-text"><div class="settings-title">E-posta ile yaz</div><div class="settings-sub">pruvadevelopper@gmail.com</div></div><div class="settings-arrow">›</div></div>
+          <div class="settings-row"  onclick="openAIDroplet()"><div class="settings-icon" style="background:#EDE9FE">✨</div><div class="settings-text"><div class="settings-title">Pruva AI’a sor</div></div><div class="settings-arrow">›</div></div>
+        </div>
+      </div></div>
 
     </div>
   </div>
@@ -1453,11 +1510,10 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
 
 <!-- Mobile tab bar -->
 <div class="mobile-tab-bar" id="mobile-tab-bar">
+  <div class="mobile-tab-item" id="mob-settings" onclick="switchTab('settings')"><div class="mobile-tab-icon">☰</div><div class="mobile-tab-label">Seçenekler</div></div>
   <div class="mobile-tab-item active" id="mob-home" onclick="switchTab('home')"><div class="mobile-tab-icon">🏠</div><div class="mobile-tab-label">Ana Sayfa</div></div>
-  <div class="mobile-tab-item" id="mob-sales" onclick="switchTab('sales')"><div class="mobile-tab-icon">▦</div><div class="mobile-tab-label">Satış</div></div>
+  <div class="mobile-tab-item" id="mob-sales" onclick="switchTab('sales')"><div class="mobile-tab-icon">🛒</div><div class="mobile-tab-label">Satış</div></div>
   <div class="mobile-tab-item" id="mob-inv" onclick="switchTab('inv')"><div class="mobile-tab-icon">📦</div><div class="mobile-tab-label">Ürünlerim</div></div>
-  <div class="mobile-tab-item" id="mob-reports" onclick="switchTab('reports')"><div class="mobile-tab-icon">📊</div><div class="mobile-tab-label">Raporlar</div></div>
-  <div class="mobile-tab-item" id="mob-settings" onclick="switchTab('settings')"><div class="mobile-tab-icon">⚙️</div><div class="mobile-tab-label">Seçenekler</div></div>
 </div>
 
 <!-- Checkout Modal -->
@@ -1886,6 +1942,48 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
 .ob-err{color:#FCA5A5;font-size:13px;text-align:center;min-height:18px;margin-top:10px}
 .ob-back.hidden{display:none}
 .ob-back{position:absolute;top:18px;left:18px;background:rgba(255,255,255,.1);border:0;color:#fff;border-radius:99px;padding:8px 14px;font:inherit;cursor:pointer}
+
+/* ── Seçenekler (uygulamadaki MenuPageView) ── */
+.opt-wrap{max-width:720px;margin:0 auto;padding:4px 0 40px}
+.opt-account{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card,#fff);border:1px solid var(--border);border-radius:18px;margin-bottom:12px;cursor:pointer}
+.opt-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#1E3A8A,#4C6FE0);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+.opt-acc-name{font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opt-acc-sub{font-size:13px;color:var(--muted)}
+.opt-ai{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:18px;margin-bottom:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#312E81,#6D28D9 60%,#A855F7)}
+.opt-ai-drop{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#C4B5FD 35%,#7C3AED 80%);box-shadow:0 0 18px rgba(196,181,253,.8)}
+.opt-ai-t{font-weight:800;font-size:16px}.opt-ai-s{font-size:13px;opacity:.8}
+.opt-owner{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;margin:12px 0;cursor:pointer;color:#fff;background:linear-gradient(135deg,#0E1B4A,#1E3A8A 55%,#2B4CC9)}
+.opt-owner-ic{width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:22px}
+.opt-owner-t{font-weight:800;font-size:17px}.opt-owner-s{font-size:13px;opacity:.75}
+.opt-folder>summary{list-style:none}.opt-folder>summary::-webkit-details-marker{display:none}
+.opt-folder[open] .opt-chev{transform:rotate(90deg)}.opt-chev{transition:transform .2s}
+.opt-folder-body{background:var(--bg);padding-left:14px}
+.opt-folders>div:first-child .opt-folder>summary,.opt-folders>.opt-folder:first-child>summary{border-top:0}
+.opt-hint{font-size:13px;color:var(--muted);margin:4px 2px 14px;line-height:1.45}
+.topbar-back{border:0;background:var(--bg);color:var(--primary,#2B4CC9);font:inherit;font-weight:700;font-size:14px;padding:7px 12px;border-radius:99px;cursor:pointer}
+.topbar-back.hidden{display:none}
+.qps-head{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.qps-seg{display:flex;background:var(--bg);border-radius:12px;padding:3px}
+.qps-seg button{border:0;background:none;padding:8px 14px;border-radius:9px;font:inherit;font-weight:700;cursor:pointer;color:var(--muted)}
+.qps-seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.qps-search{flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:15px;box-sizing:border-box}
+.qps-summary{font-size:13px;color:var(--muted);margin:0 2px 10px}
+.qps-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--border)}
+.qps-row:first-child{border-top:0}.qps-name{flex:1;min-width:0}.qps-name b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qps-name span{font-size:12px;color:var(--muted)}
+.qps-row input{width:92px;padding:8px;border:1px solid var(--border);border-radius:10px;font:inherit;text-align:right}
+.qps-row input.miss{border-color:#F59E0B;background:#FFFBEB}
+.qps-row button{min-width:66px;flex-shrink:0;border:0;background:#1E3A8A;color:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-weight:700;cursor:pointer}
+.qps-row button:disabled{opacity:.35;cursor:default}
+.store-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--border);cursor:pointer}.store-row:first-child{border-top:0}
+.store-row .on{margin-left:auto;font-size:12px;font-weight:700;color:#059669;background:#D1FAE5;padding:3px 9px;border-radius:99px}
+.reco-card{background:linear-gradient(135deg,#831843,#DB2777);color:#fff;border-radius:18px;padding:22px;text-align:center}
+.reco-l{opacity:.8;font-size:13px}.reco-code{font-size:30px;font-weight:800;letter-spacing:2px;margin:6px 0 14px}
+.reco-actions button{border:0;background:#fff;color:#831843;border-radius:12px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer}
+.reco-note{font-size:12px;opacity:.8;margin-top:14px}
+.reco-stats{display:flex;gap:12px;margin-top:12px}.reco-stats div{flex:1;background:var(--card,#fff);border:1px solid var(--border);border-radius:16px;padding:14px;text-align:center}
+.reco-stats b{display:block;font-size:24px}.reco-stats span{font-size:12px;color:var(--muted)}
+.opt-cur{max-height:none}.opt-cur button{background:var(--card,#fff);color:var(--text);border:1px solid var(--border)}
+.opt-cur button.on{background:#1E3A8A;color:#fff}
+[data-hide="1"]{display:none!important}
 </style>
 <div id="onboard" class="hidden"><button class="ob-back hidden" id="ob-back" onclick="obBack()">‹ Geri</button><div class="ob-card" id="ob-body"></div></div>
 <script type="module">
@@ -1942,8 +2040,9 @@ let dailySummaries=[], monthlySummaries=[], recentTransactions=[];
 let pendingRefundTx=null;
 let verCustomers=[], currentVerCustomer=null, verEntrySign=1, editingProductId=null;
 
-const fc  = v=>'₺'+v.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fcs = v=>v>=1e6?'₺'+(v/1e6).toFixed(1)+'M':v>=1e3?'₺'+(v/1e3).toFixed(1)+'K':'₺'+Math.round(v);
+let CUR='₺';
+const fc  = v=>CUR+v.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fcs = v=>v>=1e6?CUR+(v/1e6).toFixed(1)+'M':v>=1e3?CUR+(v/1e3).toFixed(1)+'K':CUR+Math.round(v);
 const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 // Yerel önizleme (yalnızca localhost + ?preview=1): girişsiz, örnek veriyle arayüzü gösterir.
@@ -2119,6 +2218,10 @@ async function initApp(user){
         const cat={market:'Market',grocery:'Market',minimarket:'Market',bakkal:'Bakkal',manav:'Manav',kasap:'Kasap',pharmacy:'Eczane',electronics:'Elektronik',clothing:'Giyim',cosmetics:'Kozmetik',bookstore:'Kırtasiye',petShop:'Pet Shop',restaurant:'Restoran',cafe:'Kafe',bar:'Bar',bakery:'Fırın'};
         document.getElementById('hx-category').textContent=cat[d.category]||'Mağaza';
         window.__ownerName=d.ownerFirstName||'';
+        window.__storeDoc=d;
+        if(d.currencyCode){ const c=OB_CURRENCIES.find(x=>x[0]===d.currencyCode); if(c) CUR=c[1]+(c[1].length>1?' ':''); }
+        document.getElementById('opt-cur-sub').textContent=d.currencyCode||'TRY';
+        optApplyRole(d.ownerFirebaseUid===user.uid);
       }
     }catch{}
   }catch{storeId=user.uid;}
@@ -3930,15 +4033,121 @@ window.closeAISheet=()=>{
   setTimeout(()=>document.getElementById('ai-droplet')?.classList.remove('hidden'), 260);
 };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAISheet(); });
-window.switchTab=tab=>{
+
+/* ── Hızlı Fiyat ve Stok Gir (uygulamadaki QuickPriceStockSheet'in web karşılığı) ──
+   ⚠️ Boş bırakılan alan YAZILMAZ: fiyatta 0 "bedava", stokta 0 "tükendi" demektir. */
+let qpsAll=false;
+const qpsMissing=p=>(p.isPriced===false||!(p.salePrice>0))||p.isStockSet===false;
+window.qpsScope=all=>{qpsAll=all;document.getElementById('qps-seg-all').classList.toggle('on',all);document.getElementById('qps-seg-missing').classList.toggle('on',!all);qpsRender();};
+window.qpsRender=()=>{
+  const q=(document.getElementById('qps-search')?.value||'').trim();
+  let list=[...allProducts].sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  const miss=list.filter(qpsMissing);
+  const noPrice=miss.filter(p=>p.isPriced===false||!(p.salePrice>0)).length, noStock=miss.filter(p=>p.isStockSet===false).length;
+  document.getElementById('qps-summary').textContent=`${miss.length} ürün eksik · ${noPrice} fiyat · ${noStock} stok`;
+  if(!qpsAll) list=miss;
+  if(q) list=smartFilter(list,q);
+  const el=document.getElementById('qps-list');
+  if(!list.length){el.innerHTML=`<div class="settings-row" style="cursor:default;justify-content:center;color:var(--muted)">${qpsAll?'Ürün yok':'Fiyatı ya da stoğu eksik ürün yok ✓'}</div>`;return;}
+  el.innerHTML=`<div class="qps-row" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase"><div class="qps-name">Ürün</div><div style="width:92px;text-align:right">Fiyat (${esc(CUR.trim())})</div><div style="width:92px;text-align:right">Stok</div><div style="width:66px"></div></div>`+list.slice(0,300).map(p=>{const np=p.isPriced===false||!(p.salePrice>0), ns=p.isStockSet===false;
+    return `<div class="qps-row" data-id="${esc(p.id)}"><div class="qps-name"><b>${esc(p.name||p.id)}</b><span>${esc(p.id)}</span></div>
+      <input class="${np?'miss':''}" inputmode="decimal" placeholder="Fiyat" value="${np?'':String(p.salePrice).replace('.',',')}" oninput="qpsDirty(this)">
+      <input class="${ns?'miss':''}" inputmode="numeric" placeholder="Stok" value="${ns?'':(p.stockQuantity??0)}" oninput="qpsDirty(this)">
+      <button disabled onclick="qpsSave(this)">Kaydet</button></div>`;}).join('');
+};
+window.qpsDirty=inp=>{inp.closest('.qps-row').querySelector('button').disabled=false;};
+const qpsNum=t=>{t=String(t||'').trim();if(!t)return null;t=t.replace(/\s/g,'');const c=t.lastIndexOf(','),d=t.lastIndexOf('.');
+  if(c>-1&&d>-1)t=c>d?t.replace(/\./g,'').replace(',','.'):t.replace(/,/g,'');else if((t.match(/[.,]/g)||[]).length>1)t=t.replace(/[.,]/g,'');else t=t.replace(',','.');
+  const v=Number(t);return isFinite(v)?v:NaN;};
+window.qpsSave=async btn=>{
+  const row=btn.closest('.qps-row'), id=row.dataset.id, [pi,si]=row.querySelectorAll('input');
+  const price=qpsNum(pi.value), stock=qpsNum(si.value); const upd={};
+  if(price!==null){ if(!(price>0)){showToast('Fiyat 0’dan büyük olmalı');return;} upd.salePrice=price; upd.isPriced=true; }
+  if(stock!==null){ if(!(stock>=0)||!Number.isInteger(stock)){showToast('Stok tam sayı olmalı');return;} upd.stockQuantity=stock; upd.isStockSet=true; }
+  if(!Object.keys(upd).length) return;
+  btn.disabled=true;
+  try{ await updateDoc(doc(db,'stores',storeId,'products',id),{...upd,updatedAt:serverTimestamp()});
+    const p=allProducts.find(x=>x.id===id); if(p) Object.assign(p,upd);
+    showToast('✓ Kaydedildi'); qpsRender(); applyInvFilters();
+  }catch(e){console.error('[QPS]',e);btn.disabled=false;showToast('Kaydedilemedi');}
+};
+
+/* ── Mağazalarım ── */
+async function storesLoad(){
+  const el=document.getElementById('stores-list'); const u=auth.currentUser; if(!u)return;
+  try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',u.uid),limit(20)));
+    const cat={market:'Market',grocery:'Market',minimarket:'Market',bakkal:'Bakkal',manav:'Manav',kasap:'Kasap',pharmacy:'Eczane',electronics:'Elektronik',clothing:'Giyim',cosmetics:'Kozmetik',bookstore:'Kırtasiye',petShop:'Pet Shop',restaurant:'Restoran',cafe:'Kafe',bar:'Bar',bakery:'Fırın'};
+    el.innerHTML=q.docs.map(d=>{const x=d.data();return `<div class="store-row" onclick="storesSwitch('${d.id}')"><div class="settings-icon" style="background:#E0E7FF">🏪</div><div><div class="settings-title">${esc(x.storeName||x.name||'Mağazam')}</div><div class="settings-sub">${esc(cat[x.category]||'Mağaza')}${x.city?' · '+esc(x.city):''}${x.code?' · '+esc(x.code):''}</div></div>${d.id===storeId?'<span class="on">Aktif</span>':''}</div>`;}).join('')||'<div class="settings-row">Mağaza bulunamadı</div>';
+  }catch(e){console.error('[Stores]',e);el.innerHTML='<div class="settings-row">Mağazalar yüklenemedi</div>';}
+}
+window.storesSwitch=async id=>{ if(id===storeId)return;
+  try{ await setDoc(doc(db,'users',auth.currentUser.uid),{storeId:id},{merge:true}); location.reload(); }catch(e){showToast('Mağaza değiştirilemedi');} };
+window.optNewStore=()=>{ Object.assign(ob,{step:'role',user:auth.currentUser,busy:false,first:'',name:'',note:'',invite:'',currency:null});
+  document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');
+  document.getElementById('onboard').classList.remove('hidden'); obRender(); };
+
+/* ── Davet Kampanyası (uygulamadaki RecoManager ile aynı kod biçimi) ── */
+async function recoLoad(){
+  const u=auth.currentUser; if(!u)return; const ref=doc(db,'users',u.uid);
+  try{ const sn=await getDoc(ref); let code=sn.exists()?sn.data().recoCode:null;
+    if(!code){ const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; code=u.uid.slice(0,5).toUpperCase()+'-'+Array.from({length:4},()=>cs[Math.floor(Math.random()*cs.length)]).join('');
+      await setDoc(ref,{recoCode:code},{merge:true}); }
+    document.getElementById('reco-code').textContent=code; window.__reco=code;
+  }catch(e){console.error('[Reco]',e);document.getElementById('reco-code').textContent='Yüklenemedi';}
+  try{ const w=await getDoc(doc(db,'couponWallets',u.uid)); if(w.exists()){document.getElementById('reco-q').textContent=w.data().qualifiedReferrals||0;document.getElementById('reco-p').textContent=w.data().pendingReferrals||0;} }catch{}
+}
+window.recoCopy=()=>{ if(!window.__reco)return; navigator.clipboard.writeText('https://app.pruvabusiness.com/r/'+window.__reco).then(()=>showToast('✓ Davet linki kopyalandı')); };
+
+/* ── Para Birimi (mağaza belgesine; uygulama bunu otoriter sayar) ── */
+function curRender(){ const cur=window.__storeDoc?.currencyCode||'TRY';
+  document.getElementById('cur-grid').innerHTML=OB_CURRENCIES.map(([c,sym])=>`<button class="${c===cur?'on':''}" onclick="curSet('${c}')"><b>${sym}</b><span>${c}</span></button>`).join(''); }
+window.curSet=async c=>{ try{ await setDoc(doc(db,'stores',storeId),{currencyCode:c,currencyManual:true},{merge:true});
+    window.__storeDoc={...(window.__storeDoc||{}),currencyCode:c}; const x=OB_CURRENCIES.find(y=>y[0]===c); CUR=x[1]+(x[1].length>1?' ':'');
+    document.getElementById('opt-cur-sub').textContent=c; curRender(); renderHomeStats?.(); applyInvFilters(); renderCart?.(); showToast('✓ Para birimi: '+c);
+  }catch(e){console.error('[Cur]',e);showToast('Kaydedilemedi');} };
+
+/* ── Vergi Oranı (stores/{id}/settings/tax — uygulamanın okuduğu belge; ölçek 0..1) ──
+   ⚠️ İstisnalar (exceptions) KORUNUR: yalnızca defaultRate değişir. */
+let taxDoc=null;
+async function taxLoad(){ try{ const sn=await getDoc(doc(db,'stores',storeId,'settings','tax')); taxDoc=sn.exists()?sn.data():{};
+  document.getElementById('tax-rate').value=taxDoc.defaultRate!=null?String(Math.round(taxDoc.defaultRate*10000)/100).replace('.',','):''; }catch(e){console.error('[Tax]',e);} }
+window.taxSave=async()=>{ const v=qpsNum(document.getElementById('tax-rate').value);
+  if(v===null||isNaN(v)||v<0||v>100){showToast('0 ile 100 arasında bir oran girin');return;}
+  try{ await setDoc(doc(db,'stores',storeId,'settings','tax'),{defaultRate:v/100,exceptions:(taxDoc&&taxDoc.exceptions)||{}}); showToast('✓ Vergi oranı kaydedildi'); }
+  catch(e){console.error('[Tax]',e);showToast('Kaydedilemedi (yetki gerekli)');} };
+
+/* ── Seçenekler iç içe sayfalar ── Ana sekmeler: settings/home/sales/inv.
+   Diğer her ekran bir üst sayfanın (Seçenekler ya da Yönetici Modu) İÇİNDE
+   açılır: sol menüde Seçenekler seçili kalır, üstte "‹ geri" görünür. */
+const MAIN_TABS=['settings','home','sales','inv'];
+let optStack=[];
+const OPT_TITLES={owner:'Yönetici Modu',quickps:'Hızlı Fiyat ve Stok Gir',stores:'Mağazalarım',reco:'Davet Kampanyası',currency:'Para Birimi',tax:'Vergi Oranı',help:'Yardım & Destek'};
+window.optOpen=(tab,parent)=>{ optStack.push(parent||(MAIN_TABS.includes(currentTab)?currentTab:(optStack[optStack.length-1]||'settings'))); switchTab(tab,true); };
+window.optBack=()=>{ const t=optStack.pop()||'settings'; switchTab(t,true); if(MAIN_TABS.includes(t)) optStack=[]; };
+function optApplyRole(isOwner){ window.__isOwner=isOwner;
+  document.querySelectorAll('[data-owner]').forEach(e=>e.dataset.hide=isOwner?'0':'1'); }
+let currentTab='home';
+window.switchTab=(tab,fromOpt)=>{
   if(tab==='ai'){ openAIDroplet(); return; }   // eski bağlantılar için
+  if(!fromOpt) optStack=[];
+  currentTab=tab;
+  const sub=!MAIN_TABS.includes(tab);
+  const back=document.getElementById('topbar-back');
+  if(back){ back.classList.toggle('hidden',!sub); const pt=optStack[optStack.length-1]||'settings';
+    document.getElementById('topbar-back-label').textContent=OPT_TITLES[pt]||tabTitles[pt]||'Seçenekler'; }
+  if(tab==='quickps') qpsRender();
+  if(tab==='stores') storesLoad();
+  if(tab==='reco') recoLoad();
+  if(tab==='currency') curRender();
+  if(tab==='tax') taxLoad();
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const nav=document.getElementById('nav-'+tab);if(nav)nav.classList.add('active');
+  const nav=document.getElementById('nav-'+(MAIN_TABS.includes(tab)?tab:'settings'));if(nav)nav.classList.add('active');
   document.querySelectorAll('.mobile-tab-item').forEach(n=>n.classList.remove('active'));
-  const mob=document.getElementById('mob-'+tab);if(mob)mob.classList.add('active');
-  document.getElementById('topbar-title').textContent=tabTitles[tab]||tab;
+  const mob=document.getElementById('mob-'+(MAIN_TABS.includes(tab)?tab:'settings'));if(mob)mob.classList.add('active');
+  document.getElementById('topbar-title').textContent=OPT_TITLES[tab]||tabTitles[tab]||tab;
+  document.querySelector('.main-content, .content')?.scrollTo?.(0,0);
   document.querySelector('.main-area')?.classList.toggle('app-screen',['home','sales','inv'].includes(tab));
   window.__dropBottom = tab==='sales' ? 150 : 28;   // Satış: barkod çubuğu + Tamamla butonunun üstü
   window.__dropRestingSpot && window.__dropRestingSpot();
