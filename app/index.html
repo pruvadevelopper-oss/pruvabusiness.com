@@ -569,6 +569,7 @@ body {
 #ai-drop-hit { position:fixed; border-radius:50%; pointer-events:none; touch-action:none; cursor:grab; }
 #ai-drop-hit.live { pointer-events:auto; }
 #ai-drop-hit:active { cursor:grabbing; }
+body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-user-select:none !important; cursor:grabbing !important; }
 
 /* Damla morph → panel: iOS'taki "damla büyüyerek buzlu cam sheet'e dönüşür" hissi.
    Gerçek panelle AYNI arka plan/renkleri kullanır ki geçiş bittiğinde sökülünce fark edilmesin. */
@@ -638,6 +639,168 @@ body {
 .mobile-tab-label { font-size:10px; font-weight:600; color:var(--muted); }
 .mobile-tab-item.active .mobile-tab-icon { filter:none; }
 .mobile-tab-item.active .mobile-tab-label { color:var(--purple); }
+
+/* ── Pruva AI kartı (damladan açılır) ─────────────────────────────── */
+.ai-sheet-backdrop { position:fixed; inset:0; background:rgba(8,12,30,0.28); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:9600; }
+.ai-sheet-backdrop.show { opacity:1; pointer-events:auto; }
+#tab-ai.ai-sheet {
+  position:fixed; right:24px; bottom:24px; width:min(440px, calc(100vw - 48px)); height:min(640px, calc(100dvh - 48px));
+  display:flex; flex-direction:column; border-radius:28px; overflow:hidden; z-index:9700; color:#f1ecff;
+  box-shadow:0 24px 70px rgba(10,10,40,0.45), 0 0 0 1px rgba(168,130,255,0.18);
+  visibility:hidden; opacity:0; transform:translateY(24px) scale(.96); transform-origin:bottom right;
+  transition:opacity .22s ease, transform .34s cubic-bezier(.25,.85,.3,1.12), visibility 0s linear .34s;
+}
+#tab-ai.ai-sheet.show { visibility:visible; opacity:1; transform:none; transition:opacity .22s ease, transform .34s cubic-bezier(.25,.85,.3,1.12), visibility 0s; }
+.ai-sheet-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px 10px; position:relative; z-index:1; }
+.ai-sheet-title { display:flex; align-items:center; gap:9px; font-size:17px; font-weight:700; letter-spacing:-.2px; }
+.ai-sheet-dot { width:14px; height:14px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff 0 12%, #c9b2ff 30%, #7c3aed 70%); box-shadow:0 0 12px rgba(168,130,255,.8); }
+.ai-sheet-close { width:30px; height:30px; border-radius:50%; border:none; background:rgba(255,255,255,0.10); color:#e3d9ff; font-size:13px; cursor:pointer; }
+.ai-sheet-close:hover { background:rgba(255,255,255,0.18); }
+#tab-ai .chat-messages { flex:1; overflow-y:auto; }
+#tab-ai .btn-confirm { background:linear-gradient(135deg,#7C3AED,#5B21B6); box-shadow:0 6px 16px rgba(124,58,237,.35); }
+@media (max-width: 768px) {
+  #tab-ai.ai-sheet { left:0; right:0; bottom:0; width:100vw; height:86dvh; border-radius:26px 26px 0 0; transform-origin:bottom center; }
+}
+
+/* ── Uygulama ekranları (Ana Sayfa / Satış / Ürünlerim) — Mac/iPhone düzeni ── */
+.main-area.app-screen .topbar { display:none; }
+#tab-home, #tab-sales, #tab-inv { padding:0; }
+.hx-head { background:linear-gradient(90deg,#1E3A8A,#2B4CC9 55%,#3B6BE6); color:#fff; padding:18px 26px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; }
+.hx-head-left { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:700; letter-spacing:-.2px; }
+.hx-head-icon { width:32px; height:32px; border-radius:10px; background:rgba(255,255,255,.16); display:grid; place-items:center; font-size:15px; }
+.hx-body { padding:18px 26px 40px; max-width:1400px; }
+.hx-hero { background:linear-gradient(135deg,#131D4A,#1B2A66 60%,#0F1840); border-radius:24px; padding:22px 24px 18px; color:#fff; box-shadow:0 12px 32px rgba(14,24,56,.28); }
+.hx-hero-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.hx-store { font-size:22px; font-weight:800; letter-spacing:-.3px; }
+.hx-welcome { font-size:12px; opacity:.6; margin-top:2px; }
+.hx-owner { font-size:19px; font-weight:700; margin-top:1px; }
+.hx-hero-icon { width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.1); display:grid; place-items:center; cursor:pointer; }
+.hx-today-label { font-size:11px; font-weight:700; letter-spacing:1.2px; opacity:.55; margin-top:16px; }
+.hx-today-row { display:flex; align-items:center; justify-content:space-between; }
+.hx-revenue { font-size:38px; font-weight:800; letter-spacing:-.8px; margin-top:2px; }
+.hx-trend { font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px; }
+.hx-trend.up { background:rgba(16,185,129,.18); color:#34D399; }
+.hx-trend.down { background:rgba(239,68,68,.18); color:#F87171; }
+.hx-date { font-size:12px; opacity:.5; margin-top:2px; }
+.hx-minis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+.hx-mini { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:10px 12px; }
+.hx-mini-ic { font-size:11px; opacity:.6; }
+.hx-mini-val { font-size:17px; font-weight:800; margin-top:2px; }
+.hx-mini-lbl { font-size:11px; opacity:.55; }
+.hx-alert { display:flex; align-items:center; gap:12px; background:#FEF6E4; border:1px solid #F8E3B5; border-radius:16px; padding:12px 16px; margin-top:14px; cursor:pointer; }
+.hx-alert-ic { width:30px; height:30px; border-radius:50%; background:#FDE7B0; display:grid; place-items:center; font-size:13px; }
+.hx-alert-txt { flex:1; min-width:0; }
+.hx-alert-title { font-size:14px; font-weight:700; color:#7C4A03; }
+.hx-alert-sub { font-size:12px; color:#A16207; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hx-alert-cta { font-size:12px; font-weight:700; color:#92400E; white-space:nowrap; }
+.hx-section-label { font-size:11px; font-weight:700; letter-spacing:1.1px; color:var(--muted); margin:22px 2px 10px; }
+.hx-trends { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.hx-trend-card { border-radius:18px; padding:12px 14px 12px; background:#fff; box-shadow:var(--shadow); cursor:pointer; min-height:120px; }
+.hx-trend-card.up { background:linear-gradient(180deg,#ECFDF5,#fff 70%); }
+.hx-trend-card.down { background:linear-gradient(180deg,#FEF2F2,#fff 70%); }
+.hx-spark { width:100%; height:58px; display:block; }
+.hx-trend-pct { font-size:14px; font-weight:800; margin-top:6px; }
+.hx-trend-lbl { font-size:12px; color:var(--muted); }
+.hx-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.hx-action { background:#fff; border-radius:18px; padding:16px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; transition:var(--press-transition); }
+.hx-action:active { transform:scale(.97); }
+.hx-action-t { font-size:14px; font-weight:700; color:var(--text); }
+.hx-action-s { font-size:12px; color:var(--muted); margin-top:2px; }
+.hx-action-ic { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; font-size:17px; font-weight:700; flex-shrink:0; }
+@media (max-width: 900px) {
+  .hx-actions { grid-template-columns:repeat(2,1fr); }
+  .hx-trends { gap:8px; }
+  .hx-trend-card { padding:10px 10px; min-height:0; }
+  .hx-spark { height:38px; }
+  .hx-trend-pct { font-size:12px; }
+  .hx-trend-lbl { font-size:11px; }
+  .hx-body { padding:14px 14px 90px; }
+  .hx-head { padding:16px 16px 14px; }
+  .hx-revenue { font-size:32px; }
+}
+
+/* ── Hızlı Satış (Mac düzeni) ── */
+#tab-sales.active { display:flex; }
+.sx-wrap { display:flex; flex-direction:column; width:100%; min-height:100%; background:#E4EDFB; }
+.sx-head { background:linear-gradient(90deg,#1E4FB8,#3B7BE6); color:#fff; padding:16px 26px 14px; }
+.sx-head-sub { font-size:12px; opacity:.8; }
+.sx-head-title { font-size:22px; font-weight:800; letter-spacing:-.3px; }
+.sx-body { flex:1; padding:16px 26px 12px; }
+.sx-total { background:linear-gradient(135deg,#1E3A8A,#2B4CC9); color:#fff; border-radius:22px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 10px 28px rgba(30,58,138,.28); }
+.sx-total-lbl { font-size:11px; font-weight:700; letter-spacing:1.1px; opacity:.7; }
+.sx-total-val { font-size:34px; font-weight:800; letter-spacing:-.6px; }
+.sx-disc { font-size:12px; opacity:.85; margin-top:2px; }
+.sx-count { background:rgba(255,255,255,.14); border-radius:14px; padding:8px 12px; text-align:center; font-size:18px; font-weight:800; min-width:52px; }
+.sx-count-ic { font-size:11px; opacity:.8; }
+.sx-label { font-size:11px; font-weight:700; letter-spacing:1.1px; color:#5B6B8C; margin:18px 4px 8px; }
+.sx-items { display:block; }
+.sx-row { background:#fff; border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; box-shadow:0 2px 8px rgba(14,24,56,.06); }
+.sx-row-name { font-size:14px; font-weight:700; }
+.sx-row-unit { font-size:12px; color:var(--muted); margin-top:2px; }
+.sx-qty { display:flex; align-items:center; gap:10px; }
+.sx-qbtn { width:30px; height:30px; border-radius:9px; border:none; background:#EEF1F6; color:#4B5563; font-size:15px; font-weight:700; cursor:pointer; }
+.sx-qbtn.del { background:#FEE2E2; color:#DC2626; font-size:13px; }
+.sx-qbtn.plus { background:#6D4AE8; color:#fff; }
+.sx-qnum { min-width:18px; text-align:center; font-weight:700; }
+.sx-empty { flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:60px 0; color:var(--muted); font-size:14px; text-align:center; }
+.sx-empty-ic { font-size:34px; opacity:.5; }
+.sx-empty-sub { font-size:12px; opacity:.75; }
+.sx-bottom { position:sticky; bottom:0; padding:10px 26px 18px; background:linear-gradient(180deg,rgba(228,237,251,0),#E4EDFB 30%); }
+.sx-bar { display:flex; gap:10px; align-items:center; }
+.sx-trash { width:44px; height:44px; border-radius:12px; border:none; background:#FDE8E8; color:#DC2626; font-size:16px; cursor:pointer; }
+.sx-input-wrap { flex:1; position:relative; }
+.sx-input-ic { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#6D4AE8; font-size:14px; }
+#sx-input { width:100%; height:44px; border-radius:12px; border:1px solid rgba(14,24,56,.1); background:#fff; padding:0 14px 0 38px; font-size:14px; outline:none; }
+#sx-input:focus { border-color:#6D4AE8; box-shadow:0 0 0 3px rgba(109,74,232,.15); }
+.sx-suggest { position:absolute; left:0; right:0; bottom:52px; background:#fff; border-radius:14px; box-shadow:0 12px 34px rgba(14,24,56,.2); overflow:hidden; display:none; z-index:20; }
+.sx-suggest.show { display:block; }
+.sx-sug { display:flex; justify-content:space-between; padding:10px 14px; font-size:14px; cursor:pointer; }
+.sx-sug.sel, .sx-sug:hover { background:#F1EDFE; }
+.sx-sug b { color:#6D4AE8; }
+.sx-sug-empty { padding:12px 14px; color:var(--muted); font-size:13px; }
+.sx-cash { height:44px; padding:0 14px; border-radius:12px; border:none; background:#fff; color:#1E3A8A; font-weight:700; cursor:pointer; box-shadow:0 1px 4px rgba(14,24,56,.1); }
+.sx-cash:disabled, .sx-complete:disabled { opacity:.45; cursor:not-allowed; }
+.sx-complete { width:100%; height:50px; margin-top:10px; border:none; border-radius:14px; background:#1E60D6; color:#fff; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px rgba(30,96,214,.3); }
+
+/* ── Ürünlerim (Mac düzeni) ── */
+.ix-head { background:linear-gradient(90deg,#C2410C,#EA6A1A 55%,#F58A2E); color:#fff; padding:16px 26px 12px; position:sticky; top:0; z-index:5; }
+.ix-head-row { display:flex; justify-content:space-between; align-items:flex-start; }
+.ix-head-sub { font-size:12px; opacity:.85; }
+.ix-head-title { font-size:24px; font-weight:800; letter-spacing:-.4px; }
+.ix-head-right { display:flex; align-items:center; gap:10px; }
+.ix-count { text-align:center; font-size:24px; font-weight:800; line-height:1; }
+.ix-count-lbl { font-size:10px; font-weight:600; opacity:.85; }
+.ix-icon-btn { width:36px; height:36px; border-radius:10px; border:none; background:rgba(255,255,255,.18); color:#fff; font-size:16px; cursor:pointer; }
+.ix-search { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.2); border-radius:12px; padding:0 14px; height:42px; margin-top:12px; }
+.ix-search input { flex:1; background:none; border:none; outline:none; color:#fff; font-size:14px; }
+.ix-search input::placeholder { color:rgba(255,255,255,.75); }
+.ix-chips { display:flex; gap:8px; overflow-x:auto; padding:12px 0 4px; scrollbar-width:none; }
+.ix-chips::-webkit-scrollbar { display:none; }
+.ix-chip { white-space:nowrap; padding:7px 14px; border-radius:20px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); font-size:13px; font-weight:600; cursor:pointer; }
+.ix-chip.sel { background:#fff; color:#6D4AE8; border-color:#fff; }
+.ix-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; padding:16px 26px 100px; background:#F4F5F8; min-height:calc(100% - 170px); }
+.ix-card { background:#fff; border-radius:16px; padding:12px; position:relative; cursor:pointer; box-shadow:0 2px 8px rgba(14,24,56,.06); transition:var(--press-transition); }
+.ix-card:active { transform:scale(.97); }
+.ix-badge { position:absolute; top:8px; right:8px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; z-index:1; }
+.ix-badge.ok { background:#DCFCE7; color:#15803D; }
+.ix-badge.crit { background:#FEF3C7; color:#B45309; }
+.ix-badge.out { background:#FEE2E2; color:#B91C1C; }
+.ix-bc { position:absolute; top:6px; left:6px; border:none; background:rgba(255,255,255,.9); border-radius:8px; font-size:12px; width:26px; height:26px; cursor:pointer; opacity:0; transition:opacity .15s; z-index:1; }
+.ix-card:hover .ix-bc { opacity:1; }
+.ix-img { height:110px; display:grid; place-items:center; margin:14px 0 8px; }
+.ix-img img { max-width:100%; max-height:110px; object-fit:contain; }
+.ix-emoji { font-size:46px; }
+.ix-name { font-size:13px; font-weight:700; line-height:1.25; min-height:32px; }
+.ix-price { font-size:15px; font-weight:800; color:#6D4AE8; margin-top:6px; }
+.ix-stock { font-size:11px; color:var(--muted); margin-top:2px; }
+.ix-fab { position:fixed; right:29px; bottom:106px; width:58px; height:58px; border-radius:50%; border:none; background:#F97316; color:#fff; font-size:26px; box-shadow:0 10px 24px rgba(249,115,22,.4); cursor:pointer; z-index:6; }
+@media (max-width: 900px) {
+  .ix-fab { right:19px; bottom:176px; }
+  .ix-head, .sx-head { padding-left:16px; padding-right:16px; }
+  .ix-grid { grid-template-columns:repeat(2,1fr); padding:12px 12px 120px; }
+  .sx-body, .sx-bottom { padding-left:14px; padding-right:14px; }
+  .sx-bottom { padding-bottom:84px; }
+}
 </style>
 </head>
 <body>
@@ -892,29 +1055,34 @@ body {
       <div class="sidebar-store-val" id="sidebar-store-name">—</div>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Ana</div>
+      <!-- Uygulamadaki MVP kapsamıyla aynı. Pruva AI sekme değil: sağ alttaki damla.
+           MVP-KİLİT: menü editörü, masa servisi, mutfak ekranı (restoran modülü), kurye,
+           kampanyalar uygulamada kilitli/kaldırıldı — burada da gizli; kodları duruyor,
+           açmak için ilgili satırdaki style="display:none"u kaldır. -->
+      <div class="nav-section-label">Kasa</div>
       <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><div class="nav-icon">🏠</div><div class="nav-label">Ana Sayfa</div></div>
-      <div class="nav-item" id="nav-ai" onclick="switchTab('ai')"><div class="nav-icon">✨</div><div class="nav-label">Pruva AI</div></div>
-      <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon">💳</div><div class="nav-label">Satış</div></div>
-      <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon">📦</div><div class="nav-label">Stok</div></div>
+      <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon">▦</div><div class="nav-label">Hızlı Satış</div></div>
+      <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon">📦</div><div class="nav-label">Ürünlerim</div></div>
+      <div class="nav-section-label">Raporlar</div>
       <div class="nav-item" id="nav-reports" onclick="switchTab('reports')"><div class="nav-icon">📊</div><div class="nav-label">Raporlar</div></div>
       <div class="nav-item" id="nav-zreport" onclick="switchTab('zreport')"><div class="nav-icon">🧾</div><div class="nav-label">Z Raporu</div></div>
-      <div class="nav-item" id="nav-invoices" onclick="switchTab('invoices')"><div class="nav-icon">📄</div><div class="nav-label">Fatura Arşivi</div></div>
-      <div class="nav-item" id="nav-menu" onclick="switchTab('menu')"><div class="nav-icon">📖</div><div class="nav-label">Menü Editörü</div></div>
-      <div class="nav-item" id="nav-tables" onclick="switchTab('tables')"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
-      <div class="nav-item" id="nav-kds" onclick="switchTab('kds')"><div class="nav-icon">👨‍🍳</div><div class="nav-label">Mutfak Ekranı</div></div>
-      <div class="nav-section-label">İşletme</div>
-      <div class="nav-item" id="nav-forecast" onclick="switchTab('forecast')"><div class="nav-icon">📈</div><div class="nav-label">Tahmin</div></div>
+      <div class="nav-item" id="nav-forecast" onclick="switchTab('forecast')"><div class="nav-icon">📈</div><div class="nav-label">Stok Tahmini</div></div>
+      <div class="nav-section-label">İşlemler</div>
+      <div class="nav-item" id="nav-veresiye" onclick="switchTab('veresiye')"><div class="nav-icon">📋</div><div class="nav-label">Veresiye</div></div>
       <div class="nav-item" id="nav-refund" onclick="switchTab('refund')"><div class="nav-icon">↩️</div><div class="nav-label">İade</div></div>
       <div class="nav-item" id="nav-loss" onclick="switchTab('loss')"><div class="nav-icon">🗑️</div><div class="nav-label">Fire &amp; Kayıp</div></div>
-      <div class="nav-item" id="nav-veresiye" onclick="switchTab('veresiye')"><div class="nav-icon">📋</div><div class="nav-label">Veresiye</div></div>
+      <div class="nav-item" id="nav-invoices" onclick="switchTab('invoices')"><div class="nav-icon">📄</div><div class="nav-label">Fatura Arşivi</div></div>
+      <div class="nav-section-label">Ekip</div>
       <div class="nav-item" id="nav-staff" onclick="switchTab('staff')"><div class="nav-icon">👥</div><div class="nav-label">Personel</div></div>
       <div class="nav-item" id="nav-chat" onclick="switchTab('chat')"><div class="nav-icon">💬</div><div class="nav-label">Personel Sohbeti</div></div>
-      <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçi</div></div>
-      <div class="nav-item" id="nav-courier" onclick="switchTab('courier')"><div class="nav-icon">🛵</div><div class="nav-label">Kurye Çağır</div></div>
-      <div class="nav-item" id="nav-campaigns" onclick="switchTab('campaigns')"><div class="nav-icon">🎁</div><div class="nav-label">Kampanyalar</div></div>
+      <div class="nav-item" id="nav-supplier" onclick="switchTab('supplier')"><div class="nav-icon">🚚</div><div class="nav-label">Tedarikçiler</div></div>
+      <div class="nav-item" id="nav-menu" onclick="switchTab('menu')" style="display:none"><div class="nav-icon">📖</div><div class="nav-label">Menü Editörü</div></div>
+      <div class="nav-item" id="nav-tables" onclick="switchTab('tables')" style="display:none"><div class="nav-icon">🍽️</div><div class="nav-label">Masa Servisi</div></div>
+      <div class="nav-item" id="nav-kds" onclick="switchTab('kds')" style="display:none"><div class="nav-icon">👨‍🍳</div><div class="nav-label">Mutfak Ekranı</div></div>
+      <div class="nav-item" id="nav-courier" onclick="switchTab('courier')" style="display:none"><div class="nav-icon">🛵</div><div class="nav-label">Kurye Çağır</div></div>
+      <div class="nav-item" id="nav-campaigns" onclick="switchTab('campaigns')" style="display:none"><div class="nav-icon">🎁</div><div class="nav-label">Kampanyalar</div></div>
       <div class="nav-section-label">Hesap</div>
-      <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Ayarlar</div></div>
+      <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Seçenekler</div></div>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="switchTab('settings')">
@@ -924,7 +1092,7 @@ body {
     </div>
   </div>
 
-  <div class="main-area">
+  <div class="main-area app-screen">
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">Ana Sayfa</div>
       <div class="topbar-date" id="topbar-date"></div>
@@ -932,118 +1100,91 @@ body {
     </div>
     <div class="content-area">
 
-      <!-- HOME -->
+      <!-- HOME — Mac/iPhone ana ekranıyla aynı düzen (2026-09-30) -->
       <div class="tab-panel active" id="tab-home">
-        <div id="alert-strip" class="alert-strip" style="display:none" onclick="switchTab('inv')">
-          <span>⚠️</span>
-          <div><div class="alert-strip-text" id="alert-text">Kritik Stok</div><div class="alert-strip-sub" id="alert-sub"></div></div>
-          <span style="margin-left:auto;color:#92400E">›</span>
+        <div class="hx-head">
+          <div class="hx-head-left"><span class="hx-head-icon">🛒</span><span id="hx-category">Mağaza</span></div>
+          <div class="topbar-badge"><span>Pruva</span><span>Pro</span></div>
         </div>
-        <div class="stats-row">
-          <div class="stat-card primary">
-            <div class="stat-label">Bugünkü Ciro</div>
-            <div class="stat-value" id="stat-revenue">₺0,00</div>
-            <div class="stat-change" id="stat-change"></div>
-          </div>
-          <div class="stat-card acc-teal">
-            <div class="stat-icon">🧾</div>
-            <div class="stat-label">Sipariş Sayısı</div>
-            <div class="stat-value" id="stat-orders">0</div>
-            <div class="stat-change neutral">Bugün</div>
-          </div>
-          <div class="stat-card acc-amber">
-            <div class="stat-icon">🛒</div>
-            <div class="stat-label">Ort. Sepet</div>
-            <div class="stat-value" id="stat-avg">₺0</div>
-            <div class="stat-change neutral">Bugün</div>
-          </div>
-          <div class="stat-card acc-violet">
-            <div class="stat-icon">📅</div>
-            <div class="stat-label">Bu Ay</div>
-            <div class="stat-value" id="stat-monthly">₺0</div>
-            <div class="stat-change neutral" id="stat-monthly-sub">—</div>
-          </div>
-        </div>
-        <div class="home-cols">
-          <div class="section-card">
-            <div class="section-header"><div class="section-title">Hızlı Satış</div><div class="section-sub" id="qs-count"></div></div>
-            <div class="qs-search"><input type="text" placeholder="Ürün ara…" oninput="renderQuickSale(this.value)"></div>
-            <div class="qs-list" id="qs-list"><div class="qs-empty">Yükleniyor…</div></div>
-            <div class="qs-cart">
-              <div class="qs-cart-row"><span>Sepet</span><span id="qs-cart-count">0 ürün</span></div>
-              <div class="qs-cart-total"><span>Toplam</span><span id="qs-cart-total">₺0,00</span></div>
-              <button class="qs-btn" id="qs-checkout-btn" disabled onclick="switchTab('sales');openCheckout()">Ödeme Al</button>
+        <div class="hx-body">
+          <div class="hx-hero">
+            <div class="hx-hero-top">
+              <div>
+                <div class="hx-store" id="hx-store">—</div>
+                <div class="hx-welcome">Hoş geldin</div>
+                <div class="hx-owner" id="hx-owner">—</div>
+              </div>
+              <div class="hx-hero-icon" onclick="switchTab('reports')" title="Raporlar">📈</div>
+            </div>
+            <div class="hx-today-label">BUGÜN</div>
+            <div class="hx-today-row">
+              <div class="hx-revenue" id="stat-revenue">₺0,00</div>
+              <div class="hx-trend" id="stat-change"></div>
+            </div>
+            <div class="hx-date" id="hx-date"></div>
+            <div class="hx-minis">
+              <div class="hx-mini"><div class="hx-mini-ic">🛒</div><div class="hx-mini-val" id="stat-orders">0</div><div class="hx-mini-lbl">Sipariş</div></div>
+              <div class="hx-mini"><div class="hx-mini-ic">🧺</div><div class="hx-mini-val" id="stat-avg">₺0</div><div class="hx-mini-lbl">Ort. Sepet</div></div>
+              <div class="hx-mini"><div class="hx-mini-ic">⚠️</div><div class="hx-mini-val" id="stat-critical">0</div><div class="hx-mini-lbl">Kritik</div></div>
             </div>
           </div>
-          <div class="section-card">
-            <div class="section-header"><div class="section-title">Envanter</div><div class="section-sub" id="env-count"></div></div>
-            <div class="env-list" id="env-list"><div class="qs-empty">Yükleniyor…</div></div>
+
+          <div id="alert-strip" class="hx-alert" style="display:none" onclick="switchTab('inv')">
+            <div class="hx-alert-ic">⚠️</div>
+            <div class="hx-alert-txt"><div class="hx-alert-title" id="alert-text">Kritik Stok</div><div class="hx-alert-sub" id="alert-sub"></div></div>
+            <div class="hx-alert-cta">Tümünü Gör ›</div>
           </div>
-          <div class="home-right-col">
-            <div class="section-card">
-              <div class="section-header"><div class="section-title">Hızlı İşlemler</div></div>
-              <div class="action-grid">
-                <div class="action-item" onclick="switchTab('sales')"><div class="action-icon" style="background:#E4EBFB">💳</div><div class="action-label">Satış Yap</div></div>
-                <div class="action-item" onclick="switchTab('inv')"><div class="action-icon" style="background:#D1FAE5">📦</div><div class="action-label">Stok</div></div>
-                <div class="action-item" onclick="switchTab('reports')"><div class="action-icon" style="background:#DBEAFE">📊</div><div class="action-label">Raporlar</div></div>
-                <div class="action-item" onclick="switchTab('zreport')"><div class="action-icon" style="background:#FFE4E6">🧾</div><div class="action-label">Z Raporu</div></div>
-                <div class="action-item" onclick="switchTab('tables')"><div class="action-icon" style="background:var(--teal-light)">🍽️</div><div class="action-label">Masa Servisi</div></div>
-                <div class="action-item" onclick="switchTab('forecast')"><div class="action-icon" style="background:#FEF3C7">📈</div><div class="action-label">Tahmin</div></div>
-                <div class="action-item" onclick="switchTab('refund')"><div class="action-icon" style="background:#FEE2E2">↩️</div><div class="action-label">İade</div></div>
-                <div class="action-item" onclick="switchTab('veresiye')"><div class="action-icon" style="background:#F0FDF4">📋</div><div class="action-label">Veresiye</div></div>
-                <div class="action-item" onclick="switchTab('staff')"><div class="action-icon" style="background:#F3F4F6">👥</div><div class="action-label">Personel</div></div>
-                <div class="action-item" onclick="switchTab('settings')"><div class="action-icon" style="background:#E4EBFB">⚙️</div><div class="action-label">Ayarlar</div></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <div class="section-header period-header">
-                <div class="period-tabs">
-                  <button class="period-tab active" id="ptab-week" onclick="homePeriodTab('week')">7 Gün</button>
-                  <button class="period-tab" id="ptab-month" onclick="homePeriodTab('month')">1 Ay</button>
-                  <button class="period-tab" id="ptab-year" onclick="homePeriodTab('year')">1 Yıl</button>
-                </div>
-                <div class="section-sub" id="period-total-active">—</div>
-              </div>
-              <div class="period-panel active" id="period-week">
-                <div class="chart-area" id="week-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-                <span id="week-total" style="display:none"></span>
-              </div>
-              <div class="period-panel" id="period-month">
-                <div class="chart-area" id="month-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-                <span id="month-total" style="display:none"></span>
-              </div>
-              <div class="period-panel" id="period-year">
-                <div class="chart-area" id="year-chart"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-                <span id="year-total" style="display:none"></span>
-              </div>
-            </div>
+
+          <div class="hx-section-label">BÜYÜME TRENDİ</div>
+          <div class="hx-trends">
+            <div class="hx-trend-card" id="trend-week" onclick="switchTab('reports')"></div>
+            <div class="hx-trend-card" id="trend-month" onclick="switchTab('reports')"></div>
+            <div class="hx-trend-card" id="trend-year" onclick="switchTab('reports')"></div>
+          </div>
+
+          <div class="hx-section-label">HIZLI İŞLEMLER</div>
+          <div class="hx-actions">
+            <div class="hx-action" onclick="switchTab('sales')"><div><div class="hx-action-t">Satış Yap</div><div class="hx-action-s">Barkodla hızlı satış</div></div><div class="hx-action-ic" style="background:#EDE9FE;color:#7C3AED">▦</div></div>
+            <div class="hx-action" onclick="openProductModal()"><div><div class="hx-action-t">Ürün Ekle</div><div class="hx-action-s">Yeni ürün tanımla</div></div><div class="hx-action-ic" style="background:#D1FAE5;color:#059669">＋</div></div>
+            <div class="hx-action" onclick="switchTab('inv')"><div><div class="hx-action-t">Envanter</div><div class="hx-action-s">Stoğu takip et</div></div><div class="hx-action-ic" style="background:#FEF3C7;color:#D97706">📦</div></div>
+            <div class="hx-action" onclick="switchTab('reports')"><div><div class="hx-action-t">Raporlar</div><div class="hx-action-s">Satış geçmişi</div></div><div class="hx-action-ic" style="background:#FFE4E6;color:#E11D48">📊</div></div>
+            <div class="hx-action" onclick="switchTab('forecast')"><div><div class="hx-action-t">Stok Tahmini</div><div class="hx-action-s">Ne zaman biter?</div></div><div class="hx-action-ic" style="background:#CCFBF1;color:#0D9488">📈</div></div>
+            <div class="hx-action" onclick="switchTab('veresiye')"><div><div class="hx-action-t">Veresiye</div><div class="hx-action-s">Müşteri borçları</div></div><div class="hx-action-ic" style="background:#DCFCE7;color:#16A34A">📋</div></div>
+            <div class="hx-action" onclick="switchTab('zreport')"><div><div class="hx-action-t">Z Raporu</div><div class="hx-action-s">Gün sonu kapanış</div></div><div class="hx-action-ic" style="background:#DBEAFE;color:#2563EB">🧾</div></div>
+            <div class="hx-action" onclick="switchTab('staff')"><div><div class="hx-action-t">Personel</div><div class="hx-action-s">Ekip ve yetkiler</div></div><div class="hx-action-ic" style="background:#F3F4F6;color:#4B5563">👥</div></div>
           </div>
         </div>
       </div>
 
-      <!-- SALES -->
+      <!-- SALES — Mac/iPhone "Hızlı Satış" düzeni (2026-09-30) -->
       <div class="tab-panel" id="tab-sales">
-        <div class="sales-products">
-          <div class="sales-toolbar">
-            <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Ürün ara veya barkod gir…" oninput="filterProducts(this.value)"></div>
-            <div class="cat-chip-row" id="sales-cat-chips"></div>
+        <div class="sx-wrap">
+          <div class="sx-head">
+            <div class="sx-head-sub" id="sx-sub">—</div>
+            <div class="sx-head-title">Hızlı Satış</div>
           </div>
-          <div class="product-list-wrap" id="product-list"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-        </div>
-        <div class="cart-panel">
-          <div class="cart-header">Sepet <span class="cart-count" id="cart-count">0</span></div>
-          <div id="cart-empty" class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Sepet boş</div><div style="font-size:11px;margin-top:4px;opacity:.6">Ürün eklemek için + butonuna bas</div></div>
-          <div class="cart-items-wrap" id="cart-items" style="display:none"></div>
-          <div class="cart-footer">
-            <div class="cart-discount-row" id="cart-discount-row" style="display:none">
-              <label>Ürün indirimi</label>
-              <span class="cart-discount-val" id="cart-discount-val"></span>
+          <div class="sx-body">
+            <div class="sx-total">
+              <div><div class="sx-total-lbl">TOPLAM</div><div class="sx-total-val" id="cart-total">₺0,00</div>
+                <div class="sx-disc" id="cart-discount-row" style="display:none">İndirim <span id="cart-discount-val"></span></div></div>
+              <div class="sx-count"><div id="cart-count">0</div><div class="sx-count-ic">🛒</div></div>
             </div>
-            <div class="cart-total-row"><div class="cart-total-label">Toplam</div><div class="cart-total-val" id="cart-total">₺0,00</div></div>
-            <div class="cart-actions-row">
-              <button class="btn-quickcash" id="quickcash-btn" onclick="quickCashSale()" disabled title="Tek dokunuşla nakit satış">💵 Nakit</button>
-              <button class="btn-checkout" id="checkout-btn" onclick="openCheckout()" disabled>Ödeme Al</button>
+            <div class="sx-label">SEPET</div>
+            <div id="cart-empty" class="sx-empty"><div class="sx-empty-ic">🛒</div><div>Sepet boş</div><div class="sx-empty-sub">Aşağıdaki kutuya barkod okut ya da ürün adı yaz</div></div>
+            <div class="sx-items" id="cart-items" style="display:none"></div>
+          </div>
+          <div class="sx-bottom">
+            <div class="sx-bar">
+              <button class="sx-trash" onclick="clearCart()" title="Sepeti temizle">🗑</button>
+              <div class="sx-input-wrap">
+                <span class="sx-input-ic">▦</span>
+                <input id="sx-input" type="text" placeholder="Barkod ya da ürün adı" autocomplete="off"
+                  oninput="sxSuggest(this.value)" onkeydown="sxKey(event)" onblur="setTimeout(()=>sxHide(),150)">
+                <div class="sx-suggest" id="sx-suggest"></div>
+              </div>
+              <button class="sx-cash" id="quickcash-btn" onclick="quickCashSale()" disabled title="Tek dokunuşla nakit satış">⚡ Nakit</button>
             </div>
+            <button class="sx-complete" id="checkout-btn" onclick="openCheckout()" disabled>Satışı Tamamla ›</button>
           </div>
         </div>
       </div>
@@ -1089,20 +1230,6 @@ body {
       </div>
 
       <!-- PRUVA AI -->
-      <div class="tab-panel flex-panel ai-glass-bg" id="tab-ai" style="padding:0">
-        <div class="ai-beams-bg"><div class="ai-morph-beam b1"></div><div class="ai-morph-beam b2"></div></div>
-        <div class="chat-messages" id="ai-messages"></div>
-        <div class="ai-chips" id="ai-chips">
-          <button class="ai-chip" onclick="aiAsk('Bugünkü satışlarım')">Bugünkü satış özeti</button>
-          <button class="ai-chip" onclick="aiAsk('Kritik stoktakiler')">Kritik stok</button>
-          <button class="ai-chip" onclick="aiAsk('Ne yapabilirsin')">Ne yapabilirsin?</button>
-        </div>
-        <div class="chat-input-row">
-          <input type="text" id="ai-input" placeholder="Dükkanınla konuşur gibi yaz… (ör: Süt kaç para?)" onkeydown="if(event.key==='Enter')aiSend()">
-          <button class="btn-confirm" style="width:auto;padding:10px 18px" onclick="aiSend()">Gönder</button>
-        </div>
-      </div>
-
       <!-- STAFF CHAT -->
       <div class="tab-panel flex-panel" id="tab-chat" style="padding:0">
         <div class="chat-messages" id="chat-messages"><div class="loading-dots"><span></span><span></span><span></span></div></div>
@@ -1178,13 +1305,21 @@ body {
       </div>
 
       <!-- INVENTORY -->
+      <!-- ÜRÜNLERİM — Mac/iPhone düzeni (2026-09-30) -->
       <div class="tab-panel" id="tab-inv">
-        <div class="inv-toolbar">
-          <div class="search-bar" style="flex:1"><span class="search-icon">🔍</span><input type="text" placeholder="Ürün ara…" oninput="filterInventory(this.value)"></div>
-          <button class="btn-cancel" style="padding:8px 14px;font-size:13px" onclick="openImportExportModal()">⇅ İçe/Dışa Aktar</button>
-          <button class="btn-add" onclick="openProductModal()">+ Ürün Ekle</button>
+        <div class="ix-head">
+          <div class="ix-head-row">
+            <div><div class="ix-head-sub" id="ix-sub">Mağaza</div><div class="ix-head-title">Ürünlerim</div></div>
+            <div class="ix-head-right">
+              <div class="ix-count"><div id="ix-count">0</div><div class="ix-count-lbl">Envanter</div></div>
+              <button class="ix-icon-btn" onclick="openImportExportModal()" title="İçe/Dışa Aktar">⇅</button>
+            </div>
+          </div>
+          <div class="ix-search"><span>🔍</span><input id="ix-search" type="text" placeholder="Ürün veya barkod ara…" oninput="applyInvFilters()"></div>
+          <div class="ix-chips" id="ix-chips"></div>
         </div>
-        <div class="inv-grid" id="inv-grid"><div class="loading-dots" style="grid-column:span 4"><span></span><span></span><span></span></div></div>
+        <div class="ix-grid" id="inv-grid"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        <button class="ix-fab" onclick="openProductModal()" title="Ürün Ekle">＋</button>
       </div>
 
       <!-- REPORTS -->
@@ -1319,10 +1454,10 @@ body {
 <!-- Mobile tab bar -->
 <div class="mobile-tab-bar" id="mobile-tab-bar">
   <div class="mobile-tab-item active" id="mob-home" onclick="switchTab('home')"><div class="mobile-tab-icon">🏠</div><div class="mobile-tab-label">Ana Sayfa</div></div>
-  <div class="mobile-tab-item" id="mob-sales" onclick="switchTab('sales')"><div class="mobile-tab-icon">💳</div><div class="mobile-tab-label">Satış</div></div>
-  <div class="mobile-tab-item" id="mob-inv" onclick="switchTab('inv')"><div class="mobile-tab-icon">📦</div><div class="mobile-tab-label">Stok</div></div>
+  <div class="mobile-tab-item" id="mob-sales" onclick="switchTab('sales')"><div class="mobile-tab-icon">▦</div><div class="mobile-tab-label">Satış</div></div>
+  <div class="mobile-tab-item" id="mob-inv" onclick="switchTab('inv')"><div class="mobile-tab-icon">📦</div><div class="mobile-tab-label">Ürünlerim</div></div>
   <div class="mobile-tab-item" id="mob-reports" onclick="switchTab('reports')"><div class="mobile-tab-icon">📊</div><div class="mobile-tab-label">Raporlar</div></div>
-  <div class="mobile-tab-item" id="mob-settings" onclick="switchTab('settings')"><div class="mobile-tab-icon">⚙️</div><div class="mobile-tab-label">Ayarlar</div></div>
+  <div class="mobile-tab-item" id="mob-settings" onclick="switchTab('settings')"><div class="mobile-tab-icon">⚙️</div><div class="mobile-tab-label">Seçenekler</div></div>
 </div>
 
 <!-- Checkout Modal -->
@@ -1688,6 +1823,26 @@ body {
 </div>
 
 <div id="toast"></div>
+<!-- Pruva AI — damladan açılan yüzen cam kart (uygulamadaki sheet'in karşılığı).
+     ⚠️ Eskiden sol menüde ayrı bir sekmeydi; uygulamada Pruva AI sekme değil, damladır. -->
+<div class="ai-sheet-backdrop" id="ai-sheet-backdrop" onclick="closeAISheet()"></div>
+<div class="ai-sheet ai-glass-bg" id="tab-ai" role="dialog" aria-label="Pruva AI">
+  <div class="ai-sheet-head">
+    <div class="ai-sheet-title"><span class="ai-sheet-dot"></span>Pruva AI</div>
+    <button class="ai-sheet-close" onclick="closeAISheet()" aria-label="Kapat">✕</button>
+  </div>
+        <div class="ai-beams-bg"><div class="ai-morph-beam b1"></div><div class="ai-morph-beam b2"></div></div>
+        <div class="chat-messages" id="ai-messages"></div>
+        <div class="ai-chips" id="ai-chips">
+          <button class="ai-chip" onclick="aiAsk('Bugünkü satışlarım')">Bugünkü satış özeti</button>
+          <button class="ai-chip" onclick="aiAsk('Kritik stoktakiler')">Kritik stok</button>
+          <button class="ai-chip" onclick="aiAsk('Ne yapabilirsin')">Ne yapabilirsin?</button>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="ai-input" placeholder="Dükkanınla konuşur gibi yaz… (ör: Süt kaç para?)" onkeydown="if(event.key==='Enter')aiSend()">
+          <button class="btn-confirm" style="width:auto;padding:10px 18px" onclick="aiSend()">Gönder</button>
+        </div>
+      </div>
 <div id="ai-droplet" title="Pruva AI">
   <canvas id="ai-drop-canvas"></canvas>
   <div id="ai-drop-hit"></div>
@@ -1753,7 +1908,10 @@ const fc  = v=>'₺'+v.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFr
 const fcs = v=>v>=1e6?'₺'+(v/1e6).toFixed(1)+'M':v>=1e3?'₺'+(v/1e3).toFixed(1)+'K':'₺'+Math.round(v);
 const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-onAuthStateChanged(auth, u => u ? initApp(u) : showLogin());
+// Yerel önizleme (yalnızca localhost + ?preview=1): girişsiz, örnek veriyle arayüzü gösterir.
+// Canlı alan adlarında bu dal HİÇ çalışmaz; Firebase'e yazı gitmez (storeId null).
+const PREVIEW = ['localhost','127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('preview');
+if(PREVIEW){ window.__pruvaPreview=true; } else onAuthStateChanged(auth, u => u ? initApp(u) : showLogin());
 
 let isSignupMode=false;
 window.toggleAuthMode = () => {
@@ -1816,7 +1974,23 @@ async function initApp(user){
     storeId=ud.exists()?(ud.data().storeId||user.uid):user.uid;
     const name=ud.exists()?(ud.data().storeName||ud.data().storeCode||'Mağazam'):'Mağazam';
     ['sidebar-store-name','settings-store-name'].forEach(id=>document.getElementById(id).textContent=name);
+    document.getElementById('hx-store').textContent=name;
+    // Mağaza belgesinden sahip adı ve kategori (uygulamanın ana ekranındaki "Hoş geldin, <ad>")
+    try{
+      const sd=await getDoc(doc(db,'stores',storeId));
+      if(sd.exists()){
+        const d=sd.data();
+        if(d.storeName||d.name) document.getElementById('hx-store').textContent=d.storeName||d.name;
+        const cat={market:'Market',grocery:'Market',minimarket:'Market',bakkal:'Bakkal',manav:'Manav',kasap:'Kasap',pharmacy:'Eczane',electronics:'Elektronik',clothing:'Giyim',cosmetics:'Kozmetik',bookstore:'Kırtasiye',petShop:'Pet Shop',restaurant:'Restoran',cafe:'Kafe',bar:'Bar',bakery:'Fırın'};
+        document.getElementById('hx-category').textContent=cat[d.category]||'Mağaza';
+        window.__ownerName=d.ownerFirstName||'';
+      }
+    }catch{}
   }catch{storeId=user.uid;}
+  document.getElementById('hx-owner').textContent=(window.__ownerName||user.displayName||(user.email||'').split('@')[0]||'')+' 👋';
+  document.getElementById('hx-date').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('sx-sub').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'})+' · '+document.getElementById('hx-store').textContent;
+  document.getElementById('ix-sub').textContent=document.getElementById('hx-category').textContent;
   loadProducts();
   loadDailySummaries();
   loadMonthlySummaries();
@@ -1824,17 +1998,17 @@ async function initApp(user){
 
 /* ── Products ────────────────────── */
 const emojiMap={food:'🍎',drink:'🥤',snack:'🍫',dairy:'🧀',meat:'🥩',vegetable:'🥦',fruit:'🍊',bread:'🍞',cleaning:'🧹',personal:'🧴',electronics:'📱',stationery:'📝'};
-const pEmoji=p=>emojiMap[(p.category||'').toLowerCase()]||'🛒';
+const emojiTR={'süt ürünleri':'🧀','kahvaltılık':'🍳','fırın':'🍞','ekmek':'🍞','temel gıda':'🌾','içecek':'🥤','atıştırmalık':'🍫','temizlik':'🧹','kişisel bakım':'🧴','et & tavuk':'🥩','manav':'🥦','meyve':'🍊','sebze':'🥦','kırtasiye':'📝','elektronik':'📱'};
+const pEmoji=p=>{const c=(p.category||'').toLocaleLowerCase('tr-TR');return emojiMap[c]||emojiTR[c]||'🛒';};
 
 async function loadProducts(){
   if(!storeId)return;
   try{
     const snap=await getDocs(collection(db,'stores',storeId,'products'));
     allProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.isDeleted&&p.isAvailable!==false);
-    renderSalesCategoryChips();applySalesFilters();renderInventory(allProducts);checkCriticalStock();renderQuickSale();renderEnvWidget();
+    renderInvCategoryChips();applyInvFilters();checkCriticalStock();
   }catch(e){
-    document.getElementById('product-list').innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;
-    document.getElementById('qs-list').innerHTML='<div class="qs-empty">Yüklenemedi</div>';
+    document.getElementById('inv-grid').innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;
   }
 }
 
@@ -1913,11 +2087,32 @@ window.selectSalesCategory=c=>{
 /* ── Cart ────────────────────────── */
 // İndirim ürün üzerinde tanımlanır (Envanter → Ürün Düzenle), kasada elle değiştirilmez.
 const effUnit=i=>Math.round(i.price*(1-(i.discountPercent||0)/100)*100)/100;
+/* ── Kasa sesleri — uygulamadaki SoundManager ile AYNI formüller (file/UX.swift) ── */
+const PruvaSound=(()=>{
+  let ctx=null,beepBuf=null,chimeBuf=null;
+  const ac=()=>{ if(!ctx){ try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch{} } return ctx; };
+  function buf(samples){ const c=ac(); const b=c.createBuffer(1,samples.length,44100); b.getChannelData(0).set(samples); return b; }
+  function beepSamples(){ const sr=44100,f=1976,d=0.09,e=0.003,n=Math.floor(sr*d),o=new Float32Array(n);
+    for(let i=0;i<n;i++){const t=i/sr,env=Math.min(1,t/e)*Math.min(1,(d-t)/e);o[i]=(Math.sin(2*Math.PI*f*t)*.82+Math.sin(4*Math.PI*f*t)*.18)*env*.5;} return o; }
+  function chimeSamples(){ // klasik yazar kasa "ka-ching": çekmece tıkı + zil + bozuk para
+    const sr=44100,n=Math.floor(sr*1.3),o=new Float64Array(n); let seed=0x9E3779B97F4A7C15n;
+    const rnd=()=>{seed=(seed*6364136223846793005n+1442695040888963407n)&0xFFFFFFFFFFFFFFFFn;return Number(seed>>11n)/2**53;};
+    const add=(st,dur,fn)=>{const s0=Math.floor(st*sr);for(let k=0;k<Math.floor(dur*sr)&&s0+k<n;k++)o[s0+k]+=fn(k/sr);};
+    add(0,.05,t=>(rnd()*2-1)*Math.exp(-t*90)*.8);
+    const f=2093; add(.06,1.2,t=>Math.min(1,t/.001)*(Math.sin(2*Math.PI*f*t)*Math.exp(-t*3)+Math.sin(2*Math.PI*f*2.76*t)*Math.exp(-t*8)*.5+Math.sin(2*Math.PI*f*5.4*t)*Math.exp(-t*15)*.3+Math.sin(2*Math.PI*f*8.9*t)*Math.exp(-t*25)*.2));
+    let st=.09; for(let j=0;j<7;j++){const cf=3500+rnd()*3000; add(st,.2,t=>Math.min(1,t/.0005)*Math.sin(2*Math.PI*cf*t)*Math.exp(-t*40)*.25); st+=.02+rnd()*.03;}
+    let pk=0;for(const v of o)pk=Math.max(pk,Math.abs(v)); const r=new Float32Array(n); for(let i=0;i<n;i++)r[i]=o[i]/pk*.5; return r; }
+  function play(b){ const c=ac(); if(!c)return; if(c.state==='suspended')c.resume(); const src=c.createBufferSource(); src.buffer=b; src.connect(c.destination); src.start(); }
+  return {
+    beep(){ try{ if(!ac())return; beepBuf=beepBuf||buf(beepSamples()); play(beepBuf);}catch{} },
+    sale(){ try{ if(!ac())return; chimeBuf=chimeBuf||buf(chimeSamples()); play(chimeBuf);}catch{} },
+  };
+})();
 window.addToCart=id=>{
   const p=allProducts.find(x=>x.id===id);if(!p)return;
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({id,name:p.name||id,price:p.salePrice||0,taxRate:p.taxRate||0,discountPercent:p.discountPercent||0,qty:1});
-  renderCart();showToast(`${p.name||id} eklendi`);
+  renderCart();PruvaSound.beep();
 };
 window.changeQty=(id,d)=>{
   const i=cart.findIndex(x=>x.id===id);if(i===-1)return;
@@ -1934,17 +2129,44 @@ function renderCart(){
   document.getElementById('checkout-btn').disabled=empty;
   document.getElementById('quickcash-btn').disabled=empty;
   const discRow=document.getElementById('cart-discount-row'),discVal=document.getElementById('cart-discount-val');
-  if(saved>0){discRow.style.display='flex';discVal.textContent='-'+fc(saved);}
-  else{discRow.style.display='none';}
-  const qsCount=document.getElementById('qs-cart-count'),qsTotal=document.getElementById('qs-cart-total'),qsBtn=document.getElementById('qs-checkout-btn');
-  if(qsCount){qsCount.textContent=`${cart.reduce((s,i)=>s+i.qty,0)} ürün`;qsTotal.textContent=fc(total);qsBtn.disabled=empty;}
+  if(saved>0){discRow.style.display='block';discVal.textContent='-'+fc(saved);}else{discRow.style.display='none';}
   if(!empty)document.getElementById('cart-items').innerHTML=cart.map(i=>`
-    <div class="cart-row">
-      <div class="cart-name">${esc(i.name)}${i.discountPercent>0?`<span class="product-discount-badge">-%${Math.round(i.discountPercent)}</span>`:''}</div>
-      <div class="cart-qty-ctrl"><div class="qty-btn" onclick="changeQty('${esc(i.id)}',-1)">−</div><div class="qty-num">${i.qty}</div><div class="qty-btn" onclick="changeQty('${esc(i.id)}',1)">+</div></div>
-      <div class="cart-item-price">${fc(effUnit(i)*i.qty)}</div>
+    <div class="sx-row">
+      <div class="sx-row-info"><div class="sx-row-name">${esc(i.name)}${i.discountPercent>0?` <span class="product-discount-badge">-%${Math.round(i.discountPercent)}</span>`:''}</div>
+        <div class="sx-row-unit">${fc(effUnit(i))} / adet</div></div>
+      <div class="sx-qty">
+        <button class="sx-qbtn ${i.qty===1?'del':''}" onclick="changeQty('${esc(i.id)}',-1)">${i.qty===1?'🗑':'−'}</button>
+        <div class="sx-qnum">${i.qty}</div>
+        <button class="sx-qbtn plus" onclick="changeQty('${esc(i.id)}',1)">+</button>
+      </div>
     </div>`).join('');
 }
+window.clearCart=()=>{ if(!cart.length)return; cart=[]; renderCart(); };
+// Barkod/ad kutusu: tam barkod eşleşmesi → doğrudan ekle; değilse öneri listesi.
+let sxHits=[],sxSel=0;
+window.sxSuggest=q=>{
+  const el=document.getElementById('sx-suggest'); const f=(q||'').trim().toLocaleLowerCase('tr-TR');
+  if(!f){sxHide();return;}
+  sxHits=allProducts.filter(p=>(p.id||'').toLowerCase().includes(f)||(p.name||'').toLocaleLowerCase('tr-TR').includes(f)).slice(0,8); sxSel=0;
+  if(!sxHits.length){el.innerHTML='<div class="sx-sug-empty">Ürün bulunamadı</div>';el.classList.add('show');return;}
+  el.innerHTML=sxHits.map((p,i)=>`<div class="sx-sug${i===0?' sel':''}" onmousedown="sxPick(${i})"><span>${esc(p.name||p.id)}</span><b>${fc(p.salePrice||0)}</b></div>`).join('');
+  el.classList.add('show');
+};
+window.sxHide=()=>document.getElementById('sx-suggest')?.classList.remove('show');
+window.sxPick=i=>{const p=sxHits[i];if(!p)return;addToCart(p.id);const inp=document.getElementById('sx-input');inp.value='';sxHide();inp.focus();};
+window.sxKey=e=>{
+  const inp=e.target;
+  if(e.key==='Enter'){
+    const v=inp.value.trim(); if(!v)return;
+    const exact=allProducts.find(p=>p.id===v);
+    if(exact){addToCart(exact.id);inp.value='';sxHide();return;}
+    if(sxHits.length)sxPick(sxSel); else showToast('Ürün bulunamadı: '+v);
+  }else if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault(); if(!sxHits.length)return;
+    sxSel=(sxSel+(e.key==='ArrowDown'?1:-1)+sxHits.length)%sxHits.length;
+    document.querySelectorAll('#sx-suggest .sx-sug').forEach((n,i)=>n.classList.toggle('sel',i===sxSel));
+  }else if(e.key==='Escape'){sxHide();}
+};
 window.openCheckout=()=>{if(!cart.length)return;selectPayment('cash');document.getElementById('modal-total').textContent=fc(cartTotal());document.getElementById('checkout-modal').classList.add('show');};
 window.quickCashSale=()=>{if(!cart.length)return;selectedPay='cash';confirmSale();};
 window.selectPayment=m=>{
@@ -2010,7 +2232,7 @@ window.confirmSale=async()=>{
   }catch(e){console.error(e);}
   cart=[];
   renderCart();loadProducts();loadDailySummaries();loadMonthlySummaries();
-  showToast(`✓ ${fc(total)} — satış tamamlandı`);switchTab('home');
+  PruvaSound.sale();showToast(`✓ ${fc(total)} — satış tamamlandı`);
 };
 
 /* ── Confirm helper ──────────────── */
@@ -2244,7 +2466,7 @@ window.tsConfirmPayment=async()=>{
       if(p)p.stockQuantity=Math.max(0,(p.stockQuantity||0)-i.quantity);
     }
     delete tsOrders[o.id];
-    renderInventory(allProducts);tsRenderGrid();
+    applyInvFilters();tsRenderGrid();
     loadDailySummaries();loadMonthlySummaries();
     showToast('✓ Masa '+tno+' kapatıldı — '+fc(total));
   }catch(e){showToast('Ödeme hatası: '+e.message);}
@@ -2495,22 +2717,46 @@ window.sendChatMessage=async()=>{
 };
 
 /* ── Inventory ───────────────────── */
+let invCategory=null;
+function stockState(p){
+  const s=p.stockQuantity??0,m=p.minStockThreshold??0;
+  if(p.isStockSet!==false&&s<=0)return['out','Tükendi'];
+  if(m>0&&s<=m)return['crit','Kritik stok'];
+  return['ok','Stokta'];
+}
 function renderInventory(list){
   const el=document.getElementById('inv-grid');
-  if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">📦</div><div class="empty-text">Ürün yok</div></div>';return;}
+  document.getElementById('ix-count').textContent=allProducts.length;
+  if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><div class="empty-text">'+(allProducts.length?'Sonuç bulunamadı':'Henüz ürün yok')+'</div></div>';return;}
   el.innerHTML=list.map(p=>{
-    const s=p.stockQuantity??0,m=p.minStockThreshold??0;
-    let cls,txt;
-    if(s===0){cls='stock-out';txt='Tükendi';}
-    else if(m>0&&s<=m){cls='stock-crit';txt=`${s} — Kritik`;}
-    else if(m>0&&s<=m*2){cls='stock-low';txt=`${s} — Az`;}
-    else{cls='stock-ok';txt=`${s} adet`;}
-    return `<div class="inv-card">
-      <div onclick="openProductModal('${esc(p.id)}')"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.salePrice||0)}</div><span class="stock-badge ${cls}">${txt}</span></div>
-      <button class="inv-barcode-btn" onclick="event.stopPropagation();openBarcodeModal('${esc(p.id)}')">🏷️ Barkod</button>
+    const [st,stTxt]=stockState(p);
+    const img=p.imageURL?`<img src="${esc(p.imageURL)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ix-emoji',textContent:'${pEmoji(p)}'}))">`:`<div class="ix-emoji">${pEmoji(p)}</div>`;
+    const disc=p.discountPercent||0;
+    return `<div class="ix-card" onclick="openProductModal('${esc(p.id)}')">
+      <span class="ix-badge ${st}">${stTxt}</span>
+      <button class="ix-bc" onclick="event.stopPropagation();openBarcodeModal('${esc(p.id)}')" title="Barkod">🏷️</button>
+      <div class="ix-img">${img}</div>
+      <div class="ix-name">${esc(p.name||p.id)}</div>
+      <div class="ix-price">${fc(disc>0?Math.round((p.salePrice||0)*(1-disc/100)*100)/100:(p.salePrice||0))}</div>
+      <div class="ix-stock">📦 ${p.isStockSet===false?'—':(p.stockQuantity??0)} adet</div>
     </div>`;
   }).join('');
 }
+window.renderInvCategoryChips=()=>{
+  const el=document.getElementById('ix-chips');if(!el)return;
+  const cats=[...new Set(allProducts.map(p=>p.category||'Genel'))].sort((a,b)=>a.localeCompare(b,'tr'));
+  el.innerHTML=[`<div class="ix-chip${invCategory===null?' sel':''}" onclick="selectInvCategory(null)">Tümü</div>`]
+    .concat(cats.map(c=>`<div class="ix-chip${c===invCategory?' sel':''}" onclick="selectInvCategory('${esc(c).replace(/'/g,"\\'")}')">${esc(c)}</div>`)).join('');
+};
+window.selectInvCategory=c=>{invCategory=c;renderInvCategoryChips();applyInvFilters();};
+window.applyInvFilters=()=>{
+  const f=(document.getElementById('ix-search')?.value||'').trim().toLocaleLowerCase('tr-TR');
+  let list=allProducts;
+  if(invCategory)list=list.filter(p=>(p.category||'Genel')===invCategory);
+  if(f)list=list.filter(p=>(p.name||'').toLocaleLowerCase('tr-TR').includes(f)||(p.id||'').toLowerCase().includes(f));
+  list=[...list].sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  renderInventory(list);
+};
 
 /* ── Pruva AI — basitleştirilmiş kural tabanlı niyet motoru (iOS'un keyword fallback mantığı) ── */
 let aiLastProduct=null,aiHistory=[];
@@ -2998,7 +3244,7 @@ window.deleteProduct=async()=>{
     loadProducts();
   }catch(e){showToast('Hata: '+e.message);}
 };
-window.filterInventory=q=>{const f=q.toLowerCase();renderInventory(f?allProducts.filter(p=>(p.name||'').toLowerCase().includes(f)):allProducts);};
+window.filterInventory=()=>applyInvFilters();
 
 /* ── Fire & Kayıp (iOS StockLossView ile aynı davranış: sadece stok düşülür) ── */
 let lossProductId=null;
@@ -3113,6 +3359,8 @@ window.savePaymentSettings=async()=>{
 
 function checkCriticalStock(){
   const crit=allProducts.filter(p=>(p.minStockThreshold||0)>0&&p.stockQuantity<=p.minStockThreshold);
+  const sc=document.getElementById('stat-critical');if(sc)sc.textContent=crit.length;
+  if(!crit.length){document.getElementById('alert-strip').style.display='none';}
   if(crit.length){
     document.getElementById('alert-strip').style.display='flex';
     document.getElementById('alert-text').textContent=`${crit.length} ürün kritik stokta`;
@@ -3154,44 +3402,41 @@ function renderHomeStats(){
   const y=dailySummaries.length>1?dailySummaries[dailySummaries.length-2]:null;
   document.getElementById('stat-revenue').textContent=fc(t.revenue);
   document.getElementById('stat-orders').textContent=t.orders;
-  document.getElementById('stat-avg').textContent=t.orders>0?fcs(t.revenue/t.orders):'₺0';
-  if(y&&y.revenue>0){const chg=(t.revenue-y.revenue)/y.revenue*100;const el=document.getElementById('stat-change');el.textContent=(chg>=0?'▲ ':'▼ ')+Math.abs(chg).toFixed(1)+'% dünden';el.className='stat-change '+(chg>=0?'up':'down');}
-  const now=new Date();
-  const mk=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const me=monthlySummaries.find(s=>s.month===mk);
-  const mr=me?.revenue??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.revenue,0);
-  const mo=me?.orders??dailySummaries.filter(d=>d.date.startsWith(mk)).reduce((s,d)=>s+d.orders,0);
-  document.getElementById('stat-monthly').textContent=fcs(mr);
-  document.getElementById('stat-monthly-sub').textContent=`${mo} işlem`;
-  const last7=dailySummaries.slice(-7);
-  document.getElementById('week-total').textContent=fcs(last7.reduce((s,d)=>s+d.revenue,0));
-  renderBarChart('week-chart',last7,'day');
-  const last30=dailySummaries.slice(-28);
-  document.getElementById('month-total').textContent=fcs(last30.reduce((s,d)=>s+d.revenue,0));
-  const weekBuckets=[];
-  for(let i=0;i<4;i++){
-    const slice=last30.slice(i*7,i*7+7);
-    weekBuckets.push({date:`Hafta ${i+1}`,revenue:slice.reduce((s,d)=>s+d.revenue,0)});
-  }
-  renderBarChart('month-chart',weekBuckets,'raw');
-  document.getElementById('year-total').textContent=fcs(monthlySummaries.reduce((s,m)=>s+m.revenue,0));
-  if(monthlySummaries.length)renderBarChart('year-chart',monthlySummaries.map(s=>({date:s.month,revenue:s.revenue})),'month');
-  else document.getElementById('year-chart').innerHTML='<div class="qs-empty">Henüz veri yok</div>';
-  syncPeriodTotal();
+  document.getElementById('stat-avg').textContent=t.orders>0?fc(t.revenue/t.orders):fc(0);
+  const chgEl=document.getElementById('stat-change');
+  if(y&&y.revenue>0){
+    const chg=(t.revenue-y.revenue)/y.revenue*100;
+    chgEl.textContent=(chg>=0?'↗ ':'↘ ')+Math.abs(chg).toFixed(0)+'%';
+    chgEl.className='hx-trend '+(chg>=0?'up':'down');
+  }else{chgEl.textContent='';chgEl.className='hx-trend';}
+  // Büyüme trendi — uygulamadaki üç kart: hafta / ay / yıl
+  const sum=a=>a.reduce((s,d)=>s+(d.revenue||0),0);
+  const pct=(cur,prev)=>prev>0?(cur-prev)/prev*100:null;
+  const d=dailySummaries;
+  const wk=pct(sum(d.slice(-7)),sum(d.slice(-14,-7)));
+  const ms=monthlySummaries;
+  const mo=ms.length>1?pct(ms[ms.length-1].revenue,ms[ms.length-2].revenue):pct(sum(d.slice(-15)),sum(d.slice(-30,-15)));
+  const yr=ms.length>1?pct(ms[ms.length-1].revenue,ms[0].revenue):null;
+  trendCard('trend-week','Bu Hafta',d.slice(-7).map(x=>x.revenue),wk);
+  trendCard('trend-month','Bu Ay',d.map(x=>x.revenue),mo);
+  trendCard('trend-year','Bu Yıl',ms.length?ms.map(x=>x.revenue):d.map(x=>x.revenue),yr);
 }
-window.__homePeriod='week';
-window.homePeriodTab=(p)=>{
-  window.__homePeriod=p;
-  ['week','month','year'].forEach(k=>{
-    document.getElementById('ptab-'+k)?.classList.toggle('active',k===p);
-    document.getElementById('period-'+k)?.classList.toggle('active',k===p);
-  });
-  syncPeriodTotal();
-};
-function syncPeriodTotal(){
-  const src=document.getElementById(window.__homePeriod+'-total');
-  const dst=document.getElementById('period-total-active');
-  if(src&&dst)dst.textContent=src.textContent;
+// Mini alan grafiği (sparkline) — SVG, kütüphanesiz.
+function trendCard(id,label,vals,p){
+  const el=document.getElementById(id);if(!el)return;
+  const up=p==null||p>=0, col=up?'#10B981':'#EF4444';
+  const v=vals.length>1?vals:[0,...vals,0];
+  const max=Math.max(...v,1),min=Math.min(...v,0),W=200,H=54;
+  const pts=v.map((x,i)=>[i/(v.length-1)*W, H-4-((x-min)/(max-min||1))*(H-10)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const gid=id+'-g';
+  el.className='hx-trend-card '+(up?'up':'down');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="hx-spark">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <path d="${line} L${W},${H} L0,${H} Z" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="hx-trend-pct" style="color:${col}">${p==null?'—':(up?'↗ ':'↘ ')+Math.abs(p).toFixed(0)+'%'}</div>
+    <div class="hx-trend-lbl">${label} ›</div>`;
 }
 function renderReports(){
   if(!dailySummaries.length)return;
@@ -3511,13 +3756,29 @@ window.loadZReport=async dateStr=>{
 };
 
 /* ── Tab navigation ──────────────── */
-const tabTitles={home:'Ana Sayfa',ai:'Pruva AI',sales:'Satış',inv:'Stok',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçi',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Tahmin',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Ayarlar'};
+const tabTitles={home:'Ana Sayfa',sales:'Hızlı Satış',inv:'Ürünlerim',reports:'Raporlar',zreport:'Z Raporu',invoices:'Fatura Arşivi',menu:'Menü Editörü',tables:'Masa Servisi',kds:'Mutfak Ekranı',supplier:'Tedarikçiler',courier:'Kurye Çağır',campaigns:'Kampanyalar',forecast:'Stok Tahmini',refund:'İade',loss:'Fire & Kayıp',veresiye:'Veresiye',staff:'Personel',chat:'Personel Sohbeti',settings:'Seçenekler'};
 const loadedTabs=new Set();
 
-window.openAIDroplet=()=>{ switchTab('ai'); setTimeout(()=>document.getElementById('ai-input')?.focus(), 50); };
+// Pruva AI artık sekme değil, yüzen kart (uygulamadaki damla sheet'i).
+let aiLoaded=false;
+window.openAIDroplet=()=>{
+  if(!aiLoaded){aiLoaded=true;aiInit();}
+  document.getElementById('ai-droplet')?.classList.add('hidden');
+  document.getElementById('ai-sheet-backdrop').classList.add('show');
+  document.getElementById('tab-ai').classList.add('show');
+  setTimeout(()=>document.getElementById('ai-input')?.focus(), 80);
+};
+window.closeAISheet=()=>{
+  const sh=document.getElementById('tab-ai');
+  if(!sh.classList.contains('show'))return;
+  sh.classList.remove('show');
+  document.getElementById('ai-sheet-backdrop').classList.remove('show');
+  // damla geri gelsin — döngü gizliden çıkışı görüp yeniden düşürür
+  setTimeout(()=>document.getElementById('ai-droplet')?.classList.remove('hidden'), 260);
+};
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAISheet(); });
 window.switchTab=tab=>{
-  const wasAI = document.getElementById('tab-ai')?.classList.contains('active');
-  if(wasAI && tab!=='ai' && window.__pruvaMorphClose){ window.__pruvaMorphClose(); }
+  if(tab==='ai'){ openAIDroplet(); return; }   // eski bağlantılar için
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -3525,7 +3786,9 @@ window.switchTab=tab=>{
   document.querySelectorAll('.mobile-tab-item').forEach(n=>n.classList.remove('active'));
   const mob=document.getElementById('mob-'+tab);if(mob)mob.classList.add('active');
   document.getElementById('topbar-title').textContent=tabTitles[tab]||tab;
-  document.getElementById('ai-droplet')?.classList.toggle('hidden', tab==='ai');
+  document.querySelector('.main-area')?.classList.toggle('app-screen',['home','sales','inv'].includes(tab));
+  window.__dropBottom = tab==='sales' ? 150 : 28;   // Satış: barkod çubuğu + Tamamla butonunun üstü
+  window.__dropRestingSpot && window.__dropRestingSpot();
   if(tab==='loss')renderLoss();  // güncel stoğu yansıt
   // Lazy-load tabs
   if(!loadedTabs.has(tab)){
@@ -3541,7 +3804,6 @@ window.switchTab=tab=>{
     if(tab==='menu')loadMenuItems();
     if(tab==='supplier')supInit();
     if(tab==='courier')courierInit();
-    if(tab==='ai')aiInit();
     if(tab==='campaigns')campInit();
   }
 };
@@ -3580,13 +3842,17 @@ window.switchTab=tab=>{
   let lastT=0;
   let wasHidden=true;
 
+  window.__dropRestingSpot=()=>restingSpot();
   function restingSpot(){
     // iOS'taki surfaceY = screen.height * 0.62 ("Büyüme Trendi" kartları hizası) —
     // web'de de damla ekranın alt köşesine değil, aynı orana oturur.
     const mobile = W<=900;
     const marginR = mobile?16:26;
+    // Uygulamadaki gibi sağ alt köşe; sayfa kendi yuvasını bildirir (window.__dropBottom):
+    // Satış'ta alt çubuğun üstü, diğer sayfalarda köşe. Mobilde alt sekme çubuğunun üstü.
+    const bottom = (window.__dropBottom ?? 28) + (mobile ? 70 : 0);
     restX = W - marginR - r;
-    restY = H * 0.62 - r;
+    restY = H - bottom - r;
   }
 
   function spawn(){
@@ -3678,7 +3944,7 @@ window.switchTab=tab=>{
 
   function morphOpen(fromX, fromY){
     const morph = document.getElementById('ai-morph');
-    const area  = document.querySelector('.content-area');
+    const area  = document.getElementById('tab-ai');   // kart kapalıyken de ölçülebilir (visibility:hidden)
     if(!morph || !area){ window.openAIDroplet && window.openAIDroplet(); return; }
     const rect = area.getBoundingClientRect();
     morph.style.left   = rect.left+'px';
@@ -3698,7 +3964,7 @@ window.switchTab=tab=>{
   // iOS closeSheet(): sheetOpen=false -> aşağı kayarak + fade ile kapanır, sonra yeni damla doğar.
   window.__pruvaMorphClose = function(){
     const morph = document.getElementById('ai-morph');
-    const area  = document.querySelector('.content-area');
+    const area  = document.getElementById('tab-ai');
     if(!morph || !area) return;
     const rect = area.getBoundingClientRect();
     morph.style.left   = rect.left+'px';
@@ -3721,7 +3987,11 @@ window.switchTab=tab=>{
   hit.addEventListener('pointerdown', e=>{
     if(phase!=='resting') return;
     if(!isNearDrop(e.clientX,e.clientY)) return;
-    hit.setPointerCapture(e.pointerId);
+    // ⚠️ preventDefault ŞART: yoksa fareyle sürüklemek sayfadaki metni seçip
+    // ekranı maviye boyuyordu. Sürükleme boyunca seçim de kapatılır.
+    e.preventDefault();
+    document.body.classList.add('drop-dragging');
+    try{ hit.setPointerCapture(e.pointerId); }catch{}   // bazı tarayıcılar/sentetik olaylar reddedebiliyor — basış yine kaydedilsin
     isPressed = true;
     pressStart = performance.now();
     pressClientX = e.clientX; pressClientY = e.clientY;
@@ -3730,9 +4000,15 @@ window.switchTab=tab=>{
   });
   hit.addEventListener('pointermove', e=>{
     if(!isPressed) return;
+    e.preventDefault();
+    // Hemen sürüklemeye başlayan da tutabilsin: 6 px oynayınca uzun basmayı beklemeden kavra.
+    if(phase==='resting' && Math.hypot(e.clientX-pressClientX, e.clientY-pressClientY)>6){
+      grab(pressClientX, pressClientY);
+    }
     if(phase==='grabbed') moveDrop(e.clientX,e.clientY,performance.now());
   });
   function release(e){
+    document.body.classList.remove('drop-dragging');
     if(!isPressed) return;
     isPressed=false;
     if(phase==='resting' || phase==='grabbed') sink();
@@ -3905,6 +4181,10 @@ window.switchTab=tab=>{
     } else if(phase!=='hidden'){
       tickWobble(dt);
       tickFall(dt);
+      if(phase==='resting'){ // sayfa değişince yuvaya yumuşakça kay
+        pos.x += (restX-pos.x)*Math.min(1,dt*9);
+        pos.y += (restY-pos.y)*Math.min(1,dt*9);
+      }
       elong  = approach(elong, 1, 8.4, dt);
       squash = approach(squash, 1, 10, dt);
       dropScale = approach(dropScale, 1, 20, dt);
@@ -3934,6 +4214,22 @@ window.switchTab=tab=>{
 })();
 
 /* ── Toast ───────────────────────── */
+if(window.__pruvaPreview){ setTimeout(()=>{
+  document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');document.getElementById('ai-droplet').classList.remove('hidden');
+  const now=new Date();
+  document.getElementById('hx-store').textContent="Ahmet Market";document.getElementById('hx-owner').textContent="Ahmet 👋";document.getElementById('hx-category').textContent="Market";
+  document.getElementById('hx-date').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('sx-sub').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'})+' · Ahmet Market';
+  document.getElementById('ix-sub').textContent='Market';
+  const N=[['Süt 1L',24,2,'Süt Ürünleri'],['Yumurta 15li',47,1,'Kahvaltılık'],['Ekmek',12,0,'Fırın'],['Pirinç 1kg',33,24,'Temel Gıda'],['Ayçiçek Yağı 1L',52,28,'Temel Gıda'],['Çay 500g',71,32,'İçecek'],['Su 1,5L',8,36,'İçecek'],['Domates Salçası',27,40,'Temel Gıda'],['Bulaşık Deterjanı',30,44,'Temizlik'],['Makarna 500g',22,18,'Temel Gıda'],['Filtre Kahve 250g',84,19,'İçecek'],['Tereyağlı Bisküvi',20,26,'Atıştırmalık']];
+  // Önizleme fotoğrafları: uygulamanın mockup görselleri (depo kökünden servis edilir, canlıya gitmez)
+  const IMG=['01-milk','02-eggs','03-bread','04-rice','05-oil','06-tea','07-water','08-tomato','09-soap','10-pasta','11-coffee','12-biscuits'];
+  allProducts=N.map((x,i)=>({id:'869000000'+String(i).padStart(4,'0'),name:x[0],salePrice:x[1],stockQuantity:x[2],minStockThreshold:5,category:x[3],taxRate:.1,imageURL:'/Barcode%20POS%20gemini/MockupProducts/'+IMG[i]+'.png'}));
+  const d=[];for(let i=29;i>=0;i--){const t=new Date(now);t.setDate(t.getDate()-i);const r=3000+Math.sin(i/3)*600+(29-i)*55;d.push({date:t.toISOString().slice(0,10),revenue:r,orders:Math.round(r/140)});}
+  dailySummaries=d;monthlySummaries=Array.from({length:8},(_,i)=>({month:'2026-'+String(i+2).padStart(2,'0'),revenue:60000+i*9000,orders:400+i*50}));
+  renderInvCategoryChips();applyInvFilters();checkCriticalStock();renderHomeStats();renderCart();
+}, 50); }
 let toastT;
 window.showToast=msg=>{const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);};
 
