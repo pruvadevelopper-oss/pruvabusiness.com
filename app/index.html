@@ -2282,7 +2282,7 @@ let sxHits=[],sxSel=0;
 window.sxSuggest=q=>{
   const el=document.getElementById('sx-suggest'); const f=(q||'').trim().toLocaleLowerCase('tr-TR');
   if(!f){sxHide();return;}
-  sxHits=allProducts.filter(p=>(p.id||'').toLowerCase().includes(f)||(p.name||'').toLocaleLowerCase('tr-TR').includes(f)).slice(0,8); sxSel=0;
+  sxHits=smartFilter(allProducts,f).slice(0,8); sxSel=0;
   if(!sxHits.length){el.innerHTML='<div class="sx-sug-empty">Ürün bulunamadı</div>';el.classList.add('show');return;}
   el.innerHTML=sxHits.map((p,i)=>`<div class="sx-sug${i===0?' sel':''}" onmousedown="sxPick(${i})"><span>${esc(p.name||p.id)}</span><b>${fc(p.salePrice||0)}</b></div>`).join('');
   el.classList.add('show');
@@ -2884,12 +2884,30 @@ window.renderInvCategoryChips=()=>{
     .concat(cats.map(c=>`<div class="ix-chip${c===invCategory?' sel':''}" onclick="selectInvCategory('${esc(c).replace(/'/g,"\\'")}')">${esc(c)}</div>`)).join('');
 };
 window.selectInvCategory=c=>{invCategory=c;renderInvCategoryChips();applyInvFilters();};
+/* ── Benzer isimle arama (yazım hatası toleransı) — iOS PruvaFuzzy /
+   Android PruvaFuzzy.kt ile BİREBİR aynı kural. Toleransı büyütme. ── */
+const pfFold=s=>(s||'').toLocaleLowerCase('tr-TR').replace(/ı/g,'i').normalize('NFD').replace(/[̀-ͯ]/g,'');
+const pfWords=s=>pfFold(s).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const pfTol=n=>n<4?0:(n<8?1:2);
+function pfDist(a,b){const n=a.length,m=b.length;if(!n)return m;if(!m)return n;const d=[];for(let i=0;i<=n;i++){d[i]=[i];}for(let j=0;j<=m;j++)d[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);}return d[n][m];}
+function pfWord(q,w){if(w.includes(q))return 0;const t=pfTol(q.length);if(!t)return null;let b=pfDist(q,w);if(w.length>q.length)b=Math.min(b,pfDist(q,w.slice(0,q.length)));return b<=t?b:null;}
+function fuzzyScore(name,query){const qw=pfWords(query),nw=pfWords(name);if(!qw.length||!nw.length)return null;let tot=0;
+  for(const q of qw){let best=null;for(const w of nw){const s=pfWord(q,w);if(s!==null&&(best===null||s<best))best=s;}if(best===null){tot=-1;break;}tot+=best;}
+  if(tot>=0)return tot;const qj=qw.join(''),nj=nw.join('');if(qj.length>=3){const s=pfWord(qj,nj);if(s!==null)return s+1;}return null;}
+/** Birebir eşleşenler önde (alfabetik), sonra isme benzeyenler (en benzeyen önce). */
+function smartFilter(list,q){const f=pfFold(q.trim());if(!f)return list;
+  const exact=list.filter(p=>pfFold(p.name).includes(f)||(p.id||'').toLowerCase().includes(f));
+  if(f.length<3||exact.length>=10)return exact;const ids=new Set(exact.map(p=>p.id));
+  const sim=list.filter(p=>!ids.has(p.id)).map(p=>[p,fuzzyScore(p.name,q)]).filter(x=>x[1]!==null).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+  return [...exact,...sim];}
 window.applyInvFilters=()=>{
   const f=(document.getElementById('ix-search')?.value||'').trim().toLocaleLowerCase('tr-TR');
   let list=allProducts;
   if(invCategory)list=list.filter(p=>(p.category||'Genel')===invCategory);
-  if(f)list=list.filter(p=>(p.name||'').toLocaleLowerCase('tr-TR').includes(f)||(p.id||'').toLowerCase().includes(f));
   list=[...list].sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  if(f)list=smartFilter(list,f);
   renderInventory(list);
 };
 
