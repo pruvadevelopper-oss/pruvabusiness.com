@@ -1852,11 +1852,49 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
   <div class="ai-morph-beam b2"></div>
 </div>
 
+<style>
+/* ── Mağaza kurulumu (iOS WelcomeView + CreateStoreView ile birebir adımlar) ── */
+#onboard{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:linear-gradient(135deg,#070C1A,#0E1B4A 40%,#1A2D6E 75%,#2B4195);color:#fff;overflow-y:auto}
+#onboard.hidden{display:none}
+.ob-card{width:100%;max-width:440px;margin:auto}
+.ob-steps{display:flex;gap:6px;justify-content:center;margin-bottom:22px}
+.ob-steps i{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.2)}
+.ob-steps i.on{background:#fff}
+.ob-h{font-size:24px;font-weight:800;text-align:center;margin:0 0 6px}
+.ob-p{font-size:14px;opacity:.7;text-align:center;margin:0 0 22px;white-space:pre-line;line-height:1.45}
+.ob-role{display:flex;align-items:center;gap:14px;width:100%;padding:16px;margin-bottom:12px;border-radius:18px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);color:#fff;text-align:left;cursor:pointer;font:inherit;transition:transform .15s,background .15s}
+.ob-role:hover:not(:disabled){background:rgba(255,255,255,.14);transform:translateY(-1px)}
+.ob-role:disabled{opacity:.5;cursor:default}
+.ob-role .ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ob-role b{display:block;font-size:16px}.ob-role span{font-size:13px;opacity:.7}
+.ob-role em{margin-left:auto;font-style:normal;font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:rgba(255,255,255,.15)}
+.ob-in{width:100%;box-sizing:border-box;padding:15px 16px;margin-bottom:12px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:16px;outline:none}
+.ob-in::placeholder{color:rgba(255,255,255,.45)}.ob-in:focus{border-color:rgba(255,255,255,.5)}
+.ob-gender{display:flex;gap:10px;margin-bottom:18px}
+.ob-gender button{flex:1;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.ob-gender button.on{background:#fff;color:#0E1B4A}
+.ob-btn{width:100%;padding:16px;border:0;border-radius:16px;background:#fff;color:#0E1B4A;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.ob-btn:disabled{opacity:.4;cursor:default}
+.ob-link{display:block;margin:14px auto 0;background:none;border:0;color:rgba(255,255,255,.7);font:inherit;font-size:14px;cursor:pointer}
+.ob-cur{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:46vh;overflow-y:auto;margin-bottom:16px}
+.ob-cur button{padding:12px 6px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:#fff;font:inherit;cursor:pointer}
+.ob-cur button b{display:block;font-size:20px}.ob-cur button span{font-size:12px;opacity:.7}
+.ob-cur button.on{background:#fff;color:#0E1B4A}
+.ob-err{color:#FCA5A5;font-size:13px;text-align:center;min-height:18px;margin-top:10px}
+.ob-back.hidden{display:none}
+.ob-back{position:absolute;top:18px;left:18px;background:rgba(255,255,255,.1);border:0;color:#fff;border-radius:99px;padding:8px 14px;font:inherit;cursor:pointer}
+</style>
+<div id="onboard" class="hidden"><button class="ob-back hidden" id="ob-back" onclick="obBack()">‹ Geri</button><div class="ob-card" id="ob-body"></div></div>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
          onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import { getFunctions, httpsCallable }
+  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js';
 import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
          collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
@@ -1911,7 +1949,10 @@ const esc = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 // Yerel önizleme (yalnızca localhost + ?preview=1): girişsiz, örnek veriyle arayüzü gösterir.
 // Canlı alan adlarında bu dal HİÇ çalışmaz; Firebase'e yazı gitmez (storeId null).
 const PREVIEW = ['localhost','127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('preview');
-if(PREVIEW){ window.__pruvaPreview=true; } else onAuthStateChanged(auth, u => u ? initApp(u) : showLogin());
+if(PREVIEW){ window.__pruvaPreview=true;
+  // Yalnızca localhost: ?preview=onboard kurulum ekranını sahte kullanıcıyla gösterir (hiçbir şey yazmaz).
+  if(new URLSearchParams(location.search).get('preview')==='onboard') setTimeout(()=>{Object.assign(ob,{step:'role',user:{email:'test@ornek.com',displayName:'Ahmet Yılmaz',uid:'x'}});document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');document.getElementById('onboard').classList.remove('hidden');obRender();},300);
+} else onAuthStateChanged(auth, u => { document.getElementById('onboard')?.classList.add('hidden'); u ? routeUser(u) : showLogin(); });
 
 let isSignupMode=false;
 window.toggleAuthMode = () => {
@@ -1958,7 +1999,101 @@ window.doAppleLogin = async () => {
 window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
 function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
 
+/* ── Mağaza bulma + kurulum ───────────────────────────────────────────
+   iOS akışının aynısı: hesap → (mağazası yoksa) rol seçimi → Adım 0 kişisel
+   (ad + cinsiyet) → Adım 1 mağaza (ad, kısa not, davet kodu — hepsi isteğe
+   bağlı) → Adım 2 para birimi → mağaza oluşturulur.
+   ⚠️ Mağaza kodu SUNUCUDA üretilir (generateStoreCode). İstemcide kod üretip
+   yazma: kural ^[A-Z0-9]{6}$ ister ve benzersizliği yalnızca CF doğrulayabilir.
+   ⚠️ Eskiden mağaza bulunamazsa storeId = user.uid sayılıp BOŞ panel açılıyordu. */
+const RESTAURANT_UNLOCKED=false; // iOS RestaurantModule.featureUnlocked ile aynı
+const OB_CURRENCIES=[['TRY','₺'],['USD','$'],['EUR','€'],['GBP','£'],['RUB','₽'],['SAR','ر.س'],['INR','₹'],['BRL','R$'],['PLN','zł'],['UZS',"so'm"],['PKR','₨'],['BDT','৳'],['TMT','T'],['KZT','₸'],['IDR','Rp'],['KES','KSh'],['NGN','₦'],['THB','฿'],['VND','₫'],['PHP','₱'],['IRR','﷼'],['AED','د.إ'],['EGP','E£'],['MAD','DH'],['DZD','DA'],['TZS','TSh'],['UGX','USh'],['GHS','₵'],['ZAR','R'],['ETB','Br'],['AZN','₼'],['UAH','₴'],['CNY','¥']];
+const ob={step:'role',first:'',gender:'male',category:'grocery',name:'',note:'',invite:'',currency:null,busy:false,user:null};
+function obGuessCurrency(){const r=(navigator.language||'').split('-')[1]||'';const m={TR:'TRY',US:'USD',GB:'GBP',RU:'RUB',SA:'SAR',IN:'INR',BR:'BRL',PL:'PLN',UZ:'UZS',PK:'PKR',BD:'BDT',TM:'TMT',KZ:'KZT',ID:'IDR',KE:'KES',NG:'NGN',TH:'THB',VN:'VND',PH:'PHP',IR:'IRR',AE:'AED',EG:'EGP',MA:'MAD',DZ:'DZD',TZ:'TZS',UG:'UGX',GH:'GHS',ZA:'ZAR',ET:'ETB',AZ:'AZN',UA:'UAH',CN:'CNY'};return m[r]||(['FR','DE','ES','IT','NL','PT','AT','BE','IE','FI','GR'].includes(r)?'EUR':'TRY');}
+const obEsc=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function obRender(){
+  const b=document.getElementById('ob-body'); const idx={role:-1,personal:0,store:1,currency:2}[ob.step];
+  document.getElementById('ob-back').classList.toggle('hidden',ob.step==='role'||ob.busy);
+  const dots=idx>=0?'<div class="ob-steps">'+[0,1,2].map(i=>'<i class="'+(i<=idx?'on':'')+'"></i>').join('')+'</div>':'';
+  if(ob.step==='role'){
+    b.innerHTML=`<h1 class="ob-h">Hoşgeldiniz! Ne yapmak istiyorsunuz?</h1><p class="ob-p">${obEsc(ob.user?.email)}</p>
+    <button class="ob-role" onclick="obPickRole('grocery')"><div class="ic" style="background:#DBEAFE">🏪</div><div><b>Market / İşletme Sahibiyim</b><span>Satış yap, stok yönet, rapor al</span></div></button>
+    <button class="ob-role" ${RESTAURANT_UNLOCKED?'':'disabled'} onclick="obPickRole('restaurant')"><div class="ic" style="background:#FEE2E2">🍽️</div><div><b>Restoran & Kafe & Bar</b><span>Masa servisi, menü, mutfak ekranı</span></div>${RESTAURANT_UNLOCKED?'':'<em>Yakında</em>'}</button>
+    <button class="ob-role" onclick="obStaff()"><div class="ic" style="background:#EDE9FE">👤</div><div><b>Çalışan Girişi</b><span>Yöneticinizden aldığınız kodla bağlanın</span></div></button>
+    <div class="ob-err" id="ob-err"></div><button class="ob-link" onclick="obSignOut()">Farklı hesapla giriş yap</button>`;
+  }else if(ob.step==='personal'){
+    b.innerHTML=dots+`<h1 class="ob-h">Yönetici Hesabı</h1><p class="ob-p">Mağazanızın yönetici bilgilerini belirleyin</p>
+    <input class="ob-in" id="ob-first" placeholder="Adınız (örn. Ahmet)" value="${obEsc(ob.first)}" oninput="ob.first=this.value;obValid()" maxlength="40">
+    <div class="ob-gender"><button class="${ob.gender==='male'?'on':''}" onclick="ob.gender='male';obRender()">Erkek</button><button class="${ob.gender==='female'?'on':''}" onclick="ob.gender='female';obRender()">Kadın</button></div>
+    <button class="ob-btn" id="ob-next" onclick="ob.step='store';obRender()">Devam Et</button>`;
+    obValid(); setTimeout(()=>document.getElementById('ob-first')?.focus(),50);
+  }else if(ob.step==='store'){
+    b.innerHTML=dots+`<h1 class="ob-h">Mağazanı Tanıt</h1><p class="ob-p">Tüm bilgiler isteğe bağlı — daha sonra\nAyarlar'dan da güncelleyebilirsin.</p>
+    <input class="ob-in" placeholder="Mağaza / İşletme Adı" value="${obEsc(ob.name)}" oninput="ob.name=this.value" maxlength="60">
+    <input class="ob-in" placeholder="Kısa not (opsiyonel)" value="${obEsc(ob.note)}" oninput="ob.note=this.value" maxlength="200">
+    <input class="ob-in" placeholder="Davet kodu (isteğe bağlı)" value="${obEsc(ob.invite)}" oninput="ob.invite=this.value.toUpperCase()" maxlength="20" autocapitalize="characters">
+    <button class="ob-btn" onclick="ob.step='currency';obRender()">Devam Et</button>
+    <button class="ob-link" onclick="ob.name='';ob.note='';ob.step='currency';obRender()">Şimdi Atla</button>`;
+  }else{
+    if(!ob.currency) ob.currency=obGuessCurrency();
+    b.innerHTML=dots+`<h1 class="ob-h">Para biriminizi seçin</h1><p class="ob-p">Kasa, raporlar ve fişlerde bu birim kullanılır. Daha sonra Seçenekler'den değiştirebilirsiniz.</p>
+    <div class="ob-cur">${OB_CURRENCIES.map(([c,sym])=>`<button class="${c===ob.currency?'on':''}" onclick="ob.currency='${c}';obRender()"><b>${sym}</b><span>${c}</span></button>`).join('')}</div>
+    <button class="ob-btn" ${ob.busy?'disabled':''} onclick="obFinish()">${ob.busy?'Mağaza oluşturuluyor…':'Mağaza Oluştur'}</button><div class="ob-err" id="ob-err"></div>`;
+    setTimeout(()=>b.querySelector('.ob-cur button.on')?.scrollIntoView({block:'nearest'}),30);
+  }
+}
+// Satır içi onclick'ler global kapsamda çalışır; modül değişkenleri oradan görünmez.
+window.ob=ob; window.obRender=obRender;
+window.obValid=()=>{const n=document.getElementById('ob-next');if(n)n.disabled=!ob.first.trim();};
+window.obPickRole=cat=>{ob.category=cat;ob.step='personal';
+  if(!ob.first&&ob.user?.displayName) ob.first=ob.user.displayName.trim().split(/\s+/)[0]; obRender();};
+window.obStaff=()=>{document.getElementById('ob-err').textContent='Çalışanlar mağazaya Pruva Business uygulamasından, yöneticinin verdiği kişisel kodla katılır.';};
+window.obBack=()=>{if(ob.busy)return;ob.step={personal:'role',store:'personal',currency:'store'}[ob.step]||'role';obRender();};
+window.obSignOut=()=>signOut(auth);
+window.obFinish=async()=>{
+  if(ob.busy)return; ob.busy=true; obRender();
+  const fail=m=>{ob.busy=false;obRender();document.getElementById('ob-err').textContent=m;};
+  let code=null;
+  for(let i=0;i<3&&!code;i++){
+    try{const r=await httpsCallable(getFunctions(app),'generateStoreCode')();if(r.data?.code?.length===6)code=r.data.code;}catch(e){console.warn('[Onboard] kod',e);}
+    if(!code&&i<2) await new Promise(r=>setTimeout(r,400<<i));
+  }
+  if(!code) return fail('İnternet bağlantısı yok. İlk girişte bağlantı gereklidir.');
+  const u=ob.user, id=crypto.randomUUID().toUpperCase(), first=ob.first.trim();
+  const uname=(first.toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ı/g,'i').replace(/[^a-z0-9]/g,'')||'admin');
+  const data={code,name:ob.name.trim(),storeName:ob.name.trim(),ownerFirstName:first,ownerGender:ob.gender,category:ob.category,
+    users:[{id:crypto.randomUUID().toUpperCase(),displayName:first,username:uname,role:'admin',canAccessInventory:true,canProcessRefund:true,canSell:true}],
+    ownerFirebaseUid:u.uid,authorizedUids:{},currencyCode:ob.currency,currencyManual:true,createdAt:serverTimestamp()};
+  const reg=(navigator.language||'').split('-')[1]; if(reg) data.businessCountry=reg.toUpperCase();
+  if(ob.note.trim()) data.storeDescription=ob.note.trim().slice(0,200);
+  try{ await setDoc(doc(db,'stores',id),data); }catch(e){console.error('[Onboard] mağaza',e);return fail('Mağaza oluşturulamadı. Lütfen tekrar deneyin.');}
+  try{ await setDoc(doc(db,'users',u.uid),{storeId:id},{merge:true}); }catch(e){console.warn('[Onboard] users',e);}
+  if(ob.invite.trim()){
+    let dev=null;try{dev=localStorage.getItem('pruva_web_device');if(!dev){dev=crypto.randomUUID();localStorage.setItem('pruva_web_device',dev);}}catch{dev=crypto.randomUUID();}
+    httpsCallable(getFunctions(app),'processReferral')({referrerCode:ob.invite.trim(),deviceId:dev,storeId:id}).catch(e=>console.warn('[Onboard] davet',e));
+  }
+  ob.busy=false; document.getElementById('onboard').classList.add('hidden'); initApp(u);
+};
+async function findStoreId(user){
+  try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',user.uid),limit(10)));
+    if(!q.empty){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
+      return (q.docs.find(d=>d.id===pref)||q.docs[0]).id; } }catch(e){console.warn('[Store] sahip sorgusu',e);}
+  try{ const ud=await getDoc(doc(db,'users',user.uid)); if(ud.exists()&&ud.data().storeId){
+      const sd=await getDoc(doc(db,'stores',ud.data().storeId)); if(sd.exists()) return sd.id; } }catch(e){console.warn('[Store] users',e);}
+  return null;
+}
+async function routeUser(user){
+  const sid=await findStoreId(user);
+  if(sid){ window.__resolvedStoreId=sid; return initApp(user); }
+  document.getElementById('auth-loading').classList.add('hidden');
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('ai-droplet').classList.add('hidden');
+  Object.assign(ob,{step:'role',user,busy:false}); document.getElementById('onboard').classList.remove('hidden'); obRender();
+}
+
 async function initApp(user){
+  document.getElementById('onboard')?.classList.add('hidden');
   document.getElementById('auth-loading').classList.add('hidden');
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
@@ -1971,7 +2106,7 @@ async function initApp(user){
   document.getElementById('settings-email').textContent=user.email||'';
   try{
     const ud=await getDoc(doc(db,'users',user.uid));
-    storeId=ud.exists()?(ud.data().storeId||user.uid):user.uid;
+    storeId=window.__resolvedStoreId||(ud.exists()?(ud.data().storeId||user.uid):user.uid);
     const name=ud.exists()?(ud.data().storeName||ud.data().storeCode||'Mağazam'):'Mağazam';
     ['sidebar-store-name','settings-store-name'].forEach(id=>document.getElementById(id).textContent=name);
     document.getElementById('hx-store').textContent=name;
@@ -1980,7 +2115,7 @@ async function initApp(user){
       const sd=await getDoc(doc(db,'stores',storeId));
       if(sd.exists()){
         const d=sd.data();
-        if(d.storeName||d.name) document.getElementById('hx-store').textContent=d.storeName||d.name;
+        if(d.storeName||d.name){ const nm=d.storeName||d.name; document.getElementById('hx-store').textContent=nm; ['sidebar-store-name','settings-store-name'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=nm;}); }
         const cat={market:'Market',grocery:'Market',minimarket:'Market',bakkal:'Bakkal',manav:'Manav',kasap:'Kasap',pharmacy:'Eczane',electronics:'Elektronik',clothing:'Giyim',cosmetics:'Kozmetik',bookstore:'Kırtasiye',petShop:'Pet Shop',restaurant:'Restoran',cafe:'Kafe',bar:'Bar',bakery:'Fırın'};
         document.getElementById('hx-category').textContent=cat[d.category]||'Mağaza';
         window.__ownerName=d.ownerFirstName||'';
