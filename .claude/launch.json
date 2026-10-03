@@ -7,6 +7,12 @@
       "runtimeArgs": ["serve", "-l", "${PORT}", "/Users/aaa/Desktop/Pruva Website"],
       "port": 4201,
       "cwd": "/Users/aaa/Desktop/Pruva Website"
+    },
+    {
+      "name": "pruva-ssd-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["/private/tmp/claude-501/-Users-aaa-Desktop-Pruva-Website/216aa68f-1485-4afd-9e80-37dd0f3f5d30/scratchpad/serve.py"],
+      "port": 8765
     }
   ]
 }
