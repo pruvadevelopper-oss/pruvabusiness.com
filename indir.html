@@ -39,7 +39,10 @@
     document.getElementById("sub").textContent = "Digitize your business for free";
     document.title = "Pruva Business — Download";
   }
-  var target = isIOS ? "ios" : isAndroid ? "and" : null;
+  // ⚠️ Play'de uygulama henüz herkese açık değil (iç test): bağlantı 404 veriyor.
+  // Yayınlanınca true yap — o zamana kadar Android otomatik yönlendirilmez.
+  var ANDROID_LIVE = false;
+  var target = isIOS ? "ios" : (isAndroid && ANDROID_LIVE) ? "and" : null;
   if (target) location.replace(document.getElementById(target).href);
 })();
 </script>
