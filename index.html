@@ -14942,8 +14942,16 @@ html[dir="rtl"] .pc-feats{padding-right:0}
 //    unutma, yoksa ekran aynalı çıkar.
 var PRUVA_SHOT_LANGS=['en','tr','de','fr','es','pt','it','nl','pl','ru','ar','fa','ur','hi','bn','id','vi','th','fil','sw','ha','kk','uz','tk'];
 function pruvaShotLang(){ var l=window.PRUVA_LANG||'en'; return PRUVA_SHOT_LANGS.indexOf(l)>-1?l:'en'; }
+// Yeni dillerde yalnızca home/inventory/sales çekildi (2026-10-02 iPhone seti); diğer ekranlar İngilizce kalır.
+var PRUVA_TEX_EXTRA=['ca','cs','da','el','fi','gu','hr','hu','ja','kn','ko','ml','mr','ms','no','pa','ro','sk','sl','sv','ta','te','uk','zh'];
+function pruvaTexLang(screen){
+  var l=window.PRUVA_LANG||'en';
+  if(PRUVA_SHOT_LANGS.indexOf(l)>-1) return l;
+  if(PRUVA_TEX_EXTRA.indexOf(l)>-1 && (screen==='home'||screen==='inventory'||screen==='sales')) return l;
+  return 'en';
+}
 function pruvaTex(screen){
-  return 'mockup-textures/'+pruvaShotLang()+'/'+screen+'.jpg';
+  return 'mockup-textures/'+pruvaTexLang(screen)+'/'+screen+'.jpg';
 }
 
 // ── CANVAS PARTICLES
@@ -15141,7 +15149,7 @@ function setupMockupPhone(viewerEl, textureUrls){
   // dil değişiminde o anki ekranı yeni dilde yeniden bas
   function refreshLang(){
     if(lastUrl && /mockup-textures\/[a-z]{2,3}\//.test(lastUrl)){
-      setTexture(lastUrl.replace(/mockup-textures\/[a-z]{2,3}\//,'mockup-textures/'+pruvaShotLang()+'/'));
+      setTexture(lastUrl.replace(/mockup-textures\/[a-z]{2,3}\/([a-z-]+)\.jpg/,function(_,sc){ return 'mockup-textures/'+pruvaTexLang(sc)+'/'+sc+'.jpg'; }));
     }
   }
   return {setTexture, refreshLang};
