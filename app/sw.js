@@ -9,7 +9,7 @@
  *    önce önbellekten.
  * ⚠️ Firestore/Auth/AI istekleri ELLENMEZ — onları önbelleğe almak veriyi bozar.
  */
-const CACHE = 'pruva-app-v1';
+const CACHE = 'pruva-app-v2';
 const LIB = /^https:\/\/(www\.gstatic\.com\/firebasejs\/|cdn\.jsdelivr\.net\/|fonts\.(googleapis|gstatic)\.com\/)/;
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -36,7 +36,10 @@ self.addEventListener('fetch', e => {
   if (url.origin === self.location.origin) {     // sayfa + yerel dosyalar: önce ağ
     e.respondWith(caches.open(CACHE).then(async c => {
       try {
-        const res = await fetch(req);
+        // ⚠️ cache:'no-cache' ŞART: yoksa tarayıcının HTTP önbelleği sayfanın ESKİ kopyasını
+        //    verebiliyor ve yeni yayınlanan sürüm görünmüyor (yerelde ölçüldü). Sunucuya sorulur,
+        //    değişmediyse 304 döner (ucuz).
+        const res = await fetch(req, { cache: 'no-cache' });
         if (res && res.ok) c.put(req, res.clone());
         return res;
       } catch (err) {

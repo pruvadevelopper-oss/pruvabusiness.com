@@ -898,6 +898,13 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <div class="login-divider"><span data-i18n="orDivider">VEYA</span></div>
       <button class="btn-social" onclick="doAppleLogin()" data-i18n="continueWithApple"> Apple ile devam et</button>
       <button class="btn-social" onclick="doGoogleLogin()" data-i18n="continueWithGoogle"> Google ile devam et</button>
+      <div class="login-signup-toggle" style="margin-top:14px"><a onclick="staffLoginToggle();return false;" id="staff-login-link">👤 Çalışan Girişi</a></div>
+      <div id="staff-login-box" style="display:none;margin-top:10px">
+        <div class="input-group"><label>Çalışana Özel Kod</label><input type="text" id="staff-code" placeholder="ÖRN. A7F3K9-4M2QXP" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doStaffLogin()"></div>
+        <div style="font-size:11.5px;color:var(--muted);margin:-4px 0 10px">İşvereninizin size verdiği koddur (Seçenekler → Yönetici Modu → Personel → çalışan → Davet Et).</div>
+        <button class="btn-login" id="staff-login-btn" onclick="doStaffLogin()"><span>Çalışan Olarak Gir</span></button>
+        <div id="staff-login-error" style="color:#EF4444;font-size:12.5px;margin-top:8px;min-height:16px"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1174,27 +1181,27 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
               </div>
               <div class="hx-hero-icon" onclick="switchTab('reports')" title="Raporlar">📈</div>
             </div>
-            <div class="hx-today-label">BUGÜN</div>
-            <div class="hx-today-row">
+            <div class="hx-today-label" data-fin>BUGÜN</div>
+            <div class="hx-today-row" data-fin>
               <div class="hx-revenue" id="stat-revenue">₺0,00</div>
               <div class="hx-trend" id="stat-change"></div>
             </div>
             <div class="hx-date" id="hx-date"></div>
             <div class="hx-minis">
               <div class="hx-mini"><div class="hx-mini-ic">🛒</div><div class="hx-mini-val" id="stat-orders">0</div><div class="hx-mini-lbl">Sipariş</div></div>
-              <div class="hx-mini"><div class="hx-mini-ic">🧺</div><div class="hx-mini-val" id="stat-avg">₺0</div><div class="hx-mini-lbl">Ort. Sepet</div></div>
+              <div class="hx-mini" data-fin><div class="hx-mini-ic">🧺</div><div class="hx-mini-val" id="stat-avg">₺0</div><div class="hx-mini-lbl">Ort. Sepet</div></div>
               <div class="hx-mini"><div class="hx-mini-ic">⚠️</div><div class="hx-mini-val" id="stat-critical">0</div><div class="hx-mini-lbl">Kritik</div></div>
             </div>
           </div>
 
-          <div id="alert-strip" class="hx-alert" style="display:none" onclick="switchTab('inv')">
+          <div id="alert-strip" class="hx-alert" style="display:none" onclick="if(PERMS_inv())switchTab('inv')">
             <div class="hx-alert-ic">⚠️</div>
             <div class="hx-alert-txt"><div class="hx-alert-title" id="alert-text">Kritik Stok</div><div class="hx-alert-sub" id="alert-sub"></div></div>
             <div class="hx-alert-cta">Tümünü Gör ›</div>
           </div>
 
-          <div class="hx-section-label">BÜYÜME TRENDİ</div>
-          <div class="hx-trends">
+          <div class="hx-section-label" data-fin>BÜYÜME TRENDİ</div>
+          <div class="hx-trends" data-fin>
             <div class="hx-trend-card" id="trend-week" onclick="switchTab('reports')"></div>
             <div class="hx-trend-card" id="trend-month" onclick="switchTab('reports')"></div>
             <div class="hx-trend-card" id="trend-year" onclick="switchTab('reports')"></div>
@@ -2085,7 +2092,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
-         onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup }
+         onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInAnonymously }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFunctions, httpsCallable }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js';
@@ -2171,7 +2178,7 @@ const PREVIEW = ['localhost','127.0.0.1'].includes(location.hostname) && new URL
 if(PREVIEW){ window.__pruvaPreview=true;
   // Yalnızca localhost: ?preview=onboard kurulum ekranını sahte kullanıcıyla gösterir (hiçbir şey yazmaz).
   if(new URLSearchParams(location.search).get('preview')==='onboard') setTimeout(()=>{Object.assign(ob,{step:'role',user:{email:'test@ornek.com',displayName:'Ahmet Yılmaz',uid:'x'}});document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');document.getElementById('onboard').classList.remove('hidden');obRender();},300);
-} else onAuthStateChanged(auth, u => { document.getElementById('onboard')?.classList.add('hidden'); u ? routeUser(u) : showLogin(); });
+} else onAuthStateChanged(auth, u => { if(staffJoining) return; document.getElementById('onboard')?.classList.add('hidden'); u ? routeUser(u) : showLogin(); });
 
 let isSignupMode=false;
 window.toggleAuthMode = () => {
@@ -2215,7 +2222,97 @@ window.doAppleLogin = async () => {
   try { await signInWithPopup(auth, new OAuthProvider('apple.com')); }
   catch(e){ if(e.code!=='auth/popup-closed-by-user') err.textContent=(window.PRUVA_LOGIN_T||{}).errFailed||'Giriş başarısız.'; }
 };
-window.doLogout = async()=>{await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
+window.doLogout = async()=>{
+  // ⚠️ ÇALIŞAN (anonim oturum) "çıkış" yapınca kimliği kaybolur ve üyeliği sunucuda YETİM kalır.
+  //    Bu yüzden çalışanın çıkışı = mağazadan AYRILMAK (leaveStore). Tekrar girmek için kodunu yazar.
+  if(auth.currentUser?.isAnonymous){
+    if(!confirm('Bu tarayıcının mağazaya erişimi kaldırılacak. Yeniden girmek için kişisel kodunuz gerekir. Çıkılsın mı?')) return;
+    await staffLeave(true);
+  }
+  await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
+
+/* ── ÇALIŞAN GİRİŞİ (2026-10-07) — uygulamalardaki akışın aynısı ────────────────────────────
+   Kod: MAĞAZAKOD-KİŞİSELKOD (ör. A7F3K9-4M2QXP). Anonim oturum açılır, `joinStore` ucu kodu
+   SUNUCUDA doğrular ve bu tarayıcının kimliğini mağazanın üyelerine ekler. Rol ve izinler
+   mağaza belgesindeki personel kaydından okunur (bkz. applyPerms).
+   ⚠️ Kod doğrulaması İSTEMCİDE YAPILMAZ; tek otorite sunucu. */
+var staffJoining=false;   // var: onAuthStateChanged geri çağrısı bu satırdan ÖNCE tetiklenebilir (TDZ olmasın)
+const STAFF_KEY='pruva_staff_store_v1';
+const CF_BASE='https://us-central1-qwick-pos-3f05e.cloudfunctions.net/';
+window.staffLoginToggle=()=>{ const b=document.getElementById('staff-login-box'); b.style.display=b.style.display==='none'?'block':'none';
+  if(b.style.display==='block') document.getElementById('staff-code').focus(); };
+window.doStaffLogin=async()=>{
+  const err=m=>{ document.getElementById('staff-login-error').textContent=m||''; };
+  // Rakamlar ASCII'ye (Arap/Fars), harfler büyük; ayraç ve boşluk atılır. Son 6 hane kişisel kod.
+  const raw=document.getElementById('staff-code').value.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(raw.length!==12){ err('Kod 12 haneli olmalı (ör. A7F3K9-4M2QXP).'); return; }
+  const code=raw.slice(0,6), personalCode=raw.slice(6);
+  const btn=document.getElementById('staff-login-btn'); btn.disabled=true; err('');
+  staffJoining=true;
+  try{
+    if(auth.currentUser&&!auth.currentUser.isAnonymous) await signOut(auth);
+    const cred=auth.currentUser?{user:auth.currentUser}:await signInAnonymously(auth);
+    const tok=await cred.user.getIdToken();
+    const res=await fetch(CF_BASE+'joinStore',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({code,personalCode})});
+    const j=await res.json().catch(()=>({}));
+    if(!res.ok||!j.storeId){
+      err(res.status===429?'Çok fazla deneme. 15 dakika sonra tekrar deneyin.':res.status===404?'Kod hatalı: mağaza bulunamadı.':res.status===403||res.status===401?'Kod hatalı ya da bu çalışan kaldırılmış.':(j.error||'Giriş yapılamadı. İnternet bağlantınızı kontrol edin.'));
+      return;
+    }
+    try{ localStorage.setItem(STAFF_KEY,j.storeId); }catch{}
+    document.getElementById('staff-code').value='';
+    staffJoining=false;
+    document.getElementById('onboard')?.classList.add('hidden');
+    await routeUser(auth.currentUser);
+  }catch(e){ console.error('[Staff] giriş',e); err(e?.code==='auth/operation-not-allowed'?'Çalışan girişi şu an kullanılamıyor.':'Giriş yapılamadı. İnternet bağlantınızı kontrol edin.'); }
+  finally{ staffJoining=false; btn.disabled=false; }
+};
+/** Çalışanın bu tarayıcıdaki üyeliğini sunucudan kaldır + yerel oturumu temizle. */
+async function staffLeave(callServer){
+  const sid=(()=>{try{return localStorage.getItem(STAFF_KEY);}catch{return null;}})()||storeId;
+  if(callServer&&sid&&auth.currentUser){
+    try{ const tok=await auth.currentUser.getIdToken();
+      await fetch(CF_BASE+'leaveStore',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({storeId:sid})});
+    }catch(e){ console.warn('[Staff] leaveStore çağrılamadı',e); }
+  }
+  try{ localStorage.removeItem(STAFF_KEY); }catch{}
+}
+/** Erişimi kaldırılmış çalışan: oturumu kapat, giriş ekranına dön. */
+async function staffKicked(msg){
+  await staffLeave(false); try{ await signOut(auth); }catch{}
+  storeId=null; allProducts=[]; cart=[]; showLogin();
+  const b=document.getElementById('staff-login-box'); if(b){ b.style.display='block'; document.getElementById('staff-login-error').textContent=msg||'Bu mağazaya erişiminiz kaldırılmış.'; }
+}
+
+/* ── ROL VE İZİNLER — iOS StaffManager ile aynı kapılar ─────────────────────────────────────
+   fin   (canViewFinancials)   : sahip + ortak            → ciro, raporlar, Z raporu
+   mgmt  (hasManagementAccess) : sahip + ortak + müdür    → yönetim ekranları, veresiye, fiyat/stok
+   inv   (canAccessInventory)  : yönetim ya da izinli çalışan → Ürünlerim, ürün ekleme, kayıp
+   refund(canProcessRefund)    : yönetim ya da izinli çalışan → iade
+   owner : mağazanın sahibi (hesap) → mağazalar, davet kampanyası, hesap silme
+   ⚠️ Bu yalnızca ARAYÜZ kapısıdır; asıl yetki Firestore kurallarında. */
+var PERMS={owner:true,fin:true,mgmt:true,inv:true,refund:true,staffName:''};
+window.PERMS_inv=()=>!!PERMS.inv;
+var TAB_PERM={reports:'fin',zreport:'fin',forecast:'fin',inv:'inv',quickps:'mgmt',loss:'inv',refund:'refund',veresiye:'mgmt',
+  staff:'mgmt',owner:'mgmt',tax:'mgmt',currency:'mgmt',stores:'owner',reco:'owner',invoices:'mgmt',supplier:'mgmt',campaigns:'mgmt',courier:'mgmt',menu:'mgmt'};
+function applyPerms(p){
+  PERMS=p; window.__isOwner=!!p.owner;
+  const hide=(el,ok)=>{ el.dataset.hide=ok?'0':'1'; };
+  document.querySelectorAll('[data-owner]').forEach(e=>hide(e,p.owner));
+  document.querySelectorAll('[data-mgmt]').forEach(e=>hide(e,p.mgmt));
+  document.querySelectorAll('[data-fin]').forEach(e=>hide(e,p.fin));
+  document.querySelectorAll('[data-inv]').forEach(e=>hide(e,p.inv));
+  // Bir sekmeye/işleme götüren her düğme, o sekmenin izni yoksa gizlenir.
+  document.querySelectorAll('.nav-item[onclick], .hx-action[onclick], .hx-hero-icon[onclick], .settings-row[onclick]').forEach(e=>{
+    const oc=e.getAttribute('onclick')||''; const m=oc.match(/(?:switchTab|optOpen)\('([a-z]+)'/);
+    let need=m?TAB_PERM[m[1]]:null;
+    if(/openProductModal\(/.test(oc)) need='inv';
+    if(/openImportExportModal|ieExportCSV|openBarcodeModal/.test(oc)) need='mgmt';
+    if(need) hide(e,!!p[need]);
+  });
+}
+if(location.hostname==='localhost') window.__applyPerms=applyPerms;   // yalnızca yerel geliştirme: rol görünümünü denemek için
+function optApplyRole(isOwner){ applyPerms({owner:isOwner,fin:isOwner,mgmt:isOwner,inv:isOwner,refund:isOwner,staffName:''}); }
 function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
 
 /* Kategori adları — uygulamanın StoreCategory rawValue'ları ve Türkçe adlarıyla BİREBİR. */
@@ -2299,6 +2396,8 @@ window.obFinish=async()=>{
   ob.busy=false; document.getElementById('onboard').classList.add('hidden'); initApp(u);
 };
 async function findStoreId(user){
+  // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
+  if(user.isAnonymous){ try{ return localStorage.getItem(STAFF_KEY)||null; }catch{ return null; } }
   try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',user.uid),limit(10)));
     if(!q.empty){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
       return (q.docs.find(d=>d.id===pref)||q.docs[0]).id; } }catch(e){console.warn('[Store] sahip sorgusu',e);}
@@ -2309,6 +2408,8 @@ async function findStoreId(user){
 async function routeUser(user){
   const sid=await findStoreId(user);
   if(sid){ window.__resolvedStoreId=sid; return initApp(user); }
+  // Mağazası olmayan anonim oturum: yarım kalmış çalışan girişi → giriş ekranı (mağaza KURMA akışına sokma).
+  if(user.isAnonymous){ await signOut(auth).catch(()=>{}); return showLogin(); }
   document.getElementById('auth-loading').classList.add('hidden');
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.add('hidden');
@@ -2328,8 +2429,9 @@ async function initApp(user){
   document.getElementById('topbar-date').textContent=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()];
   document.getElementById('sidebar-email').textContent=user.email||'';
   document.getElementById('settings-email').textContent=user.email||'';
+  let staffGone=false;
   try{
-    const ud=await getDoc(doc(db,'users',user.uid));
+    const ud=user.isAnonymous?{exists:()=>false}:await getDoc(doc(db,'users',user.uid));
     storeId=window.__resolvedStoreId||(ud.exists()?(ud.data().storeId||user.uid):user.uid);
     const name=ud.exists()?(ud.data().storeName||ud.data().storeCode||'Mağazam'):'Mağazam';
     ['sidebar-store-name','settings-store-name'].forEach(id=>document.getElementById(id).textContent=name);
@@ -2346,9 +2448,23 @@ async function initApp(user){
         window.__storeDoc=d;
         if(d.currencyCode){ const c=OB_CURRENCIES.find(x=>x[0]===d.currencyCode); if(c) CUR=c[1]+(c[1].length>1?' ':''); }
         document.getElementById('opt-cur-sub').textContent=d.currencyCode||'TRY';
-        optApplyRole(d.ownerFirebaseUid===user.uid);
-      }
-    }catch{}
+        if(d.ownerFirebaseUid===user.uid) optApplyRole(true);
+        else{
+          // Çalışan/ortak/müdür: personel kaydı staffUid ile bulunur (joinStore yazar).
+          const me=(Array.isArray(d.users)?d.users:[]).find(u=>u&&u.staffUid===user.uid);
+          if(!me){ staffGone=true; }
+          else{
+            const role=String(me.role||'employee'), top=role==='admin'||role==='partner', mg=top||role==='manager';
+            applyPerms({owner:false,fin:top,mgmt:mg,inv:mg||me.canAccessInventory===true,refund:mg||me.canProcessRefund===true,staffName:me.displayName||me.username||''});
+            window.__ownerName=me.displayName||me.username||'';
+            const nm=window.__ownerName+' · '+({partner:'Ortak',manager:'Müdür',admin:'Yönetici'}[role]||'Çalışan');
+            ['sidebar-email','settings-email'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=nm; });
+          }
+        }
+      } else if(user.isAnonymous) staffGone=true;
+    }catch(e){ if(user.isAnonymous&&e?.code==='permission-denied') staffGone=true; }
+    // 🔴 Sahip bu çalışanı sildiyse (ya da üyelik kalktıysa) tarayıcı mağazada KALMAZ.
+    if(staffGone){ return staffKicked('Bu mağazaya erişiminiz kaldırılmış. Yeniden girmek için işvereninizden kod isteyin.'); }
   }catch{storeId=user.uid;}
   document.getElementById('hx-owner').textContent=(window.__ownerName||user.displayName||(user.email||'').split('@')[0]||'')+' 👋';
   document.getElementById('hx-date').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
@@ -2582,7 +2698,7 @@ function scanToCart(code){
   if(document.querySelector('.modal-overlay.show')) return false;   // açık pencere varken karışma
   if(typeof switchTab==='function'&&document.getElementById('tab-sales')?.offsetParent===null) switchTab('sales');
   if(p){ addToCart(p.id); return true; }
-  if(/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); return true; }
+  if(PERMS.inv&&/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); return true; }
   showToast('Ürün bulunamadı: '+v); return false;
 }
 let sxAutoTimer=null;
@@ -2620,7 +2736,7 @@ window.sxKey=e=>{
     const exact=allProducts.find(p=>p.id===v);
     if(exact){addToCart(exact.id);inp.value='';sxHide();return;}
     if(sxHits.length)sxPick(sxSel);
-    else if(/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ inp.value='';sxHide(); showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); }
+    else if(PERMS.inv&&/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ inp.value='';sxHide(); showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); }
     else showToast('Ürün bulunamadı: '+v);
   }else if(e.key==='ArrowDown'||e.key==='ArrowUp'){
     e.preventDefault(); if(!sxHits.length)return;
@@ -2689,7 +2805,7 @@ window.confirmSale=async()=>{
     b.set(doc(collection(db,'stores',storeId,'receipts')),{
       // ⚠️ date CİHAZ saati: serverTimestamp çevrimdışı satışı internetin GELDİĞİ ana yazardı.
       date:Timestamp.fromDate(td),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,
-      staffName:auth.currentUser?.email||'web',
+      staffName:PERMS.staffName||auth.currentUser?.email||'web',
       items:sold.map(i=>({productId:i.id,name:i.isGram?`${i.name} (${gramLabel(i.grams)})`:i.name,qty:i.qty,unitPrice:effUnit(i),total:effUnit(i)*i.qty,taxRate:i.taxRate||0,discountPercent:i.discountPercent||0,...(i.isGram?{isGramSale:true,gramWeight:i.grams}:{})})),
       // ⚠️ 10 YIL (TTK md. 82). Eskiden 1 yıl yazıyordu.
       expireAt:new Date(td.getTime()+3650*24*3600*1000),isRefund:false,source:'web',
@@ -4230,7 +4346,7 @@ window.confirmRefund=async()=>{
     // 🔌 Satışla aynı desen: TEK PAKET, sunucu beklenmez (çevrimdışı çalışır), tarih CİHAZ saati.
     const b=writeBatch(db), rref=doc(collection(db,'stores',storeId,'receipts'));
     const rdata={date:Timestamp.fromDate(td),monthKey:mk,total:amt,taxTotal:taxAmt,
-      paymentMethod:tx.paymentMethod,staffName:auth.currentUser?.email||'web',
+      paymentMethod:tx.paymentMethod,staffName:PERMS.staffName||auth.currentUser?.email||'web',
       items:tx.items||[],expireAt:new Date(td.getTime()+3650*24*3600*1000),
       isRefund:true,linkedSaleId:tx.id,source:'web'};
     b.set(rref,rdata);
@@ -4646,10 +4762,10 @@ let optStack=[];
 const OPT_TITLES={owner:'Yönetici Modu',quickps:'Hızlı Fiyat ve Stok Gir',stores:'Mağazalarım',reco:'Davet Kampanyası',currency:'Para Birimi',tax:'Vergi Oranı',help:'Yardım & Destek'};
 window.optOpen=(tab,parent)=>{ optStack.push(parent||(MAIN_TABS.includes(currentTab)?currentTab:(optStack[optStack.length-1]||'settings'))); switchTab(tab,true); };
 window.optBack=()=>{ const t=optStack.pop()||'settings'; switchTab(t,true); if(MAIN_TABS.includes(t)) optStack=[]; };
-function optApplyRole(isOwner){ window.__isOwner=isOwner;
-  document.querySelectorAll('[data-owner]').forEach(e=>e.dataset.hide=isOwner?'0':'1'); }
+/* optApplyRole → applyPerms (bkz. ROL VE İZİNLER) */
 let currentTab='home';
 window.switchTab=(tab,fromOpt)=>{
+  { const need=TAB_PERM[tab]; if(need&&!PERMS[need]){ showToast('Bu işlem için yönetici yetkisi gerekli'); return; } }
   if(tab==='ai'){ openAIDroplet(); return; }   // eski bağlantılar için
   // ⛔ Restoran modülü kilitli: masa servisi / mutfak / menü editörü HİÇBİR yoldan açılmaz.
   if(!RESTAURANT_UNLOCKED && ['tables','kds','menu'].includes(tab)) return;
