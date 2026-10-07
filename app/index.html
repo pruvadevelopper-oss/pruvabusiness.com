@@ -1290,7 +1290,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 
       <!-- INVOICE VAULT (Fatura Arşivi) -->
       <div class="tab-panel" id="tab-invoices">
-        <div style="margin-bottom:14px;font-size:12.5px;color:var(--muted)">Taranmış faturalar (sadece görüntüleme — tarama iOS uygulamasından yapılır)</div>
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><button class="btn-confirm" style="padding:8px 14px" onclick="invOpenAdd()">+ Fatura Ekle</button><span style="font-size:12.5px;color:var(--muted)">Faturanın fotoğrafını ya da taranmış görüntüsünü yükleyin. Karta tıklayınca sayfalar açılır.</span></div>
         <div id="invoice-list" class="ver-grid"><div class="loading-dots" style="grid-column:span 3"><span></span><span></span><span></span></div></div>
       </div>
 
@@ -1679,6 +1679,24 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <button class="btn-danger-ghost" id="pr-delete-btn" style="display:none" onclick="deleteProduct()">Sil</button>
       <button class="btn-cancel" onclick="document.getElementById('product-modal').classList.remove('show')">İptal</button>
       <button class="btn-confirm" onclick="saveProduct()">✓ Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fatura Ekle -->
+<div class="modal-overlay" id="invoice-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-box wide">
+    <div class="modal-title">Fatura Ekle</div>
+    <div class="form-group"><label>Tedarikçi</label><input type="text" id="inv-supplier" placeholder="Örn: Yıldız Gıda" autocomplete="off"></div>
+    <div class="form-row2">
+      <div class="form-group"><label>Fatura Tarihi</label><input type="date" id="inv-date"></div>
+      <div class="form-group"><label>Toplam Tutar</label><input type="text" inputmode="decimal" id="inv-total" placeholder="0,00" autocomplete="off"></div>
+    </div>
+    <div class="form-group"><label>Not <span style="font-weight:400;color:var(--muted)">(isteğe bağlı)</span></label><input type="text" id="inv-notes" autocomplete="off"></div>
+    <div class="form-group"><label>Sayfalar <span style="font-weight:400;color:var(--muted)">(fotoğraf: JPG / PNG, birden çok seçilebilir)</span></label><input type="file" id="inv-files" accept="image/jpeg,image/png,image/webp" multiple></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('invoice-modal').classList.remove('show')">İptal</button>
+      <button class="btn-confirm" id="inv-save-btn" onclick="invSave()">✓ Kaydet</button>
     </div>
   </div>
 </div>
@@ -2099,6 +2117,8 @@ import { getFunctions, httpsCallable }
 import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, writeBatch, doc, getDoc, getDocs, addDoc as _addDoc, setDoc as _setDoc, updateDoc as _updateDoc, deleteDoc as _deleteDoc,
          collection, query, orderBy, limit, startAfter, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot, deleteField }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { getStorage, ref as stRef, uploadBytes, getDownloadURL, deleteObject }
+  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js';
 import { getAI, getGenerativeModel, VertexAIBackend }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-ai.js';
 
@@ -3249,26 +3269,85 @@ window.kdsAdvance=async(orderId,itemId)=>{
 };
 
 /* ── Fatura Arşivi (görüntüleme) — iOS InvoiceCloudSync şemasıyla birebir ── */
+/* Fatura Arşivi — iOS InvoiceCloudSync şemasıyla aynı: stores/{id}/invoices/{UUID}
+   {supplierName, invoiceDate, totalAmount, currencyCode, notes, pageCount, pageURLs, createdAt, isPaid}
+   Sayfalar Storage'da: stores/{id}/invoices/{UUID}/p0.jpg … (kural: yalnızca görüntü, < 8 MB). */
+let invCache=[];
 async function loadInvoices(){
   if(!storeId)return;
   const el=document.getElementById('invoice-list');
   try{
-    const snap=await getDocs(query(collection(db,'stores',storeId,'invoices'),orderBy('invoiceDate','desc'),limit(50)));
-    if(snap.empty){el.innerHTML='<div class="empty-state" style="grid-column:span 3"><div class="empty-icon">📄</div><div class="empty-text">Henüz taranmış fatura yok</div><div class="empty-sub">Fatura taramak için iOS uygulamasını kullan</div></div>';return;}
-    el.innerHTML=snap.docs.map(d=>{
-      const v=d.data();
+    const snap=await getDocs(query(collection(db,'stores',storeId,'invoices'),orderBy('invoiceDate','desc'),limit(100)));
+    invCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!invCache.length){el.innerHTML='<div class="empty-state" style="grid-column:span 3"><div class="empty-icon">📄</div><div class="empty-text">Henüz fatura yok</div><div class="empty-sub">"+ Fatura Ekle" ile fotoğrafını yükleyin</div></div>';return;}
+    el.innerHTML=invCache.map(v=>{
       const dt=v.invoiceDate?.toDate?v.invoiceDate.toDate():null;
       const dateStr=dt?dt.toLocaleDateString('tr-TR'):'';
-      const firstPage=(v.pageURLs||[])[0];
-      return `<div class="ver-card" ${firstPage?`onclick="window.open('${esc(firstPage)}','_blank')"`:'style="cursor:default"'}>
+      return `<div class="ver-card" style="cursor:default">
         <div class="ver-name">${esc(v.supplierName||'Tedarikçi')}</div>
         <div class="ver-phone">${dateStr} · ${v.pageCount||0} sayfa</div>
         <div style="font-size:18px;font-weight:800;margin-top:8px">${fc(v.totalAmount||0)}</div>
         ${v.notes?`<div style="font-size:11.5px;color:var(--muted);margin-top:4px">${esc(v.notes)}</div>`:''}
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn-cancel" style="padding:5px 9px;font-size:11.5px" onclick="invTogglePaid('${esc(v.id)}')">${v.isPaid?'✓ Ödendi':'Ödenmedi'}</button>
+          ${(v.pageURLs||[]).length?`<button class="btn-cancel" style="padding:5px 9px;font-size:11.5px" onclick="invOpenPages('${esc(v.id)}')">Sayfaları Aç</button>`:''}
+          <button class="btn-danger-ghost" style="padding:5px 9px;font-size:11.5px" onclick="invDelete('${esc(v.id)}')">Sil</button>
+        </div>
       </div>`;
     }).join('');
   }catch(e){el.innerHTML=`<div class="empty-state" style="grid-column:span 3"><div class="empty-icon">📄</div><div class="empty-text">Yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;}
 }
+window.invOpenAdd=()=>{
+  ['inv-supplier','inv-total','inv-notes'].forEach(id=>document.getElementById(id).value='');
+  const td=new Date(); document.getElementById('inv-date').value=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+  document.getElementById('inv-files').value='';
+  document.getElementById('invoice-modal').classList.add('show');
+};
+/** Fotoğrafı en uzun kenarı 2000 px olacak şekilde küçültüp JPEG'e çevirir (kural: < 8 MB, görüntü). */
+function invShrink(file){
+  return new Promise((res,rej)=>{ const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ const k=Math.min(1,2000/Math.max(img.width,img.height)); const c=document.createElement('canvas');
+      c.width=Math.round(img.width*k); c.height=Math.round(img.height*k); c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); c.toBlob(b=>b?res(b):rej(new Error('görüntü işlenemedi')),'image/jpeg',0.85); };
+    img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('dosya bir görüntü değil')); }; img.src=url; });
+}
+window.invSave=async()=>{
+  const supplier=document.getElementById('inv-supplier').value.trim();
+  const total=ieNum(document.getElementById('inv-total').value), day=document.getElementById('inv-date').value;
+  const files=[...document.getElementById('inv-files').files];
+  if(!supplier){showToast('Tedarikçi adı gerekli');return;}
+  if(total==null||total<0){showToast('Tutar geçersiz');return;}
+  if(!files.length){showToast('En az bir sayfa fotoğrafı seçin');return;}
+  if(!navigator.onLine){showToast('Fatura yüklemek için internet gerekli');return;}
+  const btn=document.getElementById('inv-save-btn'); btn.disabled=true; btn.textContent='Yükleniyor…';
+  const id=crypto.randomUUID().toUpperCase(), st=getStorage(app), done=[];
+  try{
+    const urls=[];
+    for(let i=0;i<files.length;i++){
+      const r=stRef(st,`stores/${storeId}/invoices/${id}/p${i}.jpg`);
+      await uploadBytes(r,await invShrink(files[i]),{contentType:'image/jpeg'}); done.push(r);
+      urls.push(await getDownloadURL(r)); btn.textContent=`Yükleniyor… ${i+1}/${files.length}`;
+    }
+    await setDoc(doc(db,'stores',storeId,'invoices',id),{supplierName:supplier,invoiceDate:Timestamp.fromDate(new Date((day||new Date().toISOString().slice(0,10))+'T12:00:00')),
+      totalAmount:Math.round(total*100)/100,currencyCode:(window.__storeDoc&&window.__storeDoc.currencyCode)||'TRY',notes:document.getElementById('inv-notes').value.trim(),
+      pageCount:urls.length,pageURLs:urls,createdAt:Timestamp.now(),isPaid:false});
+    document.getElementById('invoice-modal').classList.remove('show'); showToast('✓ Fatura kaydedildi'); loadInvoices();
+  }catch(e){
+    // Yarım yükleme: yüklenen sayfaları öksüz bırakma (iOS'taki cleanup ile aynı).
+    console.error('[Fatura]',e); for(const r of done){ try{ await deleteObject(r); }catch{} }
+    alert('⚠️ Fatura kaydedilemedi: '+(e?.code||e?.message||e));
+  }
+  btn.disabled=false; btn.textContent='✓ Kaydet';
+};
+window.invOpenPages=id=>{ const v=invCache.find(x=>x.id===id); (v?.pageURLs||[]).forEach(u=>{ if(/^https:\/\//.test(u)) window.open(u,'_blank','noopener'); }); };
+window.invTogglePaid=async id=>{ const v=invCache.find(x=>x.id===id); if(!v)return;
+  try{ await setDoc(doc(db,'stores',storeId,'invoices',id),{isPaid:!v.isPaid},{merge:true}); loadInvoices(); }catch(e){ showToast('Kaydedilemedi'); } };
+window.invDelete=async id=>{ const v=invCache.find(x=>x.id===id); if(!v)return;
+  if(!confirm(`"${v.supplierName||'Fatura'}" faturası silinsin mi? Sayfaları da silinir.`))return;
+  try{ const st=getStorage(app);
+    for(let i=0;i<(v.pageCount||0);i++){ try{ await deleteObject(stRef(st,`stores/${storeId}/invoices/${id}/p${i}.jpg`)); }catch{} }
+    await deleteDoc(doc(db,'stores',storeId,'invoices',id)); showToast('Fatura silindi'); loadInvoices();
+  }catch(e){ alert('⚠️ Silinemedi: '+(e?.code||e?.message||e)); } };
 
 /* ── Personel Sohbeti — iOS ChatManager şemasıyla birebir (genel oda) ── */
 let chatListener=null;
