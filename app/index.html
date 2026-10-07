@@ -2089,7 +2089,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFunctions, httpsCallable }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js';
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, writeBatch, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, writeBatch, doc, getDoc, getDocs, addDoc as _addDoc, setDoc as _setDoc, updateDoc as _updateDoc, deleteDoc as _deleteDoc,
          collection, query, orderBy, limit, startAfter, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot, deleteField }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 import { getAI, getGenerativeModel, VertexAIBackend }
@@ -2129,6 +2129,16 @@ if (APPCHECK_SITE_KEY) {
     });
   } catch (e) { console.warn('App Check kurulamadı (çevrimdışı olabilir):', e); }
 }
+
+// 🔌 ÇEVRİMDIŞI GÜVENLİ YAZIM. Kalıcı önbellekte yazım hemen kuyruğa girer ama sunucu onayı
+//    gelene kadar promise ÇÖZÜLMEZ: `await updateDoc(...)` internetsizken sonsuza dek bekler
+//    (düğme kilitli kalır, "kaydedildi" hiç çıkmaz). İnternet yokken beklemeden devam edilir;
+//    sunucu sonradan REDDEDERSE kullanıcı uyarılır. İnternet varken davranış aynen eskisi.
+const offlineSafe=p=>{ if(navigator.onLine) return p;
+  p.catch(e=>alert('⚠️ Çevrimdışıyken yapılan bir değişiklik sunucuya yazılamadı: '+(e?.code||e?.message||'')));
+  return Promise.resolve(); };
+const addDoc=(...a)=>offlineSafe(_addDoc(...a)), setDoc=(...a)=>offlineSafe(_setDoc(...a)),
+      updateDoc=(...a)=>offlineSafe(_updateDoc(...a)), deleteDoc=(...a)=>offlineSafe(_deleteDoc(...a));
 
 // 🔌 Çevrimdışı açılış: sayfa ve kütüphaneler önbelleğe alınır (bkz. sw.js).
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW kaydı:', e));
@@ -2682,7 +2692,8 @@ window.confirmSale=async()=>{
       staffName:auth.currentUser?.email||'web',
       items:sold.map(i=>({productId:i.id,name:i.isGram?`${i.name} (${gramLabel(i.grams)})`:i.name,qty:i.qty,unitPrice:effUnit(i),total:effUnit(i)*i.qty,taxRate:i.taxRate||0,discountPercent:i.discountPercent||0,...(i.isGram?{isGramSale:true,gramWeight:i.grams}:{})})),
       // ⚠️ 10 YIL (TTK md. 82). Eskiden 1 yıl yazıyordu.
-      expireAt:new Date(td.getTime()+3650*24*3600*1000),isRefund:false,source:'web'
+      expireAt:new Date(td.getTime()+3650*24*3600*1000),isRefund:false,source:'web',
+      ...(verCustomerId?{veresiyeCustomerId:verCustomerId}:{})   // iade borcu DÜŞEBİLSİN diye
     });
     // ⚠️ Sayılmamış üründe (isStockSet === false) stok DÜŞÜLMEZ — uygulamalarla aynı kural.
     //    Tartılı üründe düşüm GRAM. set+merge: belge yoksa paket düşmesin.
@@ -3908,7 +3919,7 @@ window.ixSearchKey=e=>{
 let lossProductId=null;
 function renderLoss(list){
   const el=document.getElementById('loss-grid');if(!el)return;
-  const inStock=(list||allProducts).filter(p=>(p.stockQuantity??0)>0);
+  const inStock=(list||allProducts).filter(p=>p.isStockSet!==false&&(p.stockQuantity??0)>0);
   if(!inStock.length){el.innerHTML='<div class="empty-state" style="grid-column:span 4"><div class="empty-icon">🗑️</div><div class="empty-text">Stokta ürün yok</div></div>';return;}
   el.innerHTML=inStock.map(p=>`<div class="inv-card" onclick="openLossModal('${esc(p.id)}')"><div class="inv-emoji">${pEmoji(p)}</div><div class="inv-name">${esc(p.name||p.id)}</div><div class="inv-price">${fc(p.salePrice||0)}</div><span class="stock-badge stock-ok">${p.stockQuantity} adet</span></div>`).join('');
 }
@@ -3917,7 +3928,7 @@ window.openLossModal=id=>{
   const p=allProducts.find(x=>x.id===id);if(!p)return;
   lossProductId=id;
   document.getElementById('loss-modal-title').textContent=p.name||id;
-  document.getElementById('loss-modal-stock').textContent=`Mevcut stok: ${p.stockQuantity??0} adet`;
+  document.getElementById('loss-modal-stock').textContent=`Mevcut stok: ${p.isWeightBased?gramLabel(p.stockQuantity??0)+' — miktarı GRAM olarak girin':(p.stockQuantity??0)+' adet'}`;
   const qi=document.getElementById('loss-qty');qi.value=1;qi.max=p.stockQuantity??0;
   document.getElementById('loss-reason').value='Çalıntı';
   updateLossValue();
@@ -3937,7 +3948,7 @@ window.confirmLoss=async()=>{
   document.getElementById('loss-modal').classList.remove('show');
   try{
     await updateDoc(doc(db,'stores',storeId,'products',p.id),{stockQuantity:increment(-q),updatedAt:serverTimestamp()});
-    showToast(`🗑️ ${p.name}: ${q} adet stoktan düşüldü`);
+    showToast(`🗑️ ${p.name}: ${p.isWeightBased?gramLabel(q):q+' adet'} stoktan düşüldü`);
     loadProducts();
   }catch(e){showToast('Hata: '+e.message);}
 };
@@ -4188,7 +4199,7 @@ function renderRefundList(){
       <div class="refund-icon">${isRef?'↩️':'🧾'}</div>
       <div class="refund-info">
         <div class="refund-amount">${isRef?'-':''}${fc(tx.total||0)}</div>
-        <div class="refund-meta">${dateStr} · ${tx.paymentMethod==='card'?'Kart':'Nakit'} · ${items}</div>
+        <div class="refund-meta">${dateStr} · ${tx.paymentMethod==='card'?'Kart':tx.paymentMethod==='veresiye'?'Veresiye':tx.paymentMethod==='cash'?'Nakit':esc(tx.paymentMethod||'—')} · ${items}</div>
       </div>
       <span class="refund-tag ${isRef?'refunded':'sale'}">${isRef?'İade':'Satış'}</span>
       ${!isRef?(refundedIds.has(tx.id)?'<span style="font-size:11px;font-weight:700;color:var(--muted)">İade edildi</span>':`<button class="refund-btn" onclick="openRefundModal('${tx.id}')">İade Et</button>`):''}
@@ -4199,7 +4210,7 @@ window.openRefundModal=id=>{
   const tx=recentTransactions.find(t=>t.id===id);if(!tx)return;
   pendingRefundTx=tx;
   const items=(tx.items||[]).map(i=>`${esc(i.name||i.productId)} ×${i.qty} = ${fc(i.total??(i.unitPrice||0)*i.qty)}`).join('<br>');
-  document.getElementById('refund-modal-detail').innerHTML=`${items}<br><br><b>Ödeme yöntemi:</b> ${tx.paymentMethod==='card'?'Kart':'Nakit'}`;
+  document.getElementById('refund-modal-detail').innerHTML=`${items}<br><br><b>Ödeme yöntemi:</b> ${tx.paymentMethod==='card'?'Kart':tx.paymentMethod==='veresiye'?'Veresiye':'Nakit'}`;
   document.getElementById('refund-modal-total').textContent=fc(tx.total||0);
   document.getElementById('refund-modal').classList.add('show');
 };
@@ -4230,6 +4241,14 @@ window.confirmRefund=async()=>{
     const dp=['stores',storeId,'dailySummaries',dk], mp=['stores',storeId,'monthlySummaries',mk];
     b.set(doc(db,...dp),summaryPatch(dp,-amt,-taxAmt,tx.paymentMethod,0),{merge:true});
     b.set(doc(db,...mp),summaryPatch(mp,-amt,-taxAmt,tx.paymentMethod,0),{merge:true});
+    // 🔴 VERESİYE İADESİ MÜŞTERİNİN BORCUNU DÜŞÜRÜR (uygulamalardaki kural). Yoksa müşteri
+    //    iade ettiği malın parasını ödemeye devam eder. Web'de veresiye satışın TAMAMI borçtur.
+    if(tx.paymentMethod==='veresiye'&&tx.veresiyeCustomerId){
+      b.set(doc(collection(db,'stores',storeId,'veresiyeCustomers',tx.veresiyeCustomerId,'entries')),
+        {amount:-amt,note:'İade (web)',date:Timestamp.fromDate(td),isDeleted:false,updatedAt:serverTimestamp()});
+      b.set(doc(db,'stores',storeId,'veresiyeCustomers',tx.veresiyeCustomerId),{debtAmount:increment(-amt),updatedAt:serverTimestamp()},{merge:true});
+      verCustomers=[];
+    }
     b.commit().catch(e=>{ console.error('iade yazılamadı:',e); alert('⚠️ '+fc(amt)+' tutarındaki iade sunucuya KAYDEDİLEMEDİ.\n'+(e?.code||e?.message||'')); });
     recentTransactions.unshift({id:rref.id,...rdata}); renderRefundList();
     showToast(`↩ ${fc(amt)} iade edildi`);
@@ -4326,7 +4345,7 @@ window.openVerEntry=sign=>{
 };
 window.saveVerEntry=async()=>{
   if(!currentVerCustomer)return;
-  const amt=parseFloat(document.getElementById('ve-amount').value);
+  const amt=Math.round((ieNum(document.getElementById('ve-amount').value)||0)*100)/100;
   if(!amt||amt<=0){showToast('Geçerli bir tutar gir');return;}
   const note=document.getElementById('ve-note').value.trim();
   const signed=verEntrySign>0?amt:-amt;
@@ -4379,6 +4398,7 @@ async function loadStaff(){
 }
 
 /* ── Z Raporu ────────────────────── */
+let zOtherBase=0;
 window.loadZReport=async dateStr=>{
   if(!storeId)return;
   if(!dateStr){
@@ -4396,7 +4416,7 @@ window.loadZReport=async dateStr=>{
     document.getElementById('z-count').textContent=(d.saleCount||0)+' işlem';
     document.getElementById('z-cash').textContent=fc(d.cashTotal||0);
     document.getElementById('z-card').textContent=fc(d.cardTotal||0);
-    document.getElementById('z-other').textContent=fc(d.otherTotal||0);
+    zOtherBase=d.otherTotal||0; document.getElementById('z-other').textContent=fc(zOtherBase);
     document.getElementById('z-tax').textContent=fc(d.taxTotal||0);
   }catch(e){console.error(e);}
   // Günün fişleri — iade toplamı, top ürünler, işlem tablosu
@@ -4405,6 +4425,9 @@ window.loadZReport=async dateStr=>{
     const snap=await getDocs(query(collection(db,'stores',storeId,'receipts'),
       where('date','>=',Timestamp.fromDate(start)),where('date','<',Timestamp.fromDate(end)),orderBy('date','desc'),limit(500)));
     const txs=snap.docs.map(x=>({id:x.id,...x.data()}));
+    // Veresiye satışı özet kovalarına YAZILMAZ (alacaktır); kartta günün fişlerinden toplanır.
+    const verNet=txs.filter(t=>t.paymentMethod==='veresiye').reduce((s,t)=>s+(t.isRefund?-1:1)*(t.total||0),0);
+    document.getElementById('z-other').textContent=fc(zOtherBase+verNet);
     const refunds=txs.filter(t=>t.isRefund);
     document.getElementById('z-refunds').textContent=refunds.length?'−'+fc(refunds.reduce((s,t)=>s+(t.total||0),0)):fc(0);
     document.getElementById('z-refund-count').textContent=refunds.length?refunds.length+' iade':'';
@@ -4561,7 +4584,8 @@ window.qpsSave=async btn=>{
   const row=btn.closest('.qps-row'), id=row.dataset.id, [pi,si]=row.querySelectorAll('input');
   const price=qpsNum(pi.value), stock=qpsNum(si.value); const upd={};
   if(price!==null){ if(!(price>0)){showToast('Fiyat 0’dan büyük olmalı');return;} upd.salePrice=price; upd.isPriced=true; }
-  if(stock!==null){ if(!(stock>=0)||!Number.isInteger(stock)){showToast('Stok tam sayı olmalı');return;} upd.stockQuantity=stock; upd.isStockSet=true; }
+  if(stock!==null){ if(!(stock>=0)||!Number.isInteger(stock)){showToast('Stok tam sayı olmalı');return;} upd.stockQuantity=stock; upd.isStockSet=true;
+    const cur=allProducts.find(x=>x.id===id); if(!cur||stock>(cur.stockQuantity??0)) upd.minStockThreshold=stock>0?Math.max(1,Math.round(stock*critPct()/100)):0; }
   if(!Object.keys(upd).length) return;
   btn.disabled=true;
   try{ await updateDoc(doc(db,'stores',storeId,'products',id),{...upd,updatedAt:serverTimestamp()});
@@ -4656,13 +4680,15 @@ window.switchTab=(tab,fromOpt)=>{
   window.__dropRestingSpot && window.__dropRestingSpot();
   if(tab==='settings') requestAnimationFrame(()=>window.__dropRestingSpot && window.__dropRestingSpot());
   if(tab==='loss')renderLoss();  // güncel stoğu yansıt
+  // ⚠️ Bu üçü HER girişte yeniden yüklenir: eskiden oturumda bir kez yükleniyor, az önce yapılan
+  //    satış/iade/veresiye Z raporunda ve defterde sayfa yenilenene kadar görünmüyordu.
+  if(tab==='refund')loadRefundList();
+  if(tab==='veresiye')loadVeresiye();
+  if(tab==='zreport')loadZReport();
   // Lazy-load tabs
   if(!loadedTabs.has(tab)){
     loadedTabs.add(tab);
-    if(tab==='refund')loadRefundList();
-    if(tab==='veresiye')loadVeresiye();
     if(tab==='staff')loadStaff();
-    if(tab==='zreport')loadZReport();
     if(tab==='tables')tsInit();
     if(tab==='kds')kdsInit();
     if(tab==='chat')chatInit();
