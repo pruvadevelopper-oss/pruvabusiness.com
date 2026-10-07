@@ -27,7 +27,7 @@
     <option value="vi">Tiếng Việt</option><option value="th">ไทย</option>
     <option value="fil">Filipino</option><option value="sw">Kiswahili</option>
     <option value="ha">Hausa</option><option value="kk">Қазақша</option>
-    <option value="uz">Oʻzbekcha</option><option value="tk">Türkmençe</option>
+    <option value="uz">Oʻzbekcha</option><option value="tk">Türkmençe</option><option value="am">አማርኛ</option><option value="az">Azərbaycanca</option><option value="bg">Български</option><option value="ca">Català</option><option value="cs">Čeština</option><option value="da">Dansk</option><option value="el">Ελληνικά</option><option value="fi">Suomi</option><option value="gu">ગુજરાતી</option><option value="hr">Hrvatski</option><option value="hu">Magyar</option><option value="ig">Igbo</option><option value="ja">日本語</option><option value="km">ខ្មែរ</option><option value="kn">ಕನ್ನಡ</option><option value="ko">한국어</option><option value="ml">മലയാളം</option><option value="mr">मराठी</option><option value="ms">Bahasa Melayu</option><option value="my">မြန်မာ</option><option value="no">Norsk</option><option value="or">ଓଡ଼ିଆ</option><option value="pa">ਪੰਜਾਬੀ</option><option value="ro">Română</option><option value="si">සිංහල</option><option value="sk">Slovenčina</option><option value="sl">Slovenščina</option><option value="sr">Српски</option><option value="sv">Svenska</option><option value="ta">தமிழ்</option><option value="te">తెలుగు</option><option value="uk">Українська</option><option value="yo">Yorùbá</option><option value="zh">中文</option><option value="zu">isiZulu</option>
   </select>
   <a href="index.html" class="back" data-i18n="sup.back">← Home</a>
 </nav>
@@ -116,7 +116,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 //    ve aynı ?lang= parametresi. Ayrışırsa kullanıcı ana sayfadan destek sayfasına
 //    geçerken dili sıfırlanır.
 (function(){
-  var SUPPORTED = ['en','tr','de','fr','es','pt','it','nl','pl','ru','ar','fa','ur','hi','bn','id','vi','th','fil','sw','ha','kk','uz','tk'];
+  var SUPPORTED = ['en','tr','de','fr','es','pt','it','nl','pl','ru','ar','fa','ur','hi','bn','id','vi','th','fil','sw','ha','kk','uz','tk','am','az','bg','ca','cs','da','el','fi','gu','hr','hu','ig','ja','km','kn','ko','ml','mr','ms','my','no','or','pa','ro','si','sk','sl','sr','sv','ta','te','uk','yo','zh','zu'];
   var RTL = ['ar','fa','ur'];
   var dict = window.PRUVA_SUPPORT_I18N || {};
 
@@ -128,7 +128,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     if(ls && SUPPORTED.includes(ls)) return ls;
     var navLangs = (navigator.languages||[navigator.language||'en']);
     for(var i=0;i<navLangs.length;i++){
-      var code = navLangs[i].toLowerCase().split('-')[0];
+      var code = navLangs[i].toLowerCase().split('-')[0]; if(code==='nb'||code==='nn') code='no';
       if(SUPPORTED.includes(code)) return code;
     }
     return 'en';
