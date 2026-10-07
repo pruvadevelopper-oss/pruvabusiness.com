@@ -550,6 +550,7 @@ tr: {
   "footer.copy": "© 2026 Rivoly Business. Tüm hakları saklıdır.",
   "footer.privacy": "Gizlilik & KVKK",
   "footer.support": "Destek",
+  "footer.migrate": "Eski kasadan aktar",
   "footer.terms": "Koşullar",
   "footer.contact": "İletişim",
   "privacy.homeLink": "Ana Sayfa",
