@@ -7,6 +7,7 @@
 <title>Pruva Business</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <style>
 :root {
   /* Pruva marka rengi: koyu lacivert (logodan) + CTA için royal mavi */
@@ -882,6 +883,8 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 
 <div id="login-screen" class="hidden">
   <div class="login-box">
+    <!-- Dil seçici: dil tarayıcı diline göre seçiliyor ama kullanıcı bunu GÖREMİYOR ve değiştiremiyordu. -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><select id="login-lang" aria-label="Language" onchange="try{localStorage.setItem('pruvaLang',this.value)}catch(e){};location.reload()" style="padding:6px 10px;border-radius:10px;border:1px solid var(--border,#d6dbe6);background:transparent;color:inherit;font-size:13px"></select></div>
     <img src="../pruva-logo-transparent.png" alt="Pruva Business" class="login-logo-img">
     <div class="login-tagline" data-i18n="tagline">Akıllı POS · 24 Dil · Offline-First</div>
     <div class="login-card">
@@ -898,6 +901,12 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <div class="login-divider"><span data-i18n="orDivider">VEYA</span></div>
       <button class="btn-social" onclick="doAppleLogin()" data-i18n="continueWithApple"> Apple ile devam et</button>
       <button class="btn-social" onclick="doGoogleLogin()" data-i18n="continueWithGoogle"> Google ile devam et</button>
+      <button class="btn-social" id="qr-login-btn" onclick="qrLoginToggle()">📱 <span id="qr-login-label">Uygulamadan QR ile giriş</span></button>
+      <div id="qr-login-box" style="display:none;margin-top:12px;text-align:center">
+        <div id="qr-login-code" style="display:inline-block;background:#fff;padding:10px;border-radius:14px;min-width:200px;min-height:200px"></div>
+        <div id="qr-login-hint" style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5"></div>
+        <div id="qr-login-error" style="color:#EF4444;font-size:12.5px;margin-top:6px;min-height:16px"></div>
+      </div>
       <div class="login-signup-toggle" style="margin-top:14px"><a onclick="staffLoginToggle();return false;" id="staff-login-link">👤 Çalışan Girişi</a></div>
       <div id="staff-login-box" style="display:none;margin-top:10px">
         <div class="input-group"><label>Çalışana Özel Kod</label><input type="text" id="staff-code" placeholder="ÖRN. A7F3K9-4M2QXP" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doStaffLogin()"></div>
@@ -967,6 +976,15 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
     var key = el.getAttribute('data-i18n-placeholder');
     if(t[key]) el.setAttribute('placeholder', t[key]);
   });
+  // Dil seçici — kendi dilinde adlar. Seçim localStorage'a yazılır, sayfa yenilenir.
+  var NAMES={en:'English',tr:'Türkçe',de:'Deutsch',fr:'Français',es:'Español',pt:'Português',it:'Italiano',nl:'Nederlands',pl:'Polski',ru:'Русский',ar:'العربية',fa:'فارسی',ur:'اردو',hi:'हिन्दी',bn:'বাংলা',id:'Indonesia',vi:'Tiếng Việt',th:'ไทย',fil:'Filipino',sw:'Kiswahili',ha:'Hausa',kk:'Қазақша',uz:'Oʻzbekcha',tk:'Türkmençe'};
+  var sel=document.getElementById('login-lang');
+  if(sel){ SUPPORTED.forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent='🌐 '+(NAMES[c]||c.toUpperCase()); if(c===lang) o.selected=true; sel.appendChild(o); }); }
+  // QR ile giriş metinleri (TR/EN; diğer diller EN).
+  var QRL={tr:{label:'Uygulamadan QR ile giriş',hint:'Telefonda Pruva Business → Seçenekler → “Web Paneline Giriş” ile bu kodu okutun. Kod 3 dakika geçerlidir.',expired:'Kodun süresi doldu. Yeni kod için tekrar dokunun.',fail:'Kod oluşturulamadı. İnternet bağlantınızı kontrol edin.'},
+           en:{label:'Sign in with QR from the app',hint:'On your phone open Pruva Business → Options → “Web Panel Sign-in” and scan this code. The code is valid for 3 minutes.',expired:'The code expired. Tap again for a new one.',fail:'Could not create the code. Check your connection.'}};
+  window.PRUVA_QRL = QRL[lang] || QRL.en;
+  var ql=document.getElementById('qr-login-label'); if(ql) ql.textContent=window.PRUVA_QRL.label;
 })();
 </script>
 
@@ -2110,7 +2128,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
-         onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInAnonymously }
+         onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInAnonymously, signInWithCustomToken }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFunctions, httpsCallable }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js';
@@ -2261,6 +2279,37 @@ const STAFF_KEY='pruva_staff_store_v1';
 const CF_BASE='https://us-central1-qwick-pos-3f05e.cloudfunctions.net/';
 window.staffLoginToggle=()=>{ const b=document.getElementById('staff-login-box'); b.style.display=b.style.display==='none'?'block':'none';
   if(b.style.display==='block') document.getElementById('staff-code').focus(); };
+// ── QR ile giriş: kod göster → uygulamadan okutulup onaylanınca o hesaba gir.
+// ⚠️ `secret` yalnızca BU sekmede yaşar ve QR'a GİRMEZ: kodun fotoğrafını çeken
+// biri oturumu alamaz (sunucu yalnızca sha256'sını tutar). Bkz. CF webLoginStart.
+let qrLoginTimer=null;
+window.qrLoginToggle=async()=>{
+  const box=document.getElementById('qr-login-box'), codeEl=document.getElementById('qr-login-code');
+  const hint=document.getElementById('qr-login-hint'), err=document.getElementById('qr-login-error');
+  const L=window.PRUVA_QRL||{};
+  if(qrLoginTimer){ clearInterval(qrLoginTimer); qrLoginTimer=null; }
+  if(box.style.display!=='none' && codeEl.dataset.live==='1'){ box.style.display='none'; codeEl.dataset.live='0'; return; }
+  box.style.display='block'; err.textContent=''; hint.textContent=''; codeEl.innerHTML='<div class="spinner" style="display:block;margin:84px auto"></div>';
+  try{
+    const hex=b=>Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');
+    const secret=hex(crypto.getRandomValues(new Uint8Array(32)));
+    const secretHash=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(secret))));
+    const fn=n=>httpsCallable(getFunctions(app),n);
+    const {data}=await fn('webLoginStart')({secretHash});
+    const qr=qrcode(0,'M'); qr.addData('pruva://weblogin?s='+data.sessionId); qr.make();
+    codeEl.innerHTML=qr.createSvgTag({cellSize:5,margin:2,scalable:false}); codeEl.dataset.live='1';
+    hint.textContent=L.hint||'';
+    const until=Date.now()+(data.ttlSeconds||180)*1000;
+    qrLoginTimer=setInterval(async()=>{
+      if(Date.now()>until){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.innerHTML=''; codeEl.dataset.live='0'; hint.textContent=''; err.textContent=L.expired||''; return; }
+      try{
+        const r=(await fn('webLoginClaim')({sessionId:data.sessionId,secret})).data;
+        if(r.status==='ok'){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.dataset.live='0'; await signInWithCustomToken(auth,r.token); }
+        else if(r.status==='expired'){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.innerHTML=''; codeEl.dataset.live='0'; hint.textContent=''; err.textContent=L.expired||''; }
+      }catch(e){ console.warn('[QRLogin] claim',e); }
+    },2500);
+  }catch(e){ console.warn('[QRLogin]',e); codeEl.innerHTML=''; codeEl.dataset.live='0'; err.textContent=L.fail||''; }
+};
 window.doStaffLogin=async()=>{
   const err=m=>{ document.getElementById('staff-login-error').textContent=m||''; };
   // Rakamlar ASCII'ye (Arap/Fars), harfler büyük; ayraç ve boşluk atılır. Son 6 hane kişisel kod.
