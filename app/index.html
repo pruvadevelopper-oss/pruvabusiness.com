@@ -52,6 +52,8 @@
 .pressable { transition:var(--press-transition); }
 .pressable:active { transform:scale(0.96); filter:brightness(0.95); }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration:.28s; animation-timing-function:ease; }
+html.theme-switching, html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after { transition:none !important; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   background: var(--bg); color: var(--text);
@@ -835,8 +837,26 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
     if(m==='time'){ var h=new Date().getHours(); return h>=19||h<7; }
     return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;
   }
+  var animateNext=false;
   function apply(){
-    var m=mode(); document.documentElement.classList.toggle('dark',isDark(m));
+    var m=mode(), want=isDark(m), root=document.documentElement;
+    // ⚠️ Tema DEĞİŞİRKEN geçiş animasyonları kapatılır. Öğelerin bir kısmı rengi animasyonla
+    //    (0,1–0,3 sn, hepsi farklı), bir kısmı anında değiştiriyordu → ekran dalgalanıp titriyordu.
+    if(root.classList.contains('dark')!==want){
+      var swap=function(){
+        root.classList.add('theme-switching'); root.classList.toggle('dark',want);
+        void root.offsetWidth;   // stil hesabını zorla: geçişsiz hâl uygulansın
+        // setTimeout (rAF DEĞİL): arka plandaki sekmede rAF çalışmaz, sınıf takılı kalırdı.
+        setTimeout(function(){ root.classList.remove('theme-switching'); },80);
+      };
+      // YUMUŞAK ama DALGASIZ: ekranın TAMAMI tek görüntü olarak çapraz geçiş yapar (View
+      // Transitions). Öğeler tek tek animasyon yapmadığı için titreme olmaz. Yalnızca kullanıcı
+      // düğmeye bastığında; ilk açılışta ve desteklemeyen eski tarayıcıda anında değişir.
+      var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(animateNext&&document.startViewTransition&&!calm){ try{ document.startViewTransition(swap); }catch(e){ swap(); } }
+      else swap();
+    }
+    animateNext=false;
     var b=document.getElementById('theme-btn');
     ['theme-quick','theme-quick-float'].forEach(function(id){ var q=document.getElementById(id);
       if(q) q.textContent=document.documentElement.classList.contains('dark')?'☀️':'🌙'; });
@@ -844,9 +864,9 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
   }
   // Üst çubuktaki elle düğme: o anki görünümün tersine sabitler (Açık ↔ Koyu).
   window.toggleThemeQuick=function(){ var d=document.documentElement.classList.contains('dark');
-    try{localStorage.setItem('pruvaTheme',d?'light':'dark');}catch(e){} apply(); };
+    try{localStorage.setItem('pruvaTheme',d?'light':'dark');}catch(e){} animateNext=true; apply(); };
   window.cycleTheme=function(){ var m=MODES[(MODES.indexOf(mode())+1)%MODES.length];
-    try{localStorage.setItem('pruvaTheme',m);}catch(e){} apply(); };
+    try{localStorage.setItem('pruvaTheme',m);}catch(e){} animateNext=true; apply(); };
   apply();
   document.addEventListener('DOMContentLoaded',apply);
   // Sistem teması değişince ya da saat eşiği geçince yeniden uygula — sayfa yenilenmez, veri kaybolmaz.
@@ -1217,7 +1237,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
               <div class="sx-input-wrap">
                 <span class="sx-input-ic">▦</span>
                 <input id="sx-input" type="text" placeholder="Barkod ya da ürün adı" autocomplete="off"
-                  oninput="sxSuggest(this.value)" onkeydown="sxKey(event)" onblur="setTimeout(()=>sxHide(),150)">
+                  oninput="sxSuggest(this.value);sxAuto(this)" onkeydown="sxKey(event)" onblur="setTimeout(()=>sxHide(),150)">
                 <div class="sx-suggest" id="sx-suggest"></div>
               </div>
               <button class="sx-cash" id="quickcash-btn" onclick="quickCashSale()" disabled title="Tek dokunuşla nakit satış">⚡ Nakit</button>
@@ -1353,7 +1373,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
               <button class="ix-icon-btn" onclick="openImportExportModal()" title="İçe/Dışa Aktar">⇅</button>
             </div>
           </div>
-          <div class="ix-search"><span>🔍</span><input id="ix-search" type="text" placeholder="Ürün veya barkod ara…" oninput="applyInvFilters()"></div>
+          <div class="ix-search"><span>🔍</span><input id="ix-search" type="text" placeholder="Ürün veya barkod ara… (okuyucuyla okutun)" oninput="applyInvFilters()" onkeydown="ixSearchKey(event)" autocomplete="off"></div>
           <div class="ix-chips" id="ix-chips"></div>
         </div>
         <div class="ix-grid" id="inv-grid"><div class="loading-dots"><span></span><span></span><span></span></div></div>
@@ -1420,7 +1440,9 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <!-- REFUND -->
       <div class="tab-panel" id="tab-refund">
         <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-          <div style="font-size:13px;color:var(--muted)">Son 50 satış — iade için bir satışa tıkla</div>
+          <div style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="refund-hint">Son satışlar — iade için "İade Et"e tıkla</span>
+            <input type="date" id="refund-date" onchange="loadRefundList()" style="width:auto;padding:5px 8px;font-size:12px" title="Belirli bir günün satışları">
+            <button class="btn-cancel" style="padding:5px 10px;font-size:12px" onclick="document.getElementById('refund-date').value='';loadRefundList()">Bugüne dön</button></div>
         </div>
         <div id="refund-list"><div class="loading-dots"><span></span><span></span><span></span></div></div>
       </div>
@@ -1626,13 +1648,14 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
   <div class="modal-box wide">
     <div class="modal-title" id="product-modal-title">Ürün Ekle</div>
     <div class="form-group"><label>Ürün Adı</label><input type="text" id="pr-name" placeholder="Örn: Su 0.5L"></div>
-    <div class="form-group"><label>Barkod</label><input type="text" id="pr-barcode" placeholder="Boş bırakılırsa otomatik üretilir"></div>
+    <div class="form-group"><label>Barkod</label><input type="text" id="pr-barcode" placeholder="Okuyucuyla okutun ya da yazın — boşsa otomatik üretilir" autocomplete="off" onkeydown="prBarcodeKey(event)"></div>
     <div class="form-row2">
-      <div class="form-group"><label>Satış Fiyatı (₺)</label><input type="number" id="pr-price" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label id="pr-price-label">Satış Fiyatı (₺)</label><input type="text" inputmode="decimal" id="pr-price" placeholder="Boş = fiyat kasada sorulur" autocomplete="off"></div>
       <div class="form-group"><label>KDV</label><select id="pr-tax"><option value="0">%0</option><option value="0.01">%1</option><option value="0.1">%10</option><option value="0.2" selected>%20</option></select></div>
     </div>
     <div class="form-row2">
-      <div class="form-group"><label>Stok Adedi</label><input type="number" id="pr-stock" min="0" step="1" placeholder="0"></div>
+      <div class="form-group"><label id="pr-stock-label">Stok Adedi</label><input type="text" inputmode="numeric" id="pr-stock" placeholder="Boş = sayılmadı" autocomplete="off"></div>
+      <div class="form-group"><label>Satış Şekli</label><label style="display:flex;align-items:center;gap:8px;font-weight:500;text-transform:none;cursor:pointer;padding:9px 0"><input type="checkbox" id="pr-weight" onchange="prWeightChanged()" style="width:auto"> Tartılı (kilo ile satılır)</label></div>
       <input type="hidden" id="pr-min">
     </div>
     <div class="form-group"><label>İndirim % <span style="font-weight:400;color:var(--muted)">(kasada otomatik uygulanır)</span></label><input type="number" id="pr-discount" min="0" max="100" step="1" placeholder="0"></div>
@@ -1740,12 +1763,12 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 <div class="modal-overlay" id="ie-modal" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="modal-box wide modal-box-scroll">
     <div class="modal-title">Excel İçe / Dışa Aktar</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Sütun sırası: <b>Ürün Adı, Kategori, Fiyat, Stok</b> (ilk satır başlık olarak atlanır) — CSV veya XLSX</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Başlıklar tanınır: <b>Barkod, Ürün Adı, Kategori, Fiyat, Stok, Birim</b> (sıra serbest, yalnızca Ad zorunlu). Boş bırakılan fiyat/stok mevcut değeri değiştirmez. Birim <b>kg</b> ise ürün tartılıdır.</div>
     <div id="ie-dropzone" class="ie-dropzone" onclick="document.getElementById('ie-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="ieHandleDrop(event)">
       <div style="font-size:28px;margin-bottom:6px">📥</div>
       <div style="font-weight:600;font-size:13.5px">Dosya seç veya sürükle-bırak</div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:2px">.csv veya .xlsx</div>
-      <input type="file" id="ie-file" accept=".csv,.xlsx" style="display:none" onchange="ieHandleFile(this.files[0])">
+      <div style="font-size:11.5px;color:var(--muted);margin-top:2px">.xlsx, .xls veya .csv</div>
+      <input type="file" id="ie-file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="ieHandleFile(this.files[0])">
     </div>
     <div id="ie-preview" style="display:none;margin-top:14px">
       <div style="font-size:12.5px;font-weight:700;margin-bottom:8px" id="ie-preview-title"></div>
@@ -2066,8 +2089,8 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { getFunctions, httpsCallable }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js';
-import { getFirestore, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
-         collection, query, orderBy, limit, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot, deleteField }
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, writeBatch, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc,
+         collection, query, orderBy, limit, startAfter, where, increment, serverTimestamp, documentId, Timestamp, onSnapshot, deleteField }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 import { getAI, getGenerativeModel, VertexAIBackend }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-ai.js';
@@ -2095,16 +2118,30 @@ const app  = initializeApp({
 //    yanlış yapılandırma gerçek kullanıcıları uygulamadan tamamen kilitler.
 const APPCHECK_SITE_KEY = "6LcLn8QtAAAAAOKjVFUnDi7ED6jEMwkqZhNIoxMo";
 if (APPCHECK_SITE_KEY) {
-  const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
-    await import('https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js');
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY),
-    isTokenAutoRefreshEnabled: true,
-  });
+  // ⚠️ try/catch ŞART: üst düzey await'teki import internetsiz açılışta patlarsa
+  //    modülün TAMAMI çalışmaz ve panel boş kalır (çevrimdışı kasa ölür).
+  try {
+    const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
+      await import('https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js');
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (e) { console.warn('App Check kurulamadı (çevrimdışı olabilir):', e); }
 }
 
+// 🔌 Çevrimdışı açılış: sayfa ve kütüphaneler önbelleğe alınır (bkz. sw.js).
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW kaydı:', e));
+
 const auth = getAuth(app);
-const db   = getFirestore(app);
+// 🔌 ÇEVRİMDIŞI KASA (2026-10-07): kalıcı önbellek. Ürünler ve BEKLEYEN YAZIMLAR
+//    (satış fişi, stok düşümü, özet) IndexedDB'de durur; sekme kapanıp açılsa da
+//    internet gelince Firestore kendiliğinden gönderir. Eskiden önbellek bellekteydi:
+//    internet yokken satış askıda kalıyor, sekme kapanınca kayboluyordu.
+// ⚠️ Tarayıcı verisi silinirse gönderilmemiş satışlar da gider — uygulamalar kadar sağlam DEĞİL.
+let db;
+try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch (e) { console.warn('Kalıcı önbellek açılamadı, bellekte çalışılıyor:', e); db = getFirestore(app); }
 // iOS ile aynı kural: backend .vertexAI() olmalı, .googleAI() DEĞİL — Blaze planına bağlı, ücretsiz kredi gerektirmez.
 const ai   = getAI(app, { backend: new VertexAIBackend() });
 
@@ -2443,15 +2480,46 @@ function stockAllows(p,newQty){
   if(!allowOversell()){ showToast(`Stok yetersiz: ${p.name} (${Math.max(0,st)} adet)`); return false; }
   return confirm(`${p.name} için stok ${Math.max(0,st)} adet. Yine de satılsın mı? Stok eksiye düşer.`);
 }
+/* Tartılı ürün: stok GRAM, fiyat KİLO fiyatı (uygulamalarla aynı model). Eskiden web
+   okutulan patatesi kilo fiyatından "1 adet" satıyor, stoktan 1 gram düşüyordu.
+   Giriş: "750" → 750 g · "0,75" ya da "1.2" → kilo. */
+function askGrams(p){
+  const raw=prompt(`${p.name}\nAğırlık — gram (750) ya da kilo (0,75):`,''); if(raw===null) return null;
+  const t=String(raw).trim().replace(/\s/g,''); if(!t) return null;
+  const isKg=/[.,]/.test(t); const n=parseFloat(t.replace(',','.'));
+  if(!isFinite(n)||n<=0){ showToast('Geçersiz ağırlık'); return null; }
+  const g=Math.round(isKg?n*1000:n);
+  if(g<=0||g>500000){ showToast('Geçersiz ağırlık'); return null; }
+  return g;
+}
+const gramPrice=(p,g)=>Math.round((p.salePrice||0)/1000*g*100)/100;
+const gramLabel=g=>g>=1000?(g/1000).toLocaleString('tr-TR',{maximumFractionDigits:3})+' kg':g+' g';
 window.addToCart=id=>{
   const p=allProducts.find(x=>x.id===id);if(!p)return;
+  // 🔴 FİYATSIZ ÜRÜN 0,00'a SATILMAZ (uygulamadaki "kasada anlık fiyatlandırma"):
+  //    fiyat bir kez sorulur, ürüne KALICI yazılır, satış devam eder.
+  if(p.isPriced===false||!(p.salePrice>0)){
+    const raw=prompt(`${p.name}\nBu ürünün fiyatı yok. ${p.isWeightBased?'Kilo fiyatı':'Satış fiyatı'}:`,''); if(raw===null) return;
+    const n=ieNum(raw); if(n==null||n<=0){ showToast('Geçersiz fiyat'); return; }
+    p.salePrice=Math.round(n*100)/100; p.isPriced=true;
+    setDoc(doc(db,'stores',storeId,'products',p.id),{salePrice:p.salePrice,isPriced:true,updatedAt:Date.now()/1000},{merge:true})
+      .catch(e=>alert('⚠️ Fiyat sunucuya kaydedilemedi: '+(e?.code||e?.message||'')));
+  }
   const ex=cart.find(i=>i.id===id);
+  if(p.isWeightBased){
+    const g=askGrams(p); if(!g) return;
+    const total=(ex?ex.grams:0)+g;
+    if(ex){ ex.grams=total; ex.price=gramPrice(p,total); }
+    else cart.push({id,name:p.name||id,baseName:p.name||id,price:gramPrice(p,total),taxRate:p.taxRate||0,discountPercent:p.discountPercent||0,qty:1,isGram:true,grams:total});
+    renderCart();PruvaSound.beep();return;
+  }
   if(!stockAllows(p,(ex?ex.qty:0)+1)) return;
   if(ex)ex.qty++;else cart.push({id,name:p.name||id,price:p.salePrice||0,taxRate:p.taxRate||0,discountPercent:p.discountPercent||0,qty:1});
   renderCart();PruvaSound.beep();
 };
 window.changeQty=(id,d)=>{
   const i=cart.findIndex(x=>x.id===id);if(i===-1)return;
+  if(cart[i].isGram){ if(d>0) addToCart(id); else { cart.splice(i,1); renderCart(); } return; }
   if(d>0){ const p=allProducts.find(x=>x.id===id); if(p&&!stockAllows(p,cart[i].qty+d)) return; }
   cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart();
 };
@@ -2470,10 +2538,10 @@ function renderCart(){
   if(!empty)document.getElementById('cart-items').innerHTML=cart.map(i=>`
     <div class="sx-row">
       <div class="sx-row-info"><div class="sx-row-name">${esc(i.name)}${i.discountPercent>0?` <span class="product-discount-badge">-%${Math.round(i.discountPercent)}</span>`:''}</div>
-        <div class="sx-row-unit">${fc(effUnit(i))} / adet</div></div>
+        <div class="sx-row-unit">${i.isGram?gramLabel(i.grams):fc(effUnit(i))+' / adet'}</div></div>
       <div class="sx-qty">
         <button class="sx-qbtn ${i.qty===1?'del':''}" onclick="changeQty('${esc(i.id)}',-1)">${i.qty===1?'🗑':'−'}</button>
-        <div class="sx-qnum">${i.qty}</div>
+        <div class="sx-qnum">${i.isGram?'⚖':i.qty}</div>
         <button class="sx-qbtn plus" onclick="changeQty('${esc(i.id)}',1)">+</button>
       </div>
     </div>`).join('');
@@ -2490,14 +2558,60 @@ window.sxSuggest=q=>{
   el.classList.add('show');
 };
 window.sxHide=()=>document.getElementById('sx-suggest')?.classList.remove('show');
+/* ── BARKOD OKUYUCU (2026-10-07) ─────────────────────────────────────────────
+   Okuyucu klavye gibi davranır: kodu çok hızlı yazar, çoğu model sonuna Enter ekler.
+   1) ENTER'SIZ okuyucu: barkod kutusundaki metin bir ürünle BİREBİR eşleşir ve başka
+      hiçbir barkodun öneki değilse 150 ms sonra kendiliğinden sepete düşer.
+   2) HER EKRANDAN: imleç bir yazı kutusunda DEĞİLKEN gelen hızlı tuş dizisi (tuşlar arası
+      < 60 ms, en az 4 karakter) okuyucu sayılır → Hızlı Satış'a geçilir, ürün sepete düşer.
+   ⚠️ İmleç bir kutudayken global yakalama ÇALIŞMAZ: ürün adı yazan kullanıcının tuşları
+      çalınmasın. Barkod/arama kutularının kendi Enter işleyicileri var. */
+function scanToCart(code){
+  const v=String(code||'').trim(); if(!v) return false;
+  const p=allProducts.find(x=>x.id===v);
+  if(document.querySelector('.modal-overlay.show')) return false;   // açık pencere varken karışma
+  if(typeof switchTab==='function'&&document.getElementById('tab-sales')?.offsetParent===null) switchTab('sales');
+  if(p){ addToCart(p.id); return true; }
+  if(/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); return true; }
+  showToast('Ürün bulunamadı: '+v); return false;
+}
+let sxAutoTimer=null;
+window.sxAuto=inp=>{
+  clearTimeout(sxAutoTimer);
+  sxAutoTimer=setTimeout(()=>{
+    const v=inp.value.trim(); if(v.length<4) return;
+    if(!allProducts.some(p=>p.id===v)) return;
+    if(allProducts.some(p=>p.id!==v&&String(p.id).startsWith(v))) return;   // "869" hem 869… hem 8690… olabilir
+    inp.value=''; sxHide(); addToCart(v);
+  },150);
+};
+(()=>{
+  let buf='', last=0, timer=null;
+  const flush=()=>{ const code=buf; buf=''; clearTimeout(timer); if(code.length>=4) scanToCart(code); };
+  document.addEventListener('keydown',e=>{
+    const t=e.target, tag=(t&&t.tagName)||'';
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable)) { buf=''; return; }
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    if(!storeId) return;
+    const now=performance.now();
+    if(e.key==='Enter'){ if(buf.length>=4){ e.preventDefault(); flush(); } else buf=''; return; }
+    if(e.key.length!==1) return;
+    if(buf&&now-last>60) buf='';           // insan hızı → okuyucu değil
+    buf+=e.key; last=now;
+    clearTimeout(timer); timer=setTimeout(flush,120);   // Enter göndermeyen okuyucu
+  },true);
+})();
 window.sxPick=i=>{const p=sxHits[i];if(!p)return;addToCart(p.id);const inp=document.getElementById('sx-input');inp.value='';sxHide();inp.focus();};
 window.sxKey=e=>{
   const inp=e.target;
   if(e.key==='Enter'){
+    clearTimeout(sxAutoTimer);
     const v=inp.value.trim(); if(!v)return;
     const exact=allProducts.find(p=>p.id===v);
     if(exact){addToCart(exact.id);inp.value='';sxHide();return;}
-    if(sxHits.length)sxPick(sxSel); else showToast('Ürün bulunamadı: '+v);
+    if(sxHits.length)sxPick(sxSel);
+    else if(/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ inp.value='';sxHide(); showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); }
+    else showToast('Ürün bulunamadı: '+v);
   }else if(e.key==='ArrowDown'||e.key==='ArrowUp'){
     e.preventDefault(); if(!sxHits.length)return;
     sxSel=(sxSel+(e.key==='ArrowDown'?1:-1)+sxHits.length)%sxHits.length;
@@ -2526,11 +2640,22 @@ function lineTax(price,qty,taxRate){
   if(!taxRate)return 0;
   return Math.round((lineTotal*taxRate/(1+taxRate))*100)/100;
 }
+/* Günlük/aylık özet yaması. ⚠️ `date` (gün başı) ve `month` alanları ŞART: uygulamalar
+   `date`siz gün belgesini listeden ATIYOR — günün ilk yazımı web'den geldiyse o gün
+   telefonda Bulut Satışlar'da hiç görünmüyordu. */
+function summaryPatch(path,total,taxTotal,payMethod,saleDelta){
+  // ⚠️ Veresiye ALACAKTIR, tahsilat değil — hiçbir ödeme kovasına yazılmaz (uygulamalarla aynı).
+  const payField=payMethod==='cash'?'cashTotal':payMethod==='card'?'cardTotal':payMethod==='veresiye'?null:'otherTotal';
+  const z=increment(0);
+  const o={totalRevenue:increment(total),taxTotal:increment(taxTotal),saleCount:increment(saleDelta),cashTotal:z,cardTotal:z,otherTotal:z,lastUpdated:serverTimestamp()};
+  if(payField) o[payField]=increment(total);
+  // path = ['stores', storeId, 'dailySummaries'|'monthlySummaries', anahtar]
+  if(path[2]==='dailySummaries'){ const [y,m,d]=String(path[3]).split('-').map(Number); o.date=Timestamp.fromDate(new Date(y,m-1,d)); }
+  else o.month=path[3];
+  return o;
+}
 async function bumpSummary(path,total,taxTotal,payMethod,saleDelta){
-  const ref=doc(db,...path);
-  const payField=payMethod==='cash'?'cashTotal':payMethod==='card'?'cardTotal':'otherTotal';
-  const inc={totalRevenue:increment(total),taxTotal:increment(taxTotal),saleCount:increment(saleDelta),[payField]:increment(total),lastUpdated:serverTimestamp()};
-  await updateDoc(ref,inc).catch(()=>setDoc(ref,{totalRevenue:total,taxTotal,saleCount:saleDelta,cashTotal:0,cardTotal:0,otherTotal:0,[payField]:total,lastUpdated:serverTimestamp()},{merge:true}));
+  await setDoc(doc(db,...path),summaryPatch(path,total,taxTotal,payMethod,saleDelta),{merge:true});
 }
 window.confirmSale=async()=>{
   const total=cartTotal();
@@ -2540,36 +2665,47 @@ window.confirmSale=async()=>{
     if(!verCustomerId){showToast('Veresiye için müşteri seç');return;}
   }
   document.getElementById('checkout-modal').classList.remove('show');
-  try{
-    if(storeId){
-      const taxTotal=cart.reduce((s,i)=>s+lineTax(effUnit(i),i.qty,i.taxRate),0);
-      const td=new Date();
-      const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
-      const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
-      await addDoc(collection(db,'stores',storeId,'receipts'),{
-        date:serverTimestamp(),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,
-        staffName:auth.currentUser?.email||'web',
-        items:cart.map(i=>({productId:i.id,name:i.name,qty:i.qty,unitPrice:effUnit(i),total:effUnit(i)*i.qty,taxRate:i.taxRate||0,discountPercent:i.discountPercent||0})),
-        expireAt:new Date(td.getTime()+365*24*3600*1000),isRefund:false,source:'web'
-      });
-      await Promise.all(cart.map(i=>
-        updateDoc(doc(db,'stores',storeId,'products',i.id),{stockQuantity:increment(-i.qty),updatedAt:serverTimestamp()}).catch(()=>{})
-      ));
-      await bumpSummary(['stores',storeId,'dailySummaries',dk],total,taxTotal,selectedPay,1);
-      await bumpSummary(['stores',storeId,'monthlySummaries',mk],total,taxTotal,selectedPay,1);
-      if(verCustomerId){
-        const itemsNote=cart.map(i=>`${i.name} ×${i.qty}`).join(', ');
-        await addDoc(collection(db,'stores',storeId,'veresiyeCustomers',verCustomerId,'entries'),
-          {amount:total,note:'Satış (web): '+itemsNote,date:Timestamp.now(),isDeleted:false,updatedAt:serverTimestamp()});
-        await updateDoc(doc(db,'stores',storeId,'veresiyeCustomers',verCustomerId),
-          {debtAmount:increment(total),updatedAt:serverTimestamp()});
-        verCustomers=[];
-      }
+  if(storeId){
+    // 🔌 TEK PAKET, BEKLEMEDEN. Fiş + stok + özet + veresiye aynı writeBatch'te: ya hepsi
+    //    ya hiçbiri. `commit()` AWAIT EDİLMEZ — çevrimdışıyken sunucu onayı gelmez ve kasa
+    //    kilitlenirdi; yazım kalıcı kuyrukta durur, internet gelince gider.
+    // ⚠️ Pakette OKUMA YOK (updateDoc→hata→setDoc deseni çevrimdışı çalışmaz); özetler set+merge.
+    const sold=cart.map(i=>({...i})), taxTotal=sold.reduce((s,i)=>s+lineTax(effUnit(i),i.qty,i.taxRate),0);
+    const td=new Date();
+    const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+    const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
+    try{
+    const b=writeBatch(db);
+    b.set(doc(collection(db,'stores',storeId,'receipts')),{
+      // ⚠️ date CİHAZ saati: serverTimestamp çevrimdışı satışı internetin GELDİĞİ ana yazardı.
+      date:Timestamp.fromDate(td),monthKey:mk,total,taxTotal,paymentMethod:selectedPay,
+      staffName:auth.currentUser?.email||'web',
+      items:sold.map(i=>({productId:i.id,name:i.isGram?`${i.name} (${gramLabel(i.grams)})`:i.name,qty:i.qty,unitPrice:effUnit(i),total:effUnit(i)*i.qty,taxRate:i.taxRate||0,discountPercent:i.discountPercent||0,...(i.isGram?{isGramSale:true,gramWeight:i.grams}:{})})),
+      // ⚠️ 10 YIL (TTK md. 82). Eskiden 1 yıl yazıyordu.
+      expireAt:new Date(td.getTime()+3650*24*3600*1000),isRefund:false,source:'web'
+    });
+    // ⚠️ Sayılmamış üründe (isStockSet === false) stok DÜŞÜLMEZ — uygulamalarla aynı kural.
+    //    Tartılı üründe düşüm GRAM. set+merge: belge yoksa paket düşmesin.
+    sold.filter(i=>(allProducts.find(x=>x.id===i.id)||{}).isStockSet!==false).forEach(i=>
+      b.set(doc(db,'stores',storeId,'products',i.id),{stockQuantity:increment(-(i.isGram?i.grams:i.qty)),updatedAt:serverTimestamp()},{merge:true}));
+    const dp=['stores',storeId,'dailySummaries',dk], mp=['stores',storeId,'monthlySummaries',mk];
+    b.set(doc(db,...dp),summaryPatch(dp,total,taxTotal,selectedPay,1),{merge:true});
+    b.set(doc(db,...mp),summaryPatch(mp,total,taxTotal,selectedPay,1),{merge:true});
+    if(verCustomerId){
+      const itemsNote=sold.map(i=>`${i.name} ×${i.qty}`).join(', ');
+      b.set(doc(collection(db,'stores',storeId,'veresiyeCustomers',verCustomerId,'entries')),
+        {amount:total,note:'Satış (web): '+itemsNote,date:Timestamp.fromDate(td),isDeleted:false,updatedAt:serverTimestamp()});
+      b.set(doc(db,'stores',storeId,'veresiyeCustomers',verCustomerId),{debtAmount:increment(total),updatedAt:serverTimestamp()},{merge:true});
+      verCustomers=[];
     }
-  }catch(e){console.error(e);}
+    // 🔴 Sunucu REDDEDERSE (izin/kural) kasiyer BİLMELİ — eskiden hata yutulup "tamamlandı" deniyordu.
+    b.commit().catch(e=>{ console.error('satış yazılamadı:',e);
+      alert('⚠️ '+fc(total)+' tutarındaki satış sunucuya KAYDEDİLEMEDİ.\n'+(e?.code||e?.message||'')+'\nBu satışı not alın ve tekrar girin.'); });
+    }catch(e){ console.error('satış paketi kurulamadı:',e); alert('⚠️ Satış kaydedilemedi: '+(e?.message||e)+'\nSepet duruyor, tekrar deneyin.'); return; }
+  }
   cart=[];
   renderCart();loadProducts();loadDailySummaries();loadMonthlySummaries();
-  PruvaSound.sale();showToast(`✓ ${fc(total)} — satış tamamlandı`);
+  PruvaSound.sale();showToast(navigator.onLine?`✓ ${fc(total)} — satış tamamlandı`:`✓ ${fc(total)} — kaydedildi, internet gelince gönderilecek`);
 };
 
 /* ── Confirm helper ──────────────── */
@@ -2788,7 +2924,7 @@ window.tsConfirmPayment=async()=>{
       date:serverTimestamp(),monthKey:mk,total,taxTotal:0,paymentMethod:tsPayMethod,
       staffName:auth.currentUser?.email||'web',
       items:items.map(i=>({productId:i.productID,name:i.name,qty:i.quantity,unitPrice:i.price,total:i.price*i.quantity,taxRate:0})),
-      expireAt:new Date(td.getTime()+365*24*3600*1000),isRefund:false,source:'web',
+      expireAt:new Date(td.getTime()+3650*24*3600*1000),isRefund:false,source:'web',
       tableId:o.id,tableLabel:'Masa '+tno
     });
     await Promise.all(items.map(i=>{
@@ -3083,7 +3219,9 @@ window.sendChatMessage=async()=>{
 let invCategory=null;
 function stockState(p){
   const s=p.stockQuantity??0,m=p.minStockThreshold??0;
-  if(p.isStockSet!==false&&s<=0)return['out','Tükendi'];
+  // Sayılmamış ürün ne "stokta" ne "tükendi"dir (uygulamalardaki UNCOUNTED durumu).
+  if(p.isStockSet===false)return['ok','Sayılmadı'];
+  if(s<=0)return['out','Tükendi'];
   if(m>0&&s<=m)return['crit','Kritik stok'];
   return['ok','Stokta'];
 }
@@ -3100,8 +3238,8 @@ function renderInventory(list){
       <button class="ix-bc" onclick="event.stopPropagation();openBarcodeModal('${esc(p.id)}')" title="Barkod">🏷️</button>
       <div class="ix-img">${img}</div>
       <div class="ix-name">${esc(p.name||p.id)}</div>
-      <div class="ix-price">${fc(disc>0?Math.round((p.salePrice||0)*(1-disc/100)*100)/100:(p.salePrice||0))}</div>
-      <div class="ix-stock">📦 ${p.isStockSet===false?'—':(p.stockQuantity??0)} adet</div>
+      <div class="ix-price">${(p.isPriced===false||!(p.salePrice>0))?'<span style="color:var(--muted);font-weight:600">Fiyat yok</span>':fc(disc>0?Math.round((p.salePrice||0)*(1-disc/100)*100)/100:(p.salePrice||0))+(p.isWeightBased?'<span style="font-size:11px;font-weight:600"> / kg</span>':'')}</div>
+      <div class="ix-stock">📦 ${p.isStockSet===false?'—':(p.isWeightBased?gramLabel(p.stockQuantity??0):(p.stockQuantity??0)+' adet')}</div>
     </div>`;
   }).join('');
 }
@@ -3469,8 +3607,69 @@ window.deleteMenuItem=async()=>{
 
 /* ── Excel İçe/Dışa Aktar — iOS ExcelParser ile aynı pozisyonel sütun düzeni ── */
 const CATEGORY_MAP={genel:'Genel',ekmek:'Ekmek',et:'Et & Tavuk',tavuk:'Et & Tavuk','et & tavuk':'Et & Tavuk',içecek:'İçecek',icecek:'İçecek',manav:'Manav',süt:'Süt Ürünleri',sut:'Süt Ürünleri','süt ürünleri':'Süt Ürünleri',atıştırmalık:'Atıştırmalık',atistirmalik:'Atıştırmalık',snack:'Atıştırmalık'};
-const normCat=raw=>CATEGORY_MAP[(raw||'').toLocaleLowerCase('tr-TR').trim()]||'Genel';
+const normCat=raw=>CATEGORY_MAP[(raw||'').toLocaleLowerCase('tr-TR').trim()]||String(raw||'').trim()||'Genel';
 let ieParsedRows=[];
+/* ⚠️ Kurallar uygulamalarla AYNI (iOS ExcelParser + ExcelImportCommit, 2026-10-06):
+   · Başlık TANINIR (Barkod/Ad/Kategori/Fiyat/Stok/Birim, sıra serbest). Tanınmazsa konumsal:
+     ilk hücre barkoda benziyorsa Barkod,Ad,Fiyat,Stok — değilse Ad,Kategori,Fiyat,Stok.
+   · Dosyada YAZMAYAN alan mevcut değere DOKUNMAZ (yalnızca fiyat listesi stokları sıfırlamaz).
+   · Barkodlu satır barkodla, barkodsuz satır ADLA eşleşir → ikinci yükleme kataloğu ikiye katlamaz.
+   · Boş stok = "sayılmadı" (isStockSet:false), 0 = tükendi. Boş/0 fiyat = isPriced:false.
+   · Birim kg/gr ise ürün TARTILI: fiyat KİLO fiyatı, stok GRAM.
+   Eskiden: barkod sütunu hiç okunmuyor, her satır yeni "WEB…" barkoduyla ekleniyor,
+   tırnaklı "8,75" fiyatı 0 oluyor, boş stok "tükendi" yazılıyordu. */
+const IE_ALIASES={
+  barcode:['barkod','barkodu','barkod no','barkod numarası','barcode','ean','kod','ürün kodu','urun kodu','stok kodu','code','sku'],
+  name:['ad','adı','adi','isim','ürün','urun','ürün adı','urun adi','ürün ismi','stok adı','stok adi','mal adı','mal adi','name','product','product name','ürün adi'],
+  category:['kategori','category','grup','grubu','reyon','departman'],
+  price:['fiyat','fiyatı','fiyati','satış fiyatı','satis fiyati','satış','satis','price','sale price','birim fiyat','perakende','perakende fiyat'],
+  stock:['stok','stock','adet','miktar','mevcut','quantity','qty','bakiye','kalan','stok miktarı','stok miktari'],
+  unit:['birim','birimi','unit','ölçü','olcu','ölçü birimi']
+};
+const ieNorm=h=>String(h??'').split('(')[0].toLocaleLowerCase('tr-TR').replace(/\s+/g,' ').trim();
+const IE_KG=new Set(['g','gr','gram','kg','kilo','kilogram','кг']);
+function ieField(h){ const t=ieNorm(h); if(!t) return null; for(const k in IE_ALIASES) if(IE_ALIASES[k].includes(t)) return k; return null; }
+/** Tutar ayrıştırma — TR düzeni: "1.250,50" · "8,75" · "1.250" (binlik) · "12.5". Sayıysa aynen. */
+function ieNum(v){
+  if(typeof v==='number') return isFinite(v)?v:null;
+  let t=String(v??'').trim(); if(!t) return null;
+  t=t.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9.,\-]/g,'');
+  if(!t||t==='-') return null;
+  const c=(t.match(/,/g)||[]).length, d=(t.match(/\./g)||[]).length;
+  if(c&&d){ t=t.lastIndexOf(',')>t.lastIndexOf('.')?t.replace(/\./g,'').replace(',','.'):t.replace(/,/g,''); }
+  else if(c){ t=c>1?t.replace(/,/g,''):t.replace(',','.'); }
+  else if(d){ if(d>1||/^\-?\d{1,3}\.\d{3}$/.test(t)) t=t.replace(/\./g,''); }
+  const n=parseFloat(t); return isFinite(n)?n:null;
+}
+function ieParseRows(all){
+  const rows=all.map(r=>(r||[]).map(c=>typeof c==='string'?c.trim():c)).filter(r=>r.some(c=>c!==''&&c!=null));
+  if(!rows.length) return [];
+  let map={}; rows[0].forEach((h,i)=>{ const f=ieField(h); if(f&&!Object.values(map).includes(f)) map[i]=f; });
+  let body;
+  if(Object.keys(map).length>=2&&Object.values(map).includes('name')) body=rows.slice(1);
+  else{
+    const first=String(rows[0][0]??'');
+    map=(/^\d{8,}$/.test(first)||/^BS-/i.test(first))?{0:'barcode',1:'name',2:'price',3:'stock'}:{0:'name',1:'category',2:'price',3:'stock'};
+    // Başlıksız dosya: ilk satır ürün mü (fiyat hücresi sayı mı)? Değilse başlıktır, atla.
+    const pi=Number(Object.keys(map).find(k=>map[k]==='price'));
+    body=ieNum(rows[0][pi])!=null?rows:rows.slice(1);
+  }
+  const col=f=>{ const k=Object.keys(map).find(k=>map[k]===f); return k==null?-1:Number(k); };
+  const ci={barcode:col('barcode'),name:col('name'),category:col('category'),price:col('price'),stock:col('stock'),unit:col('unit')};
+  const cell=(r,f)=>ci[f]<0?'':(r[ci[f]]??'');
+  return body.map(r=>{
+    const name=String(cell(r,'name')).trim(); if(!name) return null;
+    const price=ieNum(cell(r,'price')), stock=ieNum(cell(r,'stock'));
+    const catRaw=String(cell(r,'category')).trim(), unitRaw=String(cell(r,'unit')).trim();
+    let barcode=String(cell(r,'barcode')).trim().replace(/\.0+$/,'').replace(/\//g,'-');
+    if(barcode==='.'||barcode==='..') barcode='';
+    return { name:name.slice(0,200), barcode,
+      category:catRaw?normCat(catRaw):'', hasCategory:!!catRaw,
+      price:Math.max(0,price??0), hasPrice:price!=null,
+      stock:Math.max(0,Math.round(stock??0)), hasStock:stock!=null,
+      isWeightBased:IE_KG.has(ieNorm(unitRaw)), hasUnit:!!unitRaw };
+  }).filter(Boolean);
+}
 window.openImportExportModal=()=>{
   ieParsedRows=[];
   document.getElementById('ie-preview').style.display='none';
@@ -3484,68 +3683,92 @@ window.ieHandleDrop=e=>{
 window.ieHandleFile=file=>{
   if(!file)return;
   const ext=file.name.split('.').pop().toLowerCase();
+  if(!['csv','xlsx','xls','txt'].includes(ext)){showToast('Desteklenmeyen dosya — .xlsx, .xls ya da .csv kullanın');return;}
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      let rows=[];
-      if(ext==='csv'){
-        const text=e.target.result;
-        const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-        if(lines.length<2){showToast('Dosya boş veya başlık satırı eksik');return;}
-        const sep=lines[0].includes(';')?';':',';
-        rows=lines.slice(1).map(l=>l.split(sep).map(c=>c.trim()));
-      }else if(ext==='xlsx'){
-        const wb=XLSX.read(e.target.result,{type:'array'});
-        const ws=wb.Sheets[wb.SheetNames[0]];
-        const all=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
-        rows=all.slice(1).filter(r=>r&&r[0]);
-      }else{showToast('Desteklenmeyen format — .csv veya .xlsx kullanın');return;}
-      ieParsedRows=rows.filter(c=>c.length>=3&&c[0]).map(c=>({
-        name:String(c[0]).trim(),
-        category:normCat(c[1]),
-        price:parseFloat(String(c[2]||'0').replace(',','.'))||0,
-        stock:parseInt(c[3])||0
-      }));
-      if(!ieParsedRows.length){showToast('Geçerli ürün bulunamadı — formatı kontrol edin');return;}
+      // SheetJS: tırnaklı alan, ; ayraç, BOM ve çok satırlı hücreyi kendisi çözer. raw:true →
+      // sayılar SAYI, metin METİN gelir (biçimlenmiş "1.250,00" yerel ayar tuzağı yok).
+      const wb=(ext==='csv'||ext==='txt')?XLSX.read(e.target.result,{type:'string',raw:true}):XLSX.read(e.target.result,{type:'array'});
+      let all=[];
+      for(const n of wb.SheetNames){ all=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''}); if(all.length>1) break; }
+      ieParsedRows=ieParseRows(all);
+      if(!ieParsedRows.length){showToast('Geçerli ürün bulunamadı — dosyada en az bir "Ad" sütunu olmalı');return;}
       ieRenderPreview();
-    }catch(err){showToast('Dosya okunamadı: '+err.message);}
+    }catch(err){console.error(err);showToast('Dosya okunamadı: '+err.message);}
   };
-  if(ext==='xlsx')reader.readAsArrayBuffer(file);else reader.readAsText(file,'utf-8');
+  if(ext==='csv'||ext==='txt')reader.readAsText(file,'utf-8');else reader.readAsArrayBuffer(file);
 };
+/** Satırı mevcut ürünle eşleştir: barkodlu → barkod; barkodsuz → AD (ad tekilse). */
+function ieMatch(r,byName){
+  if(r.barcode) return allProducts.find(p=>p.id===r.barcode)||null;
+  const hit=byName[r.name.toLocaleLowerCase('tr-TR')]; return hit&&hit!=='*'?allProducts.find(p=>p.id===hit)||null:null;
+}
+function ieNameIndex(){ const m={}; allProducts.forEach(p=>{const k=(p.name||'').toLocaleLowerCase('tr-TR'); if(!k)return; m[k]=m[k]?'*':p.id;}); return m; }
 function ieRenderPreview(){
+  const byName=ieNameIndex(); let upd=0; ieParsedRows.forEach(r=>{ r._ex=ieMatch(r,byName); if(r._ex) upd++; });
   document.getElementById('ie-preview').style.display='block';
-  document.getElementById('ie-preview-title').textContent=ieParsedRows.length+' ürün bulundu';
-  const rows=ieParsedRows.slice(0,20);
+  document.getElementById('ie-preview-title').textContent=`${ieParsedRows.length} ürün bulundu — ${ieParsedRows.length-upd} yeni, ${upd} güncellenecek`;
+  const rows=ieParsedRows.slice(0,30);
   document.getElementById('ie-preview-table').innerHTML=
-    '<div class="ie-row head"><span>Ad</span><span>Kategori</span><span>Fiyat</span><span>Stok</span></div>'+
-    rows.map(r=>`<div class="ie-row"><span>${esc(r.name)}</span><span>${esc(r.category)}</span><span>${fc(r.price)}</span><span>${r.stock}</span></div>`).join('')+
-    (ieParsedRows.length>20?`<div class="ie-row" style="color:var(--muted);justify-content:center">… ve ${ieParsedRows.length-20} ürün daha</div>`:'');
+    '<div class="ie-row head"><span>Ad</span><span>Barkod</span><span>Fiyat</span><span>Stok</span></div>'+
+    rows.map(r=>`<div class="ie-row"><span>${r._ex?'↻ ':''}${esc(r.name)}${r.isWeightBased?' ⚖':''}</span><span>${esc(r.barcode||'—')}</span><span>${r.hasPrice&&r.price>0?fc(r.price)+(r.isWeightBased?'/kg':''):'—'}</span><span>${r.hasStock?(r.isWeightBased?gramLabel(r.stock):r.stock):'—'}</span></div>`).join('')+
+    (ieParsedRows.length>30?`<div class="ie-row" style="color:var(--muted);justify-content:center">… ve ${ieParsedRows.length-30} ürün daha</div>`:'');
 }
 window.ieDoImport=async()=>{
   if(!ieParsedRows.length||!storeId)return;
   const btn=document.getElementById('ie-import-btn');
   btn.disabled=true;btn.textContent='İçe aktarılıyor…';
-  let ok=0,fail=0;
-  for(const p of ieParsedRows){
-    const barcode='WEB'+Date.now()+Math.floor(Math.random()*1000);
-    try{
-      await setDoc(doc(db,'stores',storeId,'products',barcode),{
-        barcode,name:p.name,category:p.category,salePrice:p.price,stockQuantity:p.stock,
-        minStockThreshold:0,taxRate:0.2,isDeleted:false,isAvailable:true,updatedAt:serverTimestamp()
-      });
-      ok++;
-    }catch(e){fail++;}
+  // Yeni ürünün KDV'si mağaza ayarından (kategori istisnası → varsayılan), uygulamadaki gibi.
+  if(!taxDoc){ try{ const sn=await getDoc(doc(db,'stores',storeId,'settings','tax')); taxDoc=sn.exists()?sn.data():{}; }catch(e){ taxDoc={}; } }
+  const taxFor=cat=>{ const ex=(taxDoc.exceptions||{})[cat]; return typeof ex==='number'?ex:(typeof taxDoc.defaultRate==='number'?taxDoc.defaultRate:0.2); };
+  const now=Date.now()/1000, used=new Set(allProducts.map(p=>p.id)), byName=ieNameIndex();
+  const newCode=()=>{ let c; do{ c='BS-'+String(Math.floor(100000+Math.random()*900000)); }while(used.has(c)); used.add(c); return c; };
+  const ops=[]; let added=0,updated=0;
+  for(const r of ieParsedRows){
+    const ex=ieMatch(r,byName);
+    if(ex){
+      const d={name:r.name,isDeleted:false,isAvailable:true,updatedAt:now};
+      if(r.hasCategory) d.category=r.category;
+      if(r.hasUnit) d.isWeightBased=r.isWeightBased;
+      if(r.hasPrice){ d.salePrice=r.price; d.isPriced=r.price>0; }
+      if(r.hasStock){ d.stockQuantity=r.stock; d.isStockSet=true;
+        if(r.stock>(ex.stockQuantity??0)) d.minStockThreshold=r.stock>0?Math.max(1,Math.round(r.stock*critPct()/100)):0; }
+      ops.push([ex.id,d]); updated++;
+    }else{
+      const id=r.barcode||newCode(); used.add(id); const cat=r.hasCategory?r.category:'Genel';
+      byName[r.name.toLocaleLowerCase('tr-TR')]=byName[r.name.toLocaleLowerCase('tr-TR')]?'*':id;
+      // ⚠️ set+merge: bu barkod daha önce SİLİNMİŞ bir üründeyse belge dirilir (isDeleted:false).
+      ops.push([id,{barcode:id,name:r.name,category:cat,salePrice:r.price,isPriced:r.hasPrice&&r.price>0,
+        stockQuantity:r.hasStock?r.stock:0,isStockSet:r.hasStock,
+        minStockThreshold:r.hasStock&&r.stock>0?Math.max(1,Math.round(r.stock*critPct()/100)):0,
+        taxRate:taxFor(cat),isWeightBased:r.isWeightBased,imageSymbol:'',discountPercent:0,
+        isDeleted:false,isAvailable:true,addedDate:now,updatedAt:now}]);
+      added++;
+    }
   }
+  try{
+    // 400'lük paketler (Firestore sınırı 500). Sunucu onayı BEKLENİR: yarım içe aktarma sessiz kalmasın.
+    for(let i=0;i<ops.length;i+=400){
+      const b=writeBatch(db);
+      ops.slice(i,i+400).forEach(([id,d])=>b.set(doc(db,'stores',storeId,'products',id),d,{merge:true}));
+      if(navigator.onLine) await b.commit(); else b.commit().catch(e=>alert('⚠️ İçe aktarma sunucuya yazılamadı: '+(e?.code||e?.message||'')));
+      btn.textContent=`İçe aktarılıyor… ${Math.min(i+400,ops.length)}/${ops.length}`;
+    }
+    document.getElementById('ie-modal').classList.remove('show');
+    showToast(`✓ ${added} ürün eklendi${updated?', ↻ '+updated+' güncellendi':''}`);
+  }catch(e){ console.error(e); alert('⚠️ İçe aktarma yarıda kaldı: '+(e?.code||e?.message||e)+'\nDosyayı yeniden yükleyebilirsiniz; aynı ürünler ikinci kez eklenmez.'); }
   btn.disabled=false;btn.textContent='✓ Ürünleri İçe Aktar';
-  document.getElementById('ie-modal').classList.remove('show');
-  showToast(`✓ ${ok} ürün eklendi${fail?', '+fail+' hata':''}`);
   loadProducts();
 };
 window.ieExportCSV=()=>{
   if(!allProducts.length){showToast('Dışa aktarılacak ürün yok');return;}
-  const header='Ürün Adı,Kategori,Fiyat,Stok\n';
-  const rows=allProducts.map(p=>[p.name||'',p.category||'',p.salePrice||0,p.stockQuantity||0].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
+  // Başlıklar içe aktarmanın TANIDIĞI adlar → dosya düzenlenip geri yüklenebilir. ; ayraç + BOM: TR Excel doğrudan açar.
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const num=v=>String(v).replace('.',',');
+  const header='Barkod;Ürün Adı;Kategori;Fiyat;Stok;Birim\n';
+  const rows=allProducts.map(p=>[q(p.barcode||p.id),q(p.name||''),q(p.category||''),p.isPriced===false?'':num(p.salePrice||0),p.isStockSet===false?'':(p.stockQuantity??0),p.isWeightBased?'kg':'adet'].join(';')).join('\n');
+  const blob=new Blob(['﻿'+header+rows],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   const td=new Date();const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
@@ -3574,62 +3797,112 @@ window.printBarcode=()=>{
 };
 
 /* ── Product CRUD (iOS ProductSyncManager şemasıyla birebir uyumlu) ── */
-window.openProductModal=id=>{
-  editingProductId=id||null;
+/* Tartılı üründe fiyat KİLO fiyatı, stok GRAM (uygulamalarla aynı model) — etiketler bunu söyler. */
+window.prWeightChanged=()=>{
+  const w=document.getElementById('pr-weight').checked;
+  document.getElementById('pr-price-label').textContent=w?'Kilo Fiyatı (₺)':'Satış Fiyatı (₺)';
+  document.getElementById('pr-stock-label').textContent=w?'Stok (gram)':'Stok Adedi';
+};
+/* Barkod kutusunda okuyucu Enter gönderir: ürün ZATEN varsa onu aç ("zaten envanterde"),
+   yoksa ada geç. Enter formu kaydetmez. */
+window.prBarcodeKey=e=>{
+  if(e.key!=='Enter') return; e.preventDefault();
+  const v=e.target.value.trim(); if(!v) return;
+  const ex=allProducts.find(x=>x.id===v);
+  if(ex&&!editingProductId){ showToast('Bu barkod zaten envanterde: '+(ex.name||v)); openProductModal(ex.id); return; }
+  document.getElementById('pr-name').focus();
+};
+let prAddToCartAfterSave=false;
+window.openProductModal=(id,presetBarcode,thenAddToCart)=>{
+  editingProductId=id||null; prAddToCartAfterSave=!!thenAddToCart;
   const p=id?allProducts.find(x=>x.id===id):null;
   document.getElementById('product-modal-title').textContent=p?'Ürünü Düzenle':'Ürün Ekle';
   document.getElementById('pr-name').value=p?.name||'';
-  document.getElementById('pr-barcode').value=p?(p.barcode||p.id):'';
+  document.getElementById('pr-barcode').value=p?(p.barcode||p.id):(presetBarcode||'');
   document.getElementById('pr-barcode').disabled=!!p;
-  document.getElementById('pr-price').value=p?(p.salePrice??''):'';
-  document.getElementById('pr-tax').value=String(p?.taxRate??0.2);
-  document.getElementById('pr-stock').value=p?(p.stockQuantity??''):'';
+  document.getElementById('pr-price').value=p&&p.isPriced!==false&&(p.salePrice>0)?String(p.salePrice).replace('.',','):'';
+  // KDV: düzenlemede ürünün KENDİ oranı (listede yoksa seçenek eklenir, sessizce değişmesin);
+  // yeni üründe mağazanın varsayılanı.
+  const taxSel=document.getElementById('pr-tax'), taxVal=p?(p.taxRate??0.2):((taxDoc&&typeof taxDoc.defaultRate==='number')?taxDoc.defaultRate:0.2);
+  if(![...taxSel.options].some(o=>Math.abs(parseFloat(o.value)-taxVal)<1e-9)){ const o=document.createElement('option'); o.value=String(taxVal); o.textContent='%'+String(Math.round(taxVal*10000)/100).replace('.',','); taxSel.appendChild(o); }
+  taxSel.value=[...taxSel.options].find(o=>Math.abs(parseFloat(o.value)-taxVal)<1e-9).value;
+  document.getElementById('pr-stock').value=p&&p.isStockSet!==false?(p.stockQuantity??''):'';
+  document.getElementById('pr-weight').checked=!!p?.isWeightBased; prWeightChanged();
   document.getElementById('pr-min').value=p?(p.minStockThreshold??''):'';
   document.getElementById('pr-discount').value=p?(p.discountPercent||''):'';
-  document.getElementById('pr-category').value=p?.category&&document.querySelector(`#pr-category option[value="${p.category}"]`)?p.category:'';
+  // ⚠️ Listede olmayan kategori (içe aktarılan "Manav", uygulamadan gelen ad) KORUNUR:
+  //    eskiden seçenek bulunamayınca '' seçiliyor ve Kaydet kategoriyi SİLİYORDU.
+  const catSel=document.getElementById('pr-category'); catSel.querySelectorAll('option[data-dyn]').forEach(o=>o.remove());
+  if(p?.category&&![...catSel.options].some(o=>o.value===p.category)){ const o=document.createElement('option'); o.value=p.category; o.textContent=p.category; o.dataset.dyn='1'; catSel.appendChild(o); }
+  catSel.value=p?.category||'';
   document.getElementById('pr-delete-btn').style.display=p?'block':'none';
   document.getElementById('product-modal').classList.add('show');
+  setTimeout(()=>document.getElementById(p||presetBarcode?'pr-name':'pr-barcode').focus(),60);
 };
 window.saveProduct=async()=>{
   const name=document.getElementById('pr-name').value.trim();
   if(!name){showToast('Ürün adı gerekli');return;}
-  const price=parseFloat(document.getElementById('pr-price').value)||0;
-  const stock=parseInt(document.getElementById('pr-stock').value)||0;
+  const existing=editingProductId?allProducts.find(x=>x.id===editingProductId):null;
+  // Fiyat/stok: virgüllü ve binlik ayraçlı giriş kabul (ieNum). BOŞ ≠ 0:
+  //   boş fiyat → isPriced:false (kasada 0,00'a satılmaz, fiyat sorulur)
+  //   boş stok  → isStockSet:false ("sayılmadı"; 0 yazılırsa "tükendi")
+  const priceRaw=document.getElementById('pr-price').value.trim(), stockRaw=document.getElementById('pr-stock').value.trim();
+  const priceN=priceRaw?ieNum(priceRaw):null, stockN=stockRaw?ieNum(stockRaw):null;
+  if(priceRaw&&(priceN==null||priceN<0)){showToast('Fiyat geçersiz');return;}
+  if(stockRaw&&(stockN==null||stockN<0)){showToast('Stok geçersiz');return;}
+  const price=priceN??0, stockEntered=stockN!=null;
+  const stock=stockEntered?Math.round(stockN):(existing?.stockQuantity??0);
+  const isStockSet=stockEntered||(existing?existing.isStockSet!==false:false);
   // Kritik eşik ELLE SORULMAZ (uygulamadaki gibi): stok ARTTIĞINDA ya da ürün
-  // yeniyken stoğun ayarlanan yüzdesi. Stok azalırken dokunulmaz — yoksa eşik
-  // stokla birlikte düşer ve ürün hiç kritik olmaz.
-  const prevP=editingProductId?allProducts.find(x=>x.id===editingProductId):null;
-  const minS=(!prevP||stock>(prevP.stockQuantity??0))?(stock>0?Math.max(1,Math.round(stock*critPct()/100)):0):(prevP.minStockThreshold??0);
+  // yeniyken stoğun ayarlanan yüzdesi. Stok azalırken dokunulmaz.
+  const minS=(!existing||stock>(existing.stockQuantity??0))?(stock>0?Math.max(1,Math.round(stock*critPct()/100)):0):(existing.minStockThreshold??0);
   const tax=parseFloat(document.getElementById('pr-tax').value)||0;
   const discount=Math.min(100,Math.max(0,parseFloat(document.getElementById('pr-discount').value)||0));
   const cat=document.getElementById('pr-category').value;
-  let barcode=editingProductId||document.getElementById('pr-barcode').value.trim();
-  if(!barcode)barcode='WEB'+Date.now();
-  const existing=editingProductId?allProducts.find(x=>x.id===editingProductId):null;
+  let barcode=editingProductId||document.getElementById('pr-barcode').value.trim().replace(/\//g,'-');
+  if(!editingProductId&&barcode&&allProducts.some(x=>x.id===barcode)){showToast('Bu barkod zaten envanterde');return;}
+  if(!barcode){ do{ barcode='BS-'+String(Math.floor(100000+Math.random()*900000)); }while(allProducts.some(x=>x.id===barcode)); }
+  const now=Date.now()/1000;
   const data={
-    barcode, name, stockQuantity:stock, minStockThreshold:minS, salePrice:price,
-    category:cat, imageSymbol:existing?.imageSymbol||'', isWeightBased:existing?.isWeightBased||false,
-    taxRate:tax, discountPercent:discount, addedDate:existing?.addedDate??(Date.now()/1000), updatedAt:Date.now()/1000
+    barcode, name, stockQuantity:stock, isStockSet, minStockThreshold:minS, salePrice:price, isPriced:price>0,
+    category:cat, imageSymbol:existing?.imageSymbol||'', isWeightBased:document.getElementById('pr-weight').checked,
+    taxRate:tax, discountPercent:discount, isDeleted:false, isAvailable:true,
+    addedDate:existing?.addedDate??now, updatedAt:now
   };
-  try{
-    await setDoc(doc(db,'stores',storeId,'products',barcode),data,{merge:true});
-    document.getElementById('product-modal').classList.remove('show');
-    showToast(editingProductId?'✓ Ürün güncellendi':'✓ Ürün eklendi');
-    loadProducts();
-  }catch(e){showToast('Hata: '+e.message);}
+  // Beklemeden: çevrimdışıyken sunucu onayı gelmez; yazım kalıcı kuyrukta durur.
+  setDoc(doc(db,'stores',storeId,'products',barcode),data,{merge:true})
+    .catch(e=>alert('⚠️ "'+name+'" sunucuya kaydedilemedi: '+(e?.code||e?.message||'')));
+  // Yerel listeyi hemen güncelle (kasada okutulan yeni ürün beklemeden sepete girsin).
+  const row={...(existing||{}),id:barcode,...data}; const ix=allProducts.findIndex(x=>x.id===barcode);
+  if(ix>=0) allProducts[ix]=row; else allProducts.push(row);
+  document.getElementById('product-modal').classList.remove('show');
+  showToast(editingProductId?'✓ Ürün güncellendi':'✓ Ürün eklendi');
+  renderInvCategoryChips();applyInvFilters();
+  if(prAddToCartAfterSave&&price>0){ prAddToCartAfterSave=false; addToCart(barcode); }
+  loadProducts();
 };
 window.deleteProduct=async()=>{
   if(!editingProductId)return;
   const p=allProducts.find(x=>x.id===editingProductId);
-  if(!confirm(`"${p?.name||editingProductId}" silinsin mi? Bu işlem geri alınamaz.`))return;
-  try{
-    await deleteDoc(doc(db,'stores',storeId,'products',editingProductId));
-    document.getElementById('product-modal').classList.remove('show');
-    showToast('Ürün silindi');
-    loadProducts();
-  }catch(e){showToast('Hata: '+e.message);}
+  if(!confirm(`"${p?.name||editingProductId}" silinsin mi?`))return;
+  // ⚠️ YUMUŞAK SİLME (isDeleted:true) — belgeyi SİLME. Uygulamalar silinen belgeyi kendi yerel
+  //    kopyasından geri yazabiliyor (silinen ürünün dirilmesi); işaret ise her cihaza yayılır.
+  const id=editingProductId;
+  setDoc(doc(db,'stores',storeId,'products',id),{isDeleted:true,updatedAt:Date.now()/1000},{merge:true})
+    .catch(e=>alert('⚠️ Silme sunucuya yazılamadı: '+(e?.code||e?.message||'')));
+  allProducts=allProducts.filter(x=>x.id!==id);
+  document.getElementById('product-modal').classList.remove('show');
+  showToast('Ürün silindi');
+  renderInvCategoryChips();applyInvFilters();
 };
 window.filterInventory=()=>applyInvFilters();
+/* Envanterde okuyucu: tam barkod eşleşirse ürünü aç, yoksa o barkodla ekleme formu. */
+window.ixSearchKey=e=>{
+  if(e.key!=='Enter') return; const v=e.target.value.trim(); if(!v) return;
+  const ex=allProducts.find(x=>x.id===v);
+  if(ex){ e.target.value=''; applyInvFilters(); openProductModal(ex.id); }
+  else if(/^[0-9A-Za-z\-]{6,}$/.test(v)&&/\d/.test(v)&&!smartFilter(allProducts,v.toLocaleLowerCase('tr-TR')).length){ e.target.value=''; applyInvFilters(); openProductModal(null,v); }
+};
 
 /* ── Fire & Kayıp (iOS StockLossView ile aynı davranış: sadece stok düşülür) ── */
 let lossProductId=null;
@@ -3880,18 +4153,32 @@ function renderForecast(){
 }
 
 /* ── Refund ──────────────────────── */
-async function loadRefundList(){
+/* İade listesi: en yeni 50 fiş + "daha eski" sayfalama + tarihe atlama.
+   Eskiden YALNIZCA son 50 fiş vardı: yoğun dükkânda dünkü satış iade edilemiyordu. */
+let refundLastDoc=null, refundHasMore=false;
+async function loadRefundList(more){
   if(!storeId)return;
-  document.getElementById('refund-list').innerHTML='<div class="loading-dots"><span></span><span></span><span></span></div>';
+  const el=document.getElementById('refund-list'), day=document.getElementById('refund-date')?.value||'';
+  if(!more){ refundLastDoc=null; recentTransactions=[]; el.innerHTML='<div class="loading-dots"><span></span><span></span><span></span></div>'; }
   try{
-    const snap=await getDocs(query(collection(db,'stores',storeId,'receipts'),orderBy('date','desc'),limit(50)));
-    recentTransactions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const col=collection(db,'stores',storeId,'receipts'); let q;
+    if(day){ const st=new Date(day+'T00:00:00'), en=new Date(st.getTime()+24*3600*1000);
+      q=query(col,where('date','>=',Timestamp.fromDate(st)),where('date','<',Timestamp.fromDate(en)),orderBy('date','desc'),limit(500)); }
+    else q=refundLastDoc?query(col,orderBy('date','desc'),startAfter(refundLastDoc),limit(50)):query(col,orderBy('date','desc'),limit(50));
+    const snap=await getDocs(q);
+    recentTransactions=recentTransactions.concat(snap.docs.map(d=>({id:d.id,...d.data()})));
+    refundLastDoc=snap.docs.length?snap.docs[snap.docs.length-1]:refundLastDoc;
+    refundHasMore=!day&&snap.docs.length===50;
+    const h=document.getElementById('refund-hint'); if(h) h.textContent=day?'Seçilen günün satışları':'Son satışlar — iade için "İade Et"e tıkla';
     renderRefundList();
-  }catch(e){document.getElementById('refund-list').innerHTML=`<div class="empty-state"><div class="empty-icon">↩️</div><div class="empty-text">Yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;}
+  }catch(e){el.innerHTML=`<div class="empty-state"><div class="empty-icon">↩️</div><div class="empty-text">Yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;}
 }
+window.loadRefundList=loadRefundList;
 function renderRefundList(){
   const el=document.getElementById('refund-list');
   if(!recentTransactions.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">↩️</div><div class="empty-text">Henüz satış yok</div></div>';return;}
+  // 🔴 Aynı satış İKİ KEZ iade edilebiliyordu: iade edilmiş satışta düğme durmaya devam ediyordu.
+  const refundedIds=new Set(recentTransactions.filter(t=>t.isRefund&&t.linkedSaleId).map(t=>t.linkedSaleId));
   el.innerHTML='<div class="refund-list">'+recentTransactions.map(tx=>{
     const isRef=tx.isRefund;
     const items=(tx.items||[]).map(i=>`${esc(i.name||i.productId)} ×${i.qty}`).join(', ')||'—';
@@ -3904,9 +4191,9 @@ function renderRefundList(){
         <div class="refund-meta">${dateStr} · ${tx.paymentMethod==='card'?'Kart':'Nakit'} · ${items}</div>
       </div>
       <span class="refund-tag ${isRef?'refunded':'sale'}">${isRef?'İade':'Satış'}</span>
-      ${!isRef?`<button class="refund-btn" onclick="openRefundModal('${tx.id}')">İade Et</button>`:''}
+      ${!isRef?(refundedIds.has(tx.id)?'<span style="font-size:11px;font-weight:700;color:var(--muted)">İade edildi</span>':`<button class="refund-btn" onclick="openRefundModal('${tx.id}')">İade Et</button>`):''}
     </div>`;
-  }).join('')+'</div>';
+  }).join('')+'</div>'+(refundHasMore?'<button class="btn-cancel" style="width:100%;margin-top:10px" onclick="loadRefundList(true)">Daha eski satışları göster</button>':'');
 }
 window.openRefundModal=id=>{
   const tx=recentTransactions.find(t=>t.id===id);if(!tx)return;
@@ -3919,27 +4206,36 @@ window.openRefundModal=id=>{
 window.confirmRefund=async()=>{
   if(!pendingRefundTx||!storeId)return;
   document.getElementById('refund-modal').classList.remove('show');
+  const tx=pendingRefundTx;
+  if(recentTransactions.some(t=>t.isRefund&&t.linkedSaleId===tx.id)){ showToast('Bu satış zaten iade edilmiş'); pendingRefundTx=null; return; }
+  // Tarihe atlanarak açılan eski satışın iadesi listede OLMAYABİLİR → sunucuya sor (çevrimdışıysa atlanır).
+  if(navigator.onLine){ try{ const dup=await getDocs(query(collection(db,'stores',storeId,'receipts'),where('linkedSaleId','==',tx.id),limit(1)));
+    if(!dup.empty){ showToast('Bu satış zaten iade edilmiş'); pendingRefundTx=null; return; } }catch(e){ console.warn('çift iade kontrolü yapılamadı:',e); } }
   try{
     const td=new Date();
     const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
     const mk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}`;
-    const amt=pendingRefundTx.total||0;
-    const taxAmt=pendingRefundTx.taxTotal||0;
-    await addDoc(collection(db,'stores',storeId,'receipts'),{
-      date:serverTimestamp(),monthKey:mk,total:amt,taxTotal:taxAmt,
-      paymentMethod:pendingRefundTx.paymentMethod,staffName:auth.currentUser?.email||'web',
-      items:pendingRefundTx.items||[],expireAt:new Date(td.getTime()+365*24*3600*1000),
-      isRefund:true,linkedSaleId:pendingRefundTx.id,source:'web'
-    });
-    await Promise.all((pendingRefundTx.items||[]).filter(i=>i.productId).map(i=>
-      updateDoc(doc(db,'stores',storeId,'products',i.productId),{stockQuantity:increment(i.qty),updatedAt:serverTimestamp()}).catch(()=>{})
-    ));
-    await bumpSummary(['stores',storeId,'dailySummaries',dk],-amt,-taxAmt,pendingRefundTx.paymentMethod,1);
-    await bumpSummary(['stores',storeId,'monthlySummaries',mk],-amt,-taxAmt,pendingRefundTx.paymentMethod,1);
+    const amt=tx.total||0, taxAmt=tx.taxTotal||0;
+    // 🔌 Satışla aynı desen: TEK PAKET, sunucu beklenmez (çevrimdışı çalışır), tarih CİHAZ saati.
+    const b=writeBatch(db), rref=doc(collection(db,'stores',storeId,'receipts'));
+    const rdata={date:Timestamp.fromDate(td),monthKey:mk,total:amt,taxTotal:taxAmt,
+      paymentMethod:tx.paymentMethod,staffName:auth.currentUser?.email||'web',
+      items:tx.items||[],expireAt:new Date(td.getTime()+3650*24*3600*1000),
+      isRefund:true,linkedSaleId:tx.id,source:'web'};
+    b.set(rref,rdata);
+    // ⚠️ Sayılmamış ürüne stok geri EKLENMEZ (satış düşmedi); tartılıda miktar GRAM.
+    (tx.items||[]).filter(i=>i.productId&&(allProducts.find(x=>x.id===i.productId)||{}).isStockSet!==false&&allProducts.some(x=>x.id===i.productId)).forEach(i=>
+      b.set(doc(db,'stores',storeId,'products',i.productId),{stockQuantity:increment(i.isGramSale?(i.gramWeight||0):i.qty),updatedAt:serverTimestamp()},{merge:true}));
+    // ⚠️ İade satış SAYISINI değiştirmez (0): eskiden +1 yazıp günün işlem sayısını şişiriyordu.
+    const dp=['stores',storeId,'dailySummaries',dk], mp=['stores',storeId,'monthlySummaries',mk];
+    b.set(doc(db,...dp),summaryPatch(dp,-amt,-taxAmt,tx.paymentMethod,0),{merge:true});
+    b.set(doc(db,...mp),summaryPatch(mp,-amt,-taxAmt,tx.paymentMethod,0),{merge:true});
+    b.commit().catch(e=>{ console.error('iade yazılamadı:',e); alert('⚠️ '+fc(amt)+' tutarındaki iade sunucuya KAYDEDİLEMEDİ.\n'+(e?.code||e?.message||'')); });
+    recentTransactions.unshift({id:rref.id,...rdata}); renderRefundList();
     showToast(`↩ ${fc(amt)} iade edildi`);
     pendingRefundTx=null;
-    loadRefundList();loadProducts();loadDailySummaries();loadMonthlySummaries();
-  }catch(e){showToast('İade başarısız: '+e.message);}
+    loadProducts();loadDailySummaries();loadMonthlySummaries();
+  }catch(e){ console.error(e); alert('⚠️ İade kaydedilemedi: '+(e?.message||e)); }
 };
 
 /* ── Veresiye ────────────────────── */
