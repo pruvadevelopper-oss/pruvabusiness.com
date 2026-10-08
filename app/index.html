@@ -3547,7 +3547,15 @@ function renderInventory(list){
   const el=document.getElementById('inv-grid');
   document.getElementById('ix-count').textContent=allProducts.length;
   if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><div class="empty-text">'+(allProducts.length?'Sonuç bulunamadı':'Henüz ürün yok')+'</div></div>';return;}
-  el.innerHTML=list.map(p=>{
+  // 🔴 PARÇA PARÇA ÇİZİM (2026-10-08, ölçüldü): eskiden TÜM ürünler tek seferde DOM'a yazılıyordu —
+  // 2.000 üründe 16.000 düğüm, hızlı bir Mac'te 190 ms; düşük donanımlı telefonda sekmeye her girişte
+  // ve aramada her tuşta saniyeye yakın donma demekti. Artık ilk INV_CHUNK kart çizilir, liste sonuna
+  // yaklaşıldıkça devamı eklenir. ⚠️ `el.innerHTML=list.map(...)` hâline DÖNME.
+  invRenderList=list; invRendered=0; el.innerHTML='';
+  invAppendChunk();
+}
+const INV_CHUNK=120; let invRenderList=[], invRendered=0, invSentinelObs=null;
+const invCardHTML=p=>{
     const [st,stTxt]=stockState(p);
     const img=p.imageURL?`<img src="${esc(p.imageURL)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'ix-emoji',textContent:'${pEmoji(p)}'}))">`:`<div class="ix-emoji">${pEmoji(p)}</div>`;
     const disc=p.discountPercent||0;
@@ -3559,7 +3567,20 @@ function renderInventory(list){
       <div class="ix-price">${(p.isPriced===false||!(p.salePrice>0))?'<span style="color:var(--muted);font-weight:600">Fiyat yok</span>':fc(disc>0?Math.round((p.salePrice||0)*(1-disc/100)*100)/100:(p.salePrice||0))+(p.isWeightBased?'<span style="font-size:11px;font-weight:600"> / kg</span>':'')}</div>
       <div class="ix-stock">📦 ${p.isStockSet===false?'—':(p.isWeightBased?gramLabel(p.stockQuantity??0):(p.stockQuantity??0)+' adet')}</div>
     </div>`;
-  }).join('');
+  };
+function invAppendChunk(){
+  const el=document.getElementById('inv-grid'); if(!el) return;
+  el.querySelector('.ix-sentinel')?.remove();
+  const part=invRenderList.slice(invRendered,invRendered+INV_CHUNK);
+  if(!part.length) return;
+  el.insertAdjacentHTML('beforeend',part.map(invCardHTML).join(''));
+  invRendered+=part.length;
+  if(invRendered<invRenderList.length){
+    const s=document.createElement('div'); s.className='ix-sentinel'; s.style.cssText='grid-column:1/-1;height:1px';
+    el.appendChild(s);
+    if(!invSentinelObs) invSentinelObs=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)) invAppendChunk(); },{rootMargin:'900px'});
+    invSentinelObs.disconnect(); invSentinelObs.observe(s);
+  }
 }
 window.renderInvCategoryChips=()=>{
   const el=document.getElementById('ix-chips');if(!el)return;
@@ -3586,11 +3607,13 @@ function smartFilter(list,q){const f=pfFold(q.trim());if(!f)return list;
   if(f.length<3||exact.length>=10)return exact;const ids=new Set(exact.map(p=>p.id));
   const sim=list.filter(p=>!ids.has(p.id)).map(p=>[p,fuzzyScore(p.name,q)]).filter(x=>x[1]!==null).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
   return [...exact,...sim];}
+const TR_COLLATOR=new Intl.Collator('tr');
 window.applyInvFilters=()=>{
   const f=(document.getElementById('ix-search')?.value||'').trim().toLocaleLowerCase('tr-TR');
   let list=allProducts;
   if(invCategory)list=list.filter(p=>(p.category||'Genel')===invCategory);
-  list=[...list].sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  // Intl.Collator, localeCompare'in aynısını çok daha hızlı yapar (her tuşta çalışıyor).
+  list=[...list].sort((a,b)=>TR_COLLATOR.compare(a.name||'',b.name||''));
   if(f)list=smartFilter(list,f);
   renderInventory(list);
 };
