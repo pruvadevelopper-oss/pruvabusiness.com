@@ -4870,22 +4870,22 @@ window.dangerRun=async()=>{
 /* ── Hızlı Fiyat ve Stok Gir (uygulamadaki QuickPriceStockSheet'in web karşılığı) ──
    ⚠️ Boş bırakılan alan YAZILMAZ: fiyatta 0 "bedava", stokta 0 "tükendi" demektir. */
 let qpsAll=false;
-const qpsMissing=p=>(p.isPriced===false||!(p.salePrice>0))||p.isStockSet===false;
+// Stok isteğe bağlı: yalnızca FİYATSIZ ürün "eksik" sayılır (uygulamalarla aynı kural).
+const qpsMissing=p=>(p.isPriced===false||!(p.salePrice>0));
 window.qpsScope=all=>{qpsAll=all;document.getElementById('qps-seg-all').classList.toggle('on',all);document.getElementById('qps-seg-missing').classList.toggle('on',!all);qpsRender();};
 window.qpsRender=()=>{
   const q=(document.getElementById('qps-search')?.value||'').trim();
   let list=[...allProducts].sort((a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
   const miss=list.filter(qpsMissing);
-  const noPrice=miss.filter(p=>p.isPriced===false||!(p.salePrice>0)).length, noStock=miss.filter(p=>p.isStockSet===false).length;
-  document.getElementById('qps-summary').textContent=`${miss.length} ürün eksik · ${noPrice} fiyat · ${noStock} stok`;
+  document.getElementById('qps-summary').textContent=`Fiyatı eksik ürünler: ${miss.length}`;
   if(!qpsAll) list=miss;
   if(q) list=smartFilter(list,q);
   const el=document.getElementById('qps-list');
-  if(!list.length){el.innerHTML=`<div class="settings-row" style="cursor:default;justify-content:center;color:var(--muted)">${qpsAll?'Ürün yok':'Fiyatı ya da stoğu eksik ürün yok ✓'}</div>`;return;}
+  if(!list.length){el.innerHTML=`<div class="settings-row" style="cursor:default;justify-content:center;color:var(--muted)">${qpsAll?'Ürün yok':'Fiyatı eksik ürün yok'}</div>`;return;}
   el.innerHTML=`<div class="qps-row" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase"><div class="qps-name">Ürün</div><div style="width:92px;text-align:right">Fiyat (${esc(CUR.trim())})</div><div style="width:92px;text-align:right">Stok</div><div style="width:66px"></div></div>`+list.slice(0,300).map(p=>{const np=p.isPriced===false||!(p.salePrice>0), ns=p.isStockSet===false;
     return `<div class="qps-row" data-id="${esc(p.id)}"><div class="qps-name"><b>${esc(p.name||p.id)}</b><span>${esc(p.id)}</span></div>
       <input class="${np?'miss':''}" inputmode="decimal" placeholder="Fiyat" value="${np?'':String(p.salePrice).replace('.',',')}" oninput="qpsDirty(this)">
-      <input class="${ns?'miss':''}" inputmode="numeric" placeholder="Stok" value="${ns?'':(p.stockQuantity??0)}" oninput="qpsDirty(this)">
+      <input inputmode="numeric" placeholder="Stok" value="${ns?'':(p.stockQuantity??0)}" oninput="qpsDirty(this)">
       <button disabled onclick="qpsSave(this)">Kaydet</button></div>`;}).join('');
 };
 window.qpsDirty=inp=>{inp.closest('.qps-row').querySelector('button').disabled=false;};
