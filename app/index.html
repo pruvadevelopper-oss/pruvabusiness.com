@@ -2171,7 +2171,8 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 .opt-acc-name{font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opt-acc-sub{font-size:13px;color:var(--muted)}
 .opt-ai{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:18px;margin-bottom:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#312E81,#6D28D9 60%,#A855F7)}
 .opt-ai{min-height:74px;box-sizing:border-box}
-.opt-ai-slot{width:66px;height:66px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+/* Yalnızca YER TUTUCU: daire/halka çizilmez (uygulamalarda yok — kullanıcı kararı). */
+.opt-ai-slot{width:66px;height:66px;flex-shrink:0}
 .opt-ai-t{font-weight:800;font-size:16px}.opt-ai-s{font-size:13px;opacity:.8}
 .opt-owner{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;margin:12px 0;cursor:pointer;color:#fff;background:linear-gradient(135deg,#0E1B4A,#1E3A8A 55%,#2B4CC9)}
 .opt-owner-ic{width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:22px}
@@ -2626,6 +2627,14 @@ async function initApp(user){
   chatInit(); loadedTabs.add('chat');
   loadDailySummaries();
   loadMonthlySummaries();
+  // 🔴 Panel, mağaza kimliği çözülmeden ÖNCE görünür oluyor (yukarıdaki iki okuma beklenirken).
+  //    O arada bir sekmeye girilirse yükleyicisi `if(!storeId)return` ile sessizce çıkıyor ve bir daha
+  //    çağrılmıyordu: Z raporu "—" ve dönen noktalarla kalıyordu (yavaş bağlantıda, Safari'de görüldü).
+  //    Mağaza belli olunca açık sekme bir kez yeniden yüklenir.
+  try{
+    const act=document.querySelector('.tab-panel.active')?.id?.replace(/^tab-/,'');
+    if(act && act!=='home'){ loadedTabs.delete(act); switchTab(act); }
+  }catch(e){ console.error('sekme yeniden yüklenemedi:',e); }
 }
 
 /* ── Products ────────────────────── */
@@ -5104,7 +5113,12 @@ window.switchTab=(tab,fromOpt)=>{
     if(window.__curTab==='settings'){
       const slot=document.getElementById('opt-ai-slot');
       if(slot){ const b=slot.getBoundingClientRect();
-        if(b.width && b.top>60 && b.bottom<H-20){ restX=b.left+b.width/2; restY=b.top+b.height/2; } }
+        // Yuva görünür alanda kaldığı sürece damla KARTTA durur; köşeye ancak yuvanın
+        // merkezi üst çubuğun altına girince (kart gerçekten gidince) döner. Eski sabit eşik
+        // (top>60) birkaç piksellik kaydırmada damlayı köşeye atıyordu.
+        const top=(document.querySelector('.content-area')?.getBoundingClientRect().top)||0;
+        const cy=b.top+b.height/2;
+        if(b.width && cy>top+8 && cy<H-20){ restX=b.left+b.width/2; restY=cy; } }
     }
   }
 
