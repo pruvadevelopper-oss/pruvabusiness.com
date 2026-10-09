@@ -2591,7 +2591,20 @@ window.obFinish=async()=>{
 // Android StandardVatRates.kt ile AYNI tablo; kaynak AB resmî tablosu 13.07.2026 + Türkiye %20).
 // ⚠️ Yalnızca doğrulanmış ülkeler; listede yoksa eski %20 kalır. Birini değiştirirsen üçünü de değiştir.
 const STANDARD_VAT={AT:0.2,BE:0.21,BG:0.2,CY:0.19,CZ:0.21,DE:0.19,DK:0.25,EE:0.24,GR:0.24,ES:0.21,FI:0.255,FR:0.2,HR:0.25,HU:0.27,IE:0.23,IT:0.22,LT:0.21,LU:0.17,LV:0.21,MT:0.18,NL:0.21,PL:0.23,PT:0.23,RO:0.21,SE:0.25,SI:0.22,SK:0.23,TR:0.2};
-function stdVat(){ let c=String((window.__storeDoc&&window.__storeDoc.businessCountry)||(navigator.language||'').split('-')[1]||'').toUpperCase(); if(c==='EL')c='GR'; const r=STANDARD_VAT[c]; return typeof r==='number'?r:0.2; }
+// Uzaktan tablo (2026-10-09): asıl kaynak Firestore publicConfig/taxRates.countries
+//   { DE:{ standard:0.19, upcomingRate:0.20, upcomingFrom:'2027-01-01' } } — yalnızca platform yöneticisinin
+//   ONAYLADIĞI oranlar (haftalık sunucu taraması öneri üretir). Gömülü tablo yedek. Günde 1 okuma (localStorage).
+let REMOTE_VAT={}; try{ REMOTE_VAT=JSON.parse(localStorage.getItem('pruva_std_vat')||'{}')||{}; }catch(_){ REMOTE_VAT={}; }
+function remoteVat(c){ const r=REMOTE_VAT[c]; if(!r) return null; const ok=v=>typeof v==='number'&&v>=0&&v<=0.5;
+  const today=new Date().toISOString().slice(0,10);
+  if(ok(r.upcomingRate)&&/^\d{4}-\d{2}-\d{2}$/.test(r.upcomingFrom||'')&&r.upcomingFrom<=today) return r.upcomingRate;
+  return ok(r.standard)?r.standard:null; }
+window.refreshStdVat=async(getDocFn,docRef)=>{ try{
+    if(Date.now()-Number(localStorage.getItem('pruva_std_vat_at')||0)<86400000) return;
+    const snap=await getDocFn(docRef); const c=(snap.exists()&&snap.data().countries)||{};
+    REMOTE_VAT=c; localStorage.setItem('pruva_std_vat',JSON.stringify(c)); localStorage.setItem('pruva_std_vat_at',String(Date.now()));
+  }catch(e){ console.warn('[StdVat] oran tablosu okunamadı',e?.code||e?.message||e); } };
+function stdVat(){ let c=String((window.__storeDoc&&window.__storeDoc.businessCountry)||(navigator.language||'').split('-')[1]||'').toUpperCase(); if(c==='EL')c='GR'; const r=remoteVat(c)??STANDARD_VAT[c]; return typeof r==='number'?r:0.2; }
 const EPHEMERAL_STORES=new Set(['mockup_ads_store','demo_reviewer_store','guest_preview_store']);
 async function findStoreId(user){
   // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
@@ -2658,6 +2671,7 @@ async function initApp(user){
         document.getElementById('hx-category').textContent=cat[d.category]||'Mağaza';
         window.__ownerName=d.ownerFirstName||'';
         window.__storeDoc=d;
+        window.refreshStdVat(getDoc,doc(db,'publicConfig','taxRates'));   // ülke genel KDV oranları (günde 1)
         if(d.currencyCode){ const c=OB_CURRENCIES.find(x=>x[0]===d.currencyCode); if(c) CUR=c[1]+(c[1].length>1?' ':''); }
         document.getElementById('opt-cur-sub').textContent=d.currencyCode||'TRY';
         if(d.ownerFirebaseUid===user.uid) optApplyRole(true);
