@@ -1611,7 +1611,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
             <div class="settings-row" data-fin onclick="optOpen('zreport')"><div class="settings-icon ios-ic" style="background:#0EA5E9"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6M16 12H8M13 16H8"/></svg></div><div class="settings-text"><div class="settings-title">Z Raporu</div><div class="settings-sub">Gün sonu raporu</div></div><div class="settings-arrow">›</div></div>
           </div>
           <div class="settings-group opt-folders">
-            <div data-mgmt><details class="opt-folder" id="fold-tools"><summary class="settings-row"><div class="settings-icon ios-ic" style="background:#64748B"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></div><div class="settings-text"><div class="settings-title">Araçlar</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row"  onclick="openImportExportModal()"><div class="settings-icon ios-ic" style="background:#10B981"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div><div class="settings-text"><div class="settings-title">Excel İçe Aktar</div><div class="settings-sub">CSV / XLSX</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="ieExportCSV()"><div class="settings-icon ios-ic" style="background:#3B82F6"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div><div class="settings-text"><div class="settings-title">Excel Dışa Aktar</div><div class="settings-sub">Tüm ürünler CSV</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="openBarcodeModal()"><div class="settings-icon ios-ic" style="background:#8B5CF6"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></svg></div><div class="settings-text"><div class="settings-title">Barkod Oluşturucu</div></div><div class="settings-arrow">›</div></div></div></details></div>
+            <div data-mgmt><details class="opt-folder" id="fold-tools"><summary class="settings-row"><div class="settings-icon ios-ic" style="background:#64748B"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></div><div class="settings-text"><div class="settings-title">Araçlar</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row"  onclick="openImportExportModal()"><div class="settings-icon ios-ic" style="background:#10B981"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div><div class="settings-text"><div class="settings-title">Excel İçe Aktar</div><div class="settings-sub">CSV / XLSX</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="ieExportAsk()"><div class="settings-icon ios-ic" style="background:#3B82F6"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div><div class="settings-text"><div class="settings-title">Excel Dışa Aktar</div><div class="settings-sub">Tüm ürünler CSV</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="openBarcodeModal()"><div class="settings-icon ios-ic" style="background:#8B5CF6"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/></svg></div><div class="settings-text"><div class="settings-title">Barkod Oluşturucu</div></div><div class="settings-arrow">›</div></div></div></details></div>
             <details class="opt-folder" id="fold-settings"><summary class="settings-row"><div class="settings-icon ios-ic" style="background:#8E8E93"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div><div class="settings-text"><div class="settings-title">Ayarlar</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row" data-mgmt style="cursor:default;flex-wrap:wrap"><div class="settings-icon ios-ic" style="background:#F59E0B"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></svg></div><div class="settings-text"><div class="settings-title">Kritik stok uyarısı</div></div><div class="qps-seg" id="crit-seg"><button onclick="setCritPct(10)" data-v="10">%10</button><button onclick="setCritPct(15)" data-v="15">%15</button><button onclick="setCritPct(20)" data-v="20">%20</button><button onclick="setCritPct(25)" data-v="25">%25</button></div><div class="settings-sub" style="flex-basis:100%;padding-left:40px">Ürün, son girdiğin stoğun bu oranına düşünce uyarı verilir.</div></div><div class="settings-row"  onclick="optOpen('help')"><div class="settings-icon ios-ic" style="background:#F59E0B"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 9.2l4.3-4.3M14.8 14.8l4.3 4.3M9.2 14.8l-4.3 4.3"/></svg></div><div class="settings-text"><div class="settings-title">Yardım &amp; Destek</div></div><div class="settings-arrow">›</div></div></div></details>
             <details class="opt-folder" id="fold-about"><summary class="settings-row"><div class="settings-icon ios-ic" style="background:#3B82F6"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div><div class="settings-text"><div class="settings-title">Hakkında</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row"  onclick="window.open('https://pruvabusiness.com/privacy','_blank')"><div class="settings-icon ios-ic" style="background:#6366F1"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="settings-text"><div class="settings-title">Gizlilik (KVKK)</div></div><div class="settings-arrow">›</div></div><div class="settings-row"  onclick="window.open('https://pruvabusiness.com/terms','_blank')"><div class="settings-icon ios-ic" style="background:#6366F1"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 13H8M16 17H8M16 13h-2"/></svg></div><div class="settings-text"><div class="settings-title">Kullanım Koşulları</div></div><div class="settings-arrow">›</div></div><div class="settings-row" style="cursor:default"><div class="settings-icon ios-ic" style="background:#8E8E93"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div><div class="settings-text"><div class="settings-title">Sürüm</div></div><div class="settings-sub">Web 1.0</div></div><div class="settings-row" style="cursor:default"><div class="settings-icon ios-ic" style="background:#8E8E93"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.4 8.4a2.1 2.1 0 0 1-3-3L12 9M17.6 15 22 10.6M20.9 11.7l-1.2-1.3a2.8 2.8 0 0 1-.8-2V7.3L16.6 5a5.6 5.6 0 0 0-4-1.7H9l.9.8a6.2 6.2 0 0 1 2.1 4.6V10l2 2h2.2a2.8 2.8 0 0 1 2 .8l1.2 1.3"/></svg></div><div class="settings-text"><div class="settings-title">Geliştirici</div></div><div class="settings-sub">Pruva</div></div></div></details>
             <details class="opt-folder" id="fold-account"><summary class="settings-row"><div class="settings-icon ios-ic" style="background:#8E8E93"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div class="settings-text"><div class="settings-title">Hesap &amp; Güvenlik</div></div><div class="settings-arrow opt-chev">›</div></summary><div class="opt-folder-body"><div class="settings-row" onclick="doLogout()"><div class="settings-icon ios-ic" style="background:#EF4444"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></div><div class="settings-text"><div class="settings-title" style="color:var(--red)">Çıkış Yap</div></div></div><div class="settings-row" data-owner onclick="dangerOpen('reset')"><div class="settings-icon ios-ic" style="background:#F97316"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div><div class="settings-text"><div class="settings-title" style="color:#EA580C">Mağazayı Sıfırla</div><div class="settings-sub">Bu mağazanın ürün, satış ve personel verisi silinir</div></div><div class="settings-arrow">›</div></div><div class="settings-row" onclick="dangerOpen('delete')"><div class="settings-icon ios-ic" style="background:#DC2626"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 11.9-5M17 17l4 4M21 17l-4 4"/></svg></div><div class="settings-text"><div class="settings-title" style="color:var(--red)">Hesabı Sil ve Anonimleştir</div><div class="settings-sub">Hesabın ve kişisel verilerin kalıcı olarak silinir</div></div><div class="settings-arrow">›</div></div></div></details>
@@ -1661,6 +1661,25 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
           <div class="reco-actions"><button onclick="recoCopy()">Linki Kopyala</button></div>
           <div class="reco-note">Davet ettiğin mağaza ilk 14 gününün en az 3 farklı gününde satış yaparsa davet sayılır.</div></div>
         <div class="reco-stats"><div><b id="reco-q">0</b><span>Sayılan davet</span></div><div><b id="reco-p">0</b><span>Bekleyen</span></div></div>
+        <div class="settings-group reco-how">
+          <div class="reco-how-t">Nasıl davet edilir?</div>
+          <ol>
+            <li><b>Linki kopyala</b> ve davet etmek istediğin işletme sahibine gönder (WhatsApp, mesaj).</li>
+            <li>O kişi linke dokunur, <b>Pruva Business'ı indirir</b> ve mağazasını kurar. Kod çoğu zaman kendiliğinden gelir.</li>
+            <li>Kod gelmediyse kendi uygulamasında <b>Seçenekler → Davet Kampanyası → “Davet kodum var”</b> satırına senin kodunu yazar. Bu, mağazayı kurduktan sonraki <b>7 gün</b> içinde yapılmalı.</li>
+            <li>Mağazası ilk 14 günün <b>en az 3 farklı gününde</b> satış yaparsa davetin sayılır; o zamana kadar “Bekleyen”de görünür.</li>
+          </ol>
+          <div class="reco-how-t" style="margin-top:6px">Kodun yazıldığı ekran</div>
+          <div class="reco-shot" aria-label="Davet kodunun yazıldığı ekranın çizimi">
+            <div class="rs-phone">
+              <div class="rs-bar">‹ Seçenekler<b>Davet Kampanyası</b><span></span></div>
+              <div class="rs-row rs-hl">Davet kodum var <i>›</i></div>
+              <div class="rs-field"><span id="reco-shot-code">KODUN</span><em>Uygula</em></div>
+              <div class="rs-cap">Davet ettiğin kişi senin kodunu buraya yazar</div>
+            </div>
+          </div>
+          <div class="reco-how-n">Çizim temsilidir; uygulamadaki gerçek ekran görüntüsü değildir.</div>
+        </div>
       </div></div>
 
       <!-- ── Para Birimi ── -->
@@ -1918,6 +1937,11 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <div class="barcode-product-name" id="bc-name">—</div>
       <div class="barcode-product-price" id="bc-price">—</div>
       <svg id="bc-svg"></svg>
+    </div>
+    <div class="modal-actions" id="bc-gen-actions" style="display:none;margin-bottom:8px">
+      <button class="btn-cancel" onclick="bcGenNew()">Yeni Oluştur</button>
+      <button class="btn-cancel" onclick="bcGenCopy()">Kopyala</button>
+      <button class="btn-confirm" onclick="bcGenUse()">Ürün Ekle</button>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="document.getElementById('barcode-modal').classList.remove('show')">Kapat</button>
@@ -2180,6 +2204,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 .opt-folder>summary{list-style:none}.opt-folder>summary::-webkit-details-marker{display:none}
 .opt-folder[open] .opt-chev{transform:rotate(90deg)}.opt-chev{transition:transform .2s}
 .opt-folder-body{background:var(--bg);padding-left:14px}
+.opt-folders{margin-top:12px}
 .opt-folders>div:first-child .opt-folder>summary,.opt-folders>.opt-folder:first-child>summary{border-top:0}
 .opt-hint{font-size:13px;color:var(--muted);margin:4px 2px 14px;line-height:1.45}
 .topbar-back{border:0;background:var(--bg);color:var(--primary,#2B4CC9);font:inherit;font-weight:700;font-size:14px;padding:7px 12px;border-radius:99px;cursor:pointer}
@@ -2202,6 +2227,17 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
 .reco-l{opacity:.8;font-size:13px}.reco-code{font-size:30px;font-weight:800;letter-spacing:2px;margin:6px 0 14px}
 .reco-actions button{border:0;background:#fff;color:#831843;border-radius:12px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer}
 .reco-note{font-size:12px;opacity:.8;margin-top:14px}
+.reco-how{margin-top:12px;padding:18px}.reco-how-t{font-weight:800;font-size:15px;margin-bottom:8px}
+.reco-how ol{margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.55;color:var(--text2)}.reco-how li{margin-bottom:6px}
+.reco-how-n{font-size:11.5px;color:var(--muted);text-align:center;margin-top:8px}
+.reco-shot{display:flex;justify-content:center;padding:6px 0}
+.rs-phone{width:250px;border:6px solid #0E1838;border-radius:28px;background:#F3F5FA;padding:12px 10px 14px;color:#0E1838;font-size:12px}
+.rs-bar{display:flex;justify-content:space-between;align-items:center;color:#2B4CC9;font-size:11px;margin-bottom:10px}.rs-bar b{color:#0E1838;font-size:12.5px}.rs-bar span{width:54px}
+.rs-row{display:flex;justify-content:space-between;background:#fff;border-radius:10px;padding:9px 10px;margin-bottom:6px}.rs-row i{font-style:normal;color:#6B7591}
+.rs-hl{box-shadow:0 0 0 2px #DB2777;font-weight:700}
+.rs-field{display:flex;gap:6px;margin-top:2px}.rs-field span{flex:1;background:#fff;border:1.5px solid #DB2777;border-radius:10px;padding:9px 10px;font-weight:800;letter-spacing:1px}
+.rs-field em{font-style:normal;background:#DB2777;color:#fff;border-radius:10px;padding:9px 12px;font-weight:700}
+.rs-cap{text-align:center;color:#DB2777;font-weight:700;font-size:11px;margin-top:8px}
 .reco-stats{display:flex;gap:12px;margin-top:12px}.reco-stats div{flex:1;background:var(--card,#fff);border:1px solid var(--border);border-radius:16px;padding:14px;text-align:center}
 .reco-stats b{display:block;font-size:24px}.reco-stats span{font-size:12px;color:var(--muted)}
 .opt-cur{max-height:none}.opt-cur button{background:var(--card,#fff);color:var(--text);border:1px solid var(--border)}
@@ -2351,6 +2387,7 @@ window.doLogout = async()=>{
     if(!confirm('Bu tarayıcının mağazaya erişimi kaldırılacak. Yeniden girmek için kişisel kodunuz gerekir. Çıkılsın mı?')) return;
     await staffLeave(true);
   }
+  try{ sessionStorage.removeItem('pruvaTab'); }catch{}
   await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
 
 /* ── ÇALIŞAN GİRİŞİ (2026-10-07) — uygulamalardaki akışın aynısı ────────────────────────────
@@ -2633,7 +2670,13 @@ async function initApp(user){
   //    Mağaza belli olunca açık sekme bir kez yeniden yüklenir.
   try{
     const act=document.querySelector('.tab-panel.active')?.id?.replace(/^tab-/,'');
+    // Sayfa yenilendiyse kullanıcı KALDIĞI sayfaya döner (sekme kapanınca unutulur).
+    let saved=null; try{ saved=sessionStorage.getItem('pruvaTab'); }catch{}
     if(act && act!=='home'){ loadedTabs.delete(act); switchTab(act); }
+    else if(saved && saved!=='home' && saved!=='ai' && document.getElementById('tab-'+saved)){
+      if(!MAIN_TABS.includes(saved)) optStack=['settings'];
+      switchTab(saved,true);
+    }
   }catch(e){ console.error('sekme yeniden yüklenemedi:',e); }
 }
 
@@ -4128,6 +4171,41 @@ window.ieDoImport=async()=>{
   btn.disabled=false;btn.textContent='✓ Ürünleri İçe Aktar';
   loadProducts();
 };
+/* Dışa aktarma ÖNCE ne aktarılacağını sorar (eskiden tıklanır tıklanmaz dosya iniyordu). */
+window.ieExportAsk=()=>{
+  const box=document.getElementById('danger-box');
+  box.innerHTML=`<div class="modal-title">Ne dışa aktarılsın?</div>
+    <div class="settings-group" style="margin-bottom:14px">
+      <div class="settings-row" onclick="dangerClose();ieExportCSV()"><div style="flex:1"><div class="settings-title">Ürünler</div><div class="settings-sub">${allProducts.length} ürün · barkod, ad, kategori, fiyat, stok</div></div><div class="settings-arrow">›</div></div>
+      <div class="settings-row" onclick="dangerClose();ieExportSales(30)"><div style="flex:1"><div class="settings-title">Satışlar — son 30 gün</div><div class="settings-sub">Fiş başına bir satır: tarih, ödeme, ürünler, tutar</div></div><div class="settings-arrow">›</div></div>
+      <div class="settings-row" onclick="dangerClose();ieExportSales(365)"><div style="flex:1"><div class="settings-title">Satışlar — son 1 yıl</div><div class="settings-sub">En fazla 5.000 fiş</div></div><div class="settings-arrow">›</div></div>
+    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="dangerClose()">Vazgeç</button></div>`;
+  document.getElementById('danger-modal').classList.add('show');
+};
+function ieDownload(name,text){
+  const blob=new Blob(['\ufeff'+text],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+window.ieExportSales=async days=>{
+  if(!storeId) return;
+  showToast('Satışlar hazırlanıyor…');
+  try{
+    const since=new Date(Date.now()-days*24*3600*1000);
+    const snap=await getDocs(query(collection(db,'stores',storeId,'receipts'),where('date','>=',Timestamp.fromDate(since)),orderBy('date','desc'),limit(5000)));
+    if(snap.empty){ showToast('Bu aralıkta satış yok'); return; }
+    const q=v=>`"${String(v??'').replace(/"/g,'""')}"`, num=v=>String(Number(v||0).toFixed(2)).replace('.',',');
+    const payName={cash:'Nakit',card:'Kart',veresiye:'Veresiye',split:'Kısmi'};
+    const rows=snap.docs.map(x=>{ const t=x.data(); const d=t.date?.toDate?.();
+      return [q(d?d.toLocaleDateString('tr-TR'):''),q(d?d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):''),q(t.isRefund?'İade':'Satış'),
+        q(payName[t.paymentMethod]||t.paymentMethod||''),q((t.items||[]).map(i=>`${i.name||i.productId} ×${i.qty}`).join(', ')),num((t.isRefund?-1:1)*(t.total||0)),num(t.taxTotal),q(t.staffName||'')].join(';'); });
+    const td=new Date(); const dk=`${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+    ieDownload('pruva-satislar-'+dk+'.csv','Tarih;Saat;Tür;Ödeme;Ürünler;Tutar;KDV;Personel\n'+rows.join('\n'));
+    showToast('✓ '+rows.length+' fiş indirildi');
+  }catch(e){ console.error('satış dışa aktarma:',e); showToast('Satışlar alınamadı — bağlantıyı kontrol edin'); }
+};
 window.ieExportCSV=()=>{
   if(!allProducts.length){showToast('Dışa aktarılacak ürün yok');return;}
   // Başlıklar içe aktarmanın TANIDIĞI adlar → dosya düzenlenip geri yüklenebilir. ; ayraç + BOM: TR Excel doğrudan açar.
@@ -4146,7 +4224,32 @@ window.ieExportCSV=()=>{
 };
 
 /* ── Barkod Oluşturucu ────────────── */
+/* Barkodsuz ürün için EAN-13 üretir. Önek 20 = GS1'in mağaza içi (kısıtlı dolaşım) aralığı:
+   gerçek bir ürün bu numarayı alamaz (uygulamadaki BarcodeGeneratorView ile aynı kural). */
+let bcGenCode='';
+function bcMakeEAN13(){
+  for(let t=0;t<50;t++){
+    let d='20'; for(let i=0;i<10;i++) d+=Math.floor(Math.random()*10);
+    let sum=0; for(let i=0;i<12;i++) sum+=(+d[i])*(i%2?3:1);
+    const code=d+((10-sum%10)%10);
+    if(!allProducts.some(x=>x.id===code||x.barcode===code)) return code;
+  }
+  return '';
+}
+window.bcGenNew=()=>{
+  bcGenCode=bcMakeEAN13();
+  document.getElementById('bc-name').textContent='Yeni barkod';
+  document.getElementById('bc-price').textContent='Barkodu olmayan ürünler için';
+  try{ JsBarcode('#bc-svg',bcGenCode,{format:'EAN13',width:2,height:70,fontSize:14,margin:8}); }
+  catch(e){ console.error('barkod:',e); document.getElementById('bc-svg').innerHTML=''; showToast('Barkod oluşturulamadı'); }
+};
+window.bcGenCopy=()=>{ if(bcGenCode) navigator.clipboard?.writeText(bcGenCode).then(()=>showToast('✓ Barkod kopyalandı')); };
+window.bcGenUse=()=>{ if(!bcGenCode) return; document.getElementById('barcode-modal').classList.remove('show'); openProductModal(null,bcGenCode); };
 window.openBarcodeModal=id=>{
+  // Kimliksiz çağrı = Seçenekler → Araçlar → Barkod Oluşturucu (eskiden sessizce hiçbir şey yapmıyordu).
+  const gen=!id;
+  document.getElementById('bc-gen-actions').style.display=gen?'flex':'none';
+  if(gen){ bcGenNew(); document.getElementById('barcode-modal').classList.add('show'); return; }
   const p=allProducts.find(x=>x.id===id);if(!p)return;
   document.getElementById('bc-name').textContent=p.name||p.id;
   document.getElementById('bc-price').textContent=fc(p.salePrice||0);
@@ -4976,7 +5079,7 @@ async function recoLoad(){
   try{ const sn=await getDoc(ref); let code=sn.exists()?sn.data().recoCode:null;
     if(!code){ const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; code=u.uid.slice(0,5).toUpperCase()+'-'+Array.from({length:4},()=>cs[Math.floor(Math.random()*cs.length)]).join('');
       await setDoc(ref,{recoCode:code},{merge:true}); }
-    document.getElementById('reco-code').textContent=code; window.__reco=code;
+    document.getElementById('reco-code').textContent=code; window.__reco=code; { const e=document.getElementById('reco-shot-code'); if(e) e.textContent=code; }
   }catch(e){console.error('[Reco]',e);document.getElementById('reco-code').textContent='Yüklenemedi';}
   try{ const w=await getDoc(doc(db,'couponWallets',u.uid)); if(w.exists()){document.getElementById('reco-q').textContent=w.data().qualifiedReferrals||0;document.getElementById('reco-p').textContent=w.data().pendingReferrals||0;} }catch{}
 }
@@ -5017,6 +5120,8 @@ window.switchTab=(tab,fromOpt)=>{
   if(!RESTAURANT_UNLOCKED && ['tables','kds','menu'].includes(tab)) return;
   if(!fromOpt) optStack=[];
   currentTab=tab; window.__curTab=tab;
+  // Yenilemede aynı sayfada kalmak için (yalnızca mağaza çözüldükten sonra yazılır).
+  if(storeId){ try{ sessionStorage.setItem('pruvaTab',tab); }catch{} }
   const sub=!MAIN_TABS.includes(tab);
   const back=document.getElementById('topbar-back');
   if(back){ back.classList.toggle('hidden',!sub); const pt=optStack[optStack.length-1]||'settings';
@@ -5113,12 +5218,12 @@ window.switchTab=(tab,fromOpt)=>{
     if(window.__curTab==='settings'){
       const slot=document.getElementById('opt-ai-slot');
       if(slot){ const b=slot.getBoundingClientRect();
-        // Yuva görünür alanda kaldığı sürece damla KARTTA durur; köşeye ancak yuvanın
-        // merkezi üst çubuğun altına girince (kart gerçekten gidince) döner. Eski sabit eşik
-        // (top>60) birkaç piksellik kaydırmada damlayı köşeye atıyordu.
+        // Yuva TAMAMEN görünürken damla kartta durur; üst çubuğun altına girmeye başlayınca
+        // köşeye iner. ⚠️ Merkeze göre karar VERME: damla sabit katmanda çizildiği için
+        // yarısı üst çubuğun ÜSTÜNE biniyordu (kullanıcı ekran görüntüsü).
         const top=(document.querySelector('.content-area')?.getBoundingClientRect().top)||0;
         const cy=b.top+b.height/2;
-        if(b.width && cy>top+8 && cy<H-20){ restX=b.left+b.width/2; restY=cy; } }
+        if(b.width && b.top>=top+2 && b.bottom<H-20){ restX=b.left+b.width/2; restY=cy; } }
     }
   }
 
