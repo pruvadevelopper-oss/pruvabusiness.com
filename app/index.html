@@ -2585,16 +2585,22 @@ window.obFinish=async()=>{
   }
   ob.busy=false; document.getElementById('onboard').classList.add('hidden'); initApp(u);
 };
+// 🔴 Uygulamanın yerel deneme mağazaları (mağaza görseli çekimi / inceleme / misafir) GERÇEK mağaza DEĞİLDİR.
+//    Eski bir uygulama sürümü bunlardan birini buluta yazıp hesaba bağlayabiliyordu; panel onu ASLA açmaz.
+const EPHEMERAL_STORES=new Set(['mockup_ads_store','demo_reviewer_store','guest_preview_store']);
 async function findStoreId(user){
   // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
   if(user.isAnonymous){ try{ return localStorage.getItem(STAFF_KEY)||null; }catch{ return null; } }
   try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',user.uid),limit(10)));
-    if(!q.empty){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
-      const hit=q.docs.find(d=>d.id===pref)||q.docs[0];
+    const real=q.docs.filter(d=>!EPHEMERAL_STORES.has(d.id));
+    if(real.length){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
+      const hit=real.find(d=>d.id===pref)||real[0];
+      // Kayıtlı tercih deneme mağazasını gösteriyorsa gerçek mağazaya düzeltilir (uygulama da doğrusunu görsün).
+      if(pref!==hit.id && EPHEMERAL_STORES.has(pref)) setDoc(doc(db,'users',user.uid),{storeId:hit.id},{merge:true}).catch(()=>{});
       // Belgeler zaten elimizde: initApp aynı ikisini YENİDEN okumasın (yavaş bağlantıda ad saniyelerce boş kalıyordu).
       window.__prefetched={uid:user.uid,storeId:hit.id,store:hit,user:ud};
       return hit.id; } }catch(e){console.warn('[Store] sahip sorgusu',e);}
-  try{ const ud=await getDoc(doc(db,'users',user.uid)); if(ud.exists()&&ud.data().storeId){
+  try{ const ud=await getDoc(doc(db,'users',user.uid)); if(ud.exists()&&ud.data().storeId&&!EPHEMERAL_STORES.has(ud.data().storeId)){
       const sd=await getDoc(doc(db,'stores',ud.data().storeId)); if(sd.exists()) return sd.id; } }catch(e){console.warn('[Store] users',e);}
   return null;
 }
@@ -5074,7 +5080,7 @@ async function storesLoad(){
   const el=document.getElementById('stores-list'); const u=auth.currentUser; if(!u)return;
   try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',u.uid),limit(20)));
     const cat=window.PRUVA_CAT;
-    el.innerHTML=q.docs.map(d=>{const x=d.data();return `<div class="store-row" onclick="storesSwitch('${d.id}')"><div class="settings-icon" style="background:#E0E7FF">🏪</div><div><div class="settings-title">${esc(x.storeName||x.name||'Mağazam')}</div><div class="settings-sub">${esc(cat[x.category]||'Mağaza')}${x.city?' · '+esc(x.city):''}${x.code?' · '+esc(x.code):''}</div></div>${d.id===storeId?'<span class="on">Aktif</span>':''}</div>`;}).join('')||'<div class="settings-row">Mağaza bulunamadı</div>';
+    el.innerHTML=q.docs.filter(d=>!EPHEMERAL_STORES.has(d.id)).map(d=>{const x=d.data();return `<div class="store-row" onclick="storesSwitch('${d.id}')"><div class="settings-icon" style="background:#E0E7FF">🏪</div><div><div class="settings-title">${esc(x.storeName||x.name||'Mağazam')}</div><div class="settings-sub">${esc(cat[x.category]||'Mağaza')}${x.city?' · '+esc(x.city):''}${x.code?' · '+esc(x.code):''}</div></div>${d.id===storeId?'<span class="on">Aktif</span>':''}</div>`;}).join('')||'<div class="settings-row">Mağaza bulunamadı</div>';
   }catch(e){console.error('[Stores]',e);el.innerHTML='<div class="settings-row">Mağazalar yüklenemedi</div>';}
 }
 window.storesSwitch=async id=>{ if(id===storeId)return;
@@ -5201,7 +5207,7 @@ window.switchTab=(tab,fromOpt)=>{
   let elong=1, motionAngle=Math.PI/2, squash=1, dropScale=1, alpha=1;
   let wobX=0, wobV=0;
   let fallVy=0;
-  let restX=0, restY=0;
+  let restX=0, restY=0, pinned=false;
   let grabOffset={x:0,y:0};
   let isPressed=false, pressStart=0, pressClientX=0, pressClientY=0;
   let velHist=[], lastSpeed=0, lastPX=0, lastPY=0, lastMoveT=0;
@@ -5223,18 +5229,19 @@ window.switchTab=(tab,fromOpt)=>{
     const bottom = (window.__dropBottom ?? 28) + (mobile ? 70 : 0);
     restX = W - marginR - r;
     restY = H - bottom - r;
-    // Seçenekler: uygulamadaki gibi damla Pruva AI kartının İÇİNDEKİ yuvaya iner.
-    // Kart kaydırılıp görünmez olunca sağ alt köşeye döner.
+    // Seçenekler: damla Pruva AI kartının İÇİNDEKİ yuvada durur ve sayfa kaydırılsa da
+    // ORADA KALIR (kullanıcı kararı, 2026-10-09): kartla birlikte kayar, köşeye inmez.
+    // ⚠️ Damla sabit (fixed) katmanda çizildiği için üst çubuğun üstüne binmesin diye
+    //    katman içerik alanına KIRPILIR; yuva görünmezken damla da görünmez.
+    pinned=false; let clip='';
     if(window.__curTab==='settings'){
       const slot=document.getElementById('opt-ai-slot');
       if(slot){ const b=slot.getBoundingClientRect();
-        // Yuva TAMAMEN görünürken damla kartta durur; üst çubuğun altına girmeye başlayınca
-        // köşeye iner. ⚠️ Merkeze göre karar VERME: damla sabit katmanda çizildiği için
-        // yarısı üst çubuğun ÜSTÜNE biniyordu (kullanıcı ekran görüntüsü).
-        const top=(document.querySelector('.content-area')?.getBoundingClientRect().top)||0;
-        const cy=b.top+b.height/2;
-        if(b.width && b.top>=top+2 && b.bottom<H-20){ restX=b.left+b.width/2; restY=cy; } }
+        if(b.width){ pinned=true; restX=b.left+b.width/2; restY=b.top+b.height/2;
+          const top=Math.max(0,(document.querySelector('.content-area')?.getBoundingClientRect().top)||0);
+          clip='inset('+top+'px 0 0 0)'; } }
     }
+    if(container.style.clipPath!==clip) container.style.clipPath=clip;
   }
 
   function spawn(){
@@ -5564,8 +5571,10 @@ window.switchTab=(tab,fromOpt)=>{
       tickWobble(dt);
       tickFall(dt);
       if(phase==='resting'){ // sayfa değişince yuvaya yumuşakça kay
-        pos.x += (restX-pos.x)*Math.min(1,dt*9);
-        pos.y += (restY-pos.y)*Math.min(1,dt*9);
+        // Yuvaya sabitken (Seçenekler) kaydırmayı GECİKMESİZ izler; yumuşatma kartın arkasından sürüklenme gibi görünür.
+        const k=(pinned && Math.hypot(restX-pos.x,restY-pos.y)<140)?1:Math.min(1,dt*9);
+        pos.x += (restX-pos.x)*k;
+        pos.y += (restY-pos.y)*k;
       }
       elong  = approach(elong, 1, 8.4, dt);
       squash = approach(squash, 1, 10, dt);
