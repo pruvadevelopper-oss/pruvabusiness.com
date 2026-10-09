@@ -552,11 +552,28 @@ body {
 .z-table td { padding:8px 12px; border-bottom:1px solid var(--border); }
 .z-table tr:last-child td { border-bottom:none; }
 @media (max-width:767px){ .z-grid { grid-template-columns:1fr 1fr; } }
+/* YAZDIRMA — yalnızca AÇIK sekme basılır.
+   ⚠️ `visibility:hidden` yöntemine DÖNME: (1) gizlenen her şey yine yerleşime
+   giriyor ve tarayıcı önizlemeyi tüm sayfa için hesaplıyordu (pencere geç
+   açılıyordu); (2) üst kaplar `overflow:hidden` + sekme `position:absolute`
+   olduğu için rapor İLK SAYFADA KESİLİYORDU (70 işlemin 13'ü basılıyordu). */
 @media print {
-  body * { visibility:hidden; }
-  #tab-zreport, #tab-zreport * { visibility:visible; }
-  #tab-zreport { position:absolute; inset:0; padding:0; overflow:visible; }
-  .z-toolbar button { display:none; }
+  @page { margin:12mm; }
+  html, body { height:auto !important; overflow:visible !important; background:#fff !important; }
+  body > *:not(#app) { display:none !important; }
+  #app { display:block !important; height:auto !important; overflow:visible !important; }
+  .sidebar, .topbar, .mobile-tab-bar, .tab-panel:not(.active) { display:none !important; }
+  .main-area, .content-area { display:block !important; overflow:visible !important; height:auto !important; position:static !important; background:#fff !important; }
+  .tab-panel.active { display:block !important; position:static !important; overflow:visible !important; height:auto !important; padding:0 !important; }
+  .z-toolbar button, .btn-add, .no-print { display:none !important; }
+  .z-toolbar input[type=date] { border:none !important; padding:0 !important; background:none !important; font-weight:700; font-size:15px; color:#0E1838 !important; }
+  .z-toolbar input[type=date]::-webkit-calendar-picker-indicator { display:none; }
+  *, *::before, *::after { animation:none !important; transition:none !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; filter:none !important; }
+  html.dark { --bg:#fff; --card:#fff; --text:#0E1838; --text2:#3A4566; --muted:#6B7591; --border:#D9DEEA; }
+  .z-card, .section-card { border:1px solid #D9DEEA; }
+  .z-card { break-inside:avoid; }
+  tr { break-inside:avoid; }
+  thead { display:table-header-group; }
 }
 
 /* TOAST */
@@ -4134,7 +4151,8 @@ window.printBarcode=()=>{
   const w=window.open('','_blank','width=400,height=300');
   w.document.write(`<html><head><title>Barkod</title><style>body{font-family:-apple-system,sans-serif;text-align:center;padding:24px}</style></head><body>${html}</body></html>`);
   w.document.close();
-  w.onload=()=>{w.focus();w.print();};
+  /* document.close() sonrası onload çoğu tarayıcıda tetiklenmiyor → yazdırma hiç açılmıyordu. */
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},250);
 };
 
 /* ── Product CRUD (iOS ProductSyncManager şemasıyla birebir uyumlu) ── */
