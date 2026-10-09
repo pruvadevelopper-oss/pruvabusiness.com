@@ -2592,6 +2592,11 @@ window.obFinish=async()=>{
 };
 // 🔴 Uygulamanın yerel deneme mağazaları (mağaza görseli çekimi / inceleme / misafir) GERÇEK mağaza DEĞİLDİR.
 //    Eski bir uygulama sürümü bunlardan birini buluta yazıp hesaba bağlayabiliyordu; panel onu ASLA açmaz.
+// Ülkenin GENEL KDV oranı — mağaza kendi varsayılanını girmediyse kullanılır (iOS StandardVatRates.swift /
+// Android StandardVatRates.kt ile AYNI tablo; kaynak AB resmî tablosu 13.07.2026 + Türkiye %20).
+// ⚠️ Yalnızca doğrulanmış ülkeler; listede yoksa eski %20 kalır. Birini değiştirirsen üçünü de değiştir.
+const STANDARD_VAT={AT:0.2,BE:0.21,BG:0.2,CY:0.19,CZ:0.21,DE:0.19,DK:0.25,EE:0.24,GR:0.24,ES:0.21,FI:0.255,FR:0.2,HR:0.25,HU:0.27,IE:0.23,IT:0.22,LT:0.21,LU:0.17,LV:0.21,MT:0.18,NL:0.21,PL:0.23,PT:0.23,RO:0.21,SE:0.25,SI:0.22,SK:0.23,TR:0.2};
+function stdVat(){ let c=String((window.__storeDoc&&window.__storeDoc.businessCountry)||(navigator.language||'').split('-')[1]||'').toUpperCase(); if(c==='EL')c='GR'; const r=STANDARD_VAT[c]; return typeof r==='number'?r:0.2; }
 const EPHEMERAL_STORES=new Set(['mockup_ads_store','demo_reviewer_store','guest_preview_store']);
 async function findStoreId(user){
   // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
@@ -4155,7 +4160,7 @@ window.ieDoImport=async()=>{
   btn.disabled=true;btn.textContent='İçe aktarılıyor…';
   // Yeni ürünün KDV'si mağaza ayarından (kategori istisnası → varsayılan), uygulamadaki gibi.
   if(!taxDoc){ try{ const sn=await getDoc(doc(db,'stores',storeId,'settings','tax')); taxDoc=sn.exists()?sn.data():{}; }catch(e){ taxDoc={}; } }
-  const taxFor=cat=>{ const ex=(taxDoc.exceptions||{})[cat]; return typeof ex==='number'?ex:(typeof taxDoc.defaultRate==='number'?taxDoc.defaultRate:0.2); };
+  const taxFor=cat=>{ const ex=(taxDoc.exceptions||{})[cat]; return typeof ex==='number'?ex:(typeof taxDoc.defaultRate==='number'?taxDoc.defaultRate:stdVat()); };
   const now=Date.now()/1000, used=new Set(allProducts.map(p=>p.id)), byName=ieNameIndex();
   const newCode=()=>{ let c; do{ c='BS-'+String(Math.floor(100000+Math.random()*900000)); }while(used.has(c)); used.add(c); return c; };
   const ops=[]; let added=0,updated=0;
@@ -4318,7 +4323,7 @@ window.openProductModal=(id,presetBarcode,thenAddToCart)=>{
   document.getElementById('pr-price').value=p&&p.isPriced!==false&&(p.salePrice>0)?String(p.salePrice).replace('.',','):'';
   // KDV: düzenlemede ürünün KENDİ oranı (listede yoksa seçenek eklenir, sessizce değişmesin);
   // yeni üründe mağazanın varsayılanı.
-  const taxSel=document.getElementById('pr-tax'), taxVal=p?(p.taxRate??0.2):((taxDoc&&typeof taxDoc.defaultRate==='number')?taxDoc.defaultRate:0.2);
+  const taxSel=document.getElementById('pr-tax'), taxVal=p?(p.taxRate??stdVat()):((taxDoc&&typeof taxDoc.defaultRate==='number')?taxDoc.defaultRate:stdVat());
   if(![...taxSel.options].some(o=>Math.abs(parseFloat(o.value)-taxVal)<1e-9)){ const o=document.createElement('option'); o.value=String(taxVal); o.textContent='%'+String(Math.round(taxVal*10000)/100).replace('.',','); taxSel.appendChild(o); }
   taxSel.value=[...taxSel.options].find(o=>Math.abs(parseFloat(o.value)-taxVal)<1e-9).value;
   document.getElementById('pr-stock').value=p&&p.isStockSet!==false?(p.stockQuantity??''):'';
