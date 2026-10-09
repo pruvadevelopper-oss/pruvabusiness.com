@@ -14,7 +14,8 @@
   var lang = window.PRUVA_LOGIN_LANG || 'tr';
   if (lang === 'tr') return;
   var E = null, P = [];
-  var ATTRS = ['placeholder', 'title', 'aria-label'];
+  // 'label': <optgroup label> (ürün formundaki kategori grupları)
+  var ATTRS = ['placeholder', 'title', 'aria-label', 'label'];
 
   function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   function tr(text) {
