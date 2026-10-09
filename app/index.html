@@ -2388,6 +2388,9 @@ window.doLogout = async()=>{
     await staffLeave(true);
   }
   try{ sessionStorage.removeItem('pruvaTab'); }catch{}
+  // Ciro özeti tarayıcıda KALMAZ (ortak bilgisayar) ve sonraki hesaba taşınmaz.
+  try{ Object.keys(localStorage).filter(k=>k.startsWith('pruva_sum_')).forEach(k=>localStorage.removeItem(k)); }catch{}
+  dailySummaries=[];monthlySummaries=[];
   await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
 
 /* ── ÇALIŞAN GİRİŞİ (2026-10-07) — uygulamalardaki akışın aynısı ────────────────────────────
@@ -2591,9 +2594,11 @@ const EPHEMERAL_STORES=new Set(['mockup_ads_store','demo_reviewer_store','guest_
 async function findStoreId(user){
   // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
   if(user.isAnonymous){ try{ return localStorage.getItem(STAFF_KEY)||null; }catch{ return null; } }
+  // İki okuma BİRLİKTE başlar (eskiden art arda: açılış bir ağ turu daha uzundu).
+  const udP=getDoc(doc(db,'users',user.uid)).catch(()=>null);
   try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',user.uid),limit(10)));
     const real=q.docs.filter(d=>!EPHEMERAL_STORES.has(d.id));
-    if(real.length){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
+    if(real.length){ const ud=await udP; const pref=ud?.exists()?ud.data().storeId:null;
       const hit=real.find(d=>d.id===pref)||real[0];
       // Kayıtlı tercih deneme mağazasını gösteriyorsa gerçek mağazaya düzeltilir (uygulama da doğrusunu görsün).
       if(pref!==hit.id && EPHEMERAL_STORES.has(pref)) setDoc(doc(db,'users',user.uid),{storeId:hit.id},{merge:true}).catch(()=>{});
@@ -2676,6 +2681,7 @@ async function initApp(user){
   document.getElementById('hx-date').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('sx-sub').textContent=now.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'})+' · '+document.getElementById('hx-store').textContent;
   document.getElementById('ix-sub').textContent=document.getElementById('hx-category').textContent;
+  paintHomeFromCache();
   loadProducts();
   chatInit(); loadedTabs.add('chat');
   loadDailySummaries();
@@ -4523,6 +4529,18 @@ function checkCriticalStock(){
 }
 
 /* ── Summaries ───────────────────── */
+// Ana ekran rakamları ve trend kartları BOŞ BEKLEMEZ: bu tarayıcıda son görülen özet
+// (mağaza kimliğine bağlı) hemen çizilir, yoksa sıfırlarla; taze veri gelince güncellenir.
+function sumCacheKey(){ return 'pruva_sum_'+storeId; }
+function sumCacheSave(){ try{ localStorage.setItem(sumCacheKey(),JSON.stringify({d:dailySummaries,m:monthlySummaries,day:new Date().toDateString()})); }catch{} }
+function paintHomeFromCache(){
+  if(!storeId||dailySummaries.length) return;
+  let c=null; try{ c=JSON.parse(localStorage.getItem(sumCacheKey())||'null'); }catch{}
+  // Önbellek yalnızca AYNI GÜN içinse kullanılır: dünkü ciroyu "bugün" diye göstermek yanlış bilgi olur.
+  if(c&&c.day===new Date().toDateString()&&Array.isArray(c.d)&&c.d.length){ dailySummaries=c.d; monthlySummaries=Array.isArray(c.m)?c.m:[]; }
+  else{ const today=new Date(),a=[]; for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);a.push({date:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,revenue:0,orders:0});} dailySummaries=a; }
+  try{ renderHomeStats(); }catch(e){ console.warn('[Home] ön çizim',e); }
+}
 async function loadDailySummaries(){
   if(!storeId)return;
   try{
@@ -4531,6 +4549,7 @@ async function loadDailySummaries(){
     const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy(documentId(),'desc'),limit(31)));
     const m={};snap.docs.forEach(d=>{m[d.id]=d.data();});
     dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.saleCount||0}));
+    sumCacheSave();
     renderHomeStats();renderReports();renderForecast();
   }catch(e){
     console.error('loadDailySummaries failed:',e);
@@ -4547,6 +4566,7 @@ async function loadMonthlySummaries(){
   try{
     const snap=await getDocs(query(collection(db,'stores',storeId,'monthlySummaries'),orderBy(documentId(),'asc'),limit(13)));
     monthlySummaries=snap.docs.map(d=>({month:d.id,revenue:d.data().totalRevenue||0,orders:d.data().saleCount||0}));
+    sumCacheSave();
     renderHomeStats();renderReports();renderForecast();
   }catch(e){console.error('loadMonthlySummaries failed:',e);}
 }
