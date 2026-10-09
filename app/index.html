@@ -4587,7 +4587,7 @@ function renderHomeStats(){
   }else{chgEl.textContent='';chgEl.className='hx-trend';}
   // 🔴 Büyüme trendi — ÜÇ PLATFORMDA TEK TANIM (2026-10-09; iOS DashboardStats / Android TrendStats):
   //   Bu Hafta = son 7 TAM gün / önceki 7 gün · Bu Ay = son 30 TAM gün / önceki 30 gün
-  //   Bu Yıl   = son 6 ay / önceki 6 ay
+  //   Bu Yıl   = eldeki ayların son yarısı / önceki yarısı (12 ay varsa 6'ya 6)
   //   BUGÜN yüzdeye girmez; önceki dönemde satış yoksa yüzde yerine "—".
   //   Eskiden "Bu Ay" yarım ayı geçen ayın tamamıyla, "Bu Yıl" bu ayı 12 ay öncekiyle kıyaslıyordu.
   const pct=(cur,prev)=>prev>0?(cur-prev)/prev*100:null;
@@ -4598,7 +4598,11 @@ function renderHomeStats(){
   // Ay kovaları: mb[k] = k ay önceki takvim ayı (0 = bu ay) — eksik aylar 0 sayılır.
   const nowD=new Date(), mb=new Array(12).fill(0);
   ms.forEach(x=>{ const [yy,mm]=String(x.month).split('-').map(Number); const k=(nowD.getFullYear()-yy)*12+(nowD.getMonth()+1-mm); if(k>=0&&k<12) mb[k]+=x.revenue||0; });
-  const yr=ms.length?pct(rng(mb,0,5),rng(mb,6,11)):null;
+  // Eldeki ayların SON YARISI / ÖNCEKİ YARISI: 12 ay varsa 6'ya 6, 4 aylık mağazada 2'ye 2
+  // (kart 2. aydan itibaren dolar). ⚠️ iOS yearChange / Android yearChange ile aynı kural.
+  let oldest=-1; for(let k=11;k>=0;k--){ if(mb[k]>0){ oldest=k; break; } }
+  const half=Math.floor((oldest+1)/2);
+  const yr=half>=1?pct(rng(mb,0,half-1),rng(mb,half,2*half-1)):null;
   trendCard('trend-week','Bu Hafta',d.slice(-7).map(x=>x.revenue),wk);
   trendCard('trend-month','Bu Ay',d.map(x=>x.revenue),mo);
   trendCard('trend-year','Bu Yıl',ms.length?ms.map(x=>x.revenue):d.map(x=>x.revenue),yr);
