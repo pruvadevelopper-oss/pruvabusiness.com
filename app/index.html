@@ -2595,17 +2595,18 @@ const STANDARD_VAT={AT:0.2,BE:0.21,BG:0.2,CY:0.19,CZ:0.21,DE:0.19,DK:0.25,EE:0.2
 // Uzaktan tablo (2026-10-09): asıl kaynak Firestore publicConfig/taxRates.countries
 //   { DE:{ standard:0.19, upcomingRate:0.20, upcomingFrom:'2027-01-01' } } — yalnızca platform yöneticisinin
 //   ONAYLADIĞI oranlar (haftalık sunucu taraması öneri üretir). Gömülü tablo yedek. Günde 1 okuma (localStorage).
-let REMOTE_VAT={}; try{ REMOTE_VAT=JSON.parse(localStorage.getItem('pruva_std_vat')||'{}')||{}; }catch(_){ REMOTE_VAT={}; }
-function remoteVat(c){ const r=REMOTE_VAT[c]; if(!r) return null; const ok=v=>typeof v==='number'&&v>=0&&v<=0.5;
+let REMOTE_VAT={}; try{ const v=JSON.parse(localStorage.getItem('pruva_std_vat')||'{}'); REMOTE_VAT=(v&&typeof v==='object'&&!Array.isArray(v))?v:{}; }catch(_){ REMOTE_VAT={}; }
+function remoteVat(c){ const r=Object.prototype.hasOwnProperty.call(REMOTE_VAT,c)?REMOTE_VAT[c]:null; if(!r||typeof r!=='object') return null; const ok=v=>typeof v==='number'&&v>=0&&v<=0.5;
   const today=new Date().toISOString().slice(0,10);
   if(ok(r.upcomingRate)&&/^\d{4}-\d{2}-\d{2}$/.test(r.upcomingFrom||'')&&r.upcomingFrom<=today) return r.upcomingRate;
   return ok(r.standard)?r.standard:null; }
-window.refreshStdVat=async(getDocFn,docRef)=>{ try{
+let stdVatBusy=false;
+window.refreshStdVat=async(getDocFn,docRef)=>{ if(stdVatBusy) return; stdVatBusy=true; try{
     if(Date.now()-Number(localStorage.getItem('pruva_std_vat_at')||0)<86400000) return;
-    const snap=await getDocFn(docRef); const c=(snap.exists()&&snap.data().countries)||{};
+    const snap=await getDocFn(docRef); let c=(snap.exists()&&snap.data().countries)||{}; if(typeof c!=='object'||Array.isArray(c)) c={};
     REMOTE_VAT=c; localStorage.setItem('pruva_std_vat',JSON.stringify(c)); localStorage.setItem('pruva_std_vat_at',String(Date.now()));
-  }catch(e){ console.warn('[StdVat] oran tablosu okunamadı',e?.code||e?.message||e); } };
-function stdVat(){ let c=String((window.__storeDoc&&window.__storeDoc.businessCountry)||(navigator.language||'').split('-')[1]||'').toUpperCase(); if(c==='EL')c='GR'; const r=remoteVat(c)??STANDARD_VAT[c]; return typeof r==='number'?r:0.2; }
+  }catch(e){ console.warn('[StdVat] oran tablosu okunamadı',e?.code||e?.message||e); } finally{ stdVatBusy=false; } };
+function stdVat(){ let c=String((window.__storeDoc&&window.__storeDoc.businessCountry)||(navigator.language||'').split('-')[1]||'').toUpperCase(); if(c==='EL')c='GR'; const r=remoteVat(c)??(Object.prototype.hasOwnProperty.call(STANDARD_VAT,c)?STANDARD_VAT[c]:undefined); return typeof r==='number'?r:0.2; }
 const EPHEMERAL_STORES=new Set(['mockup_ads_store','demo_reviewer_store','guest_preview_store']);
 async function findStoreId(user){
   // Çalışan (anonim): mağaza bu tarayıcıya katılımda kaydedilir; sahip sorgusu ona göre değil.
@@ -2739,8 +2740,11 @@ const PRUVA_CAT_GROUPS=[
   ['Diğer',['Sigara & Tütün','Gazete & Dergi','Elektronik','Hırdavat','Tarım & Bahçe','Otomotiv','Kırtasiye','Spor','Oyuncak','Giyim']]
 ];
 const LEGACY_CAT={food:'Genel',drink:'Soğuk İçecek',snack:'Atıştırmalık',dairy:'Süt Ürünleri',meat:'Et & Tavuk',vegetable:'Manav',fruit:'Manav',bread:'Ekmek & Unlu',cleaning:'Temizlik',personal:'Kişisel Bakım',electronics:'Elektronik',stationery:'Kırtasiye'};
-const catKeyOf=c=>{c=(c||'').trim();return LEGACY_CAT[c]||c||'Genel';};
+// hasOwn: 'constructor' / 'toString' adlı bir kategori nesnenin kendi üyesiyle karışmasın.
+const catKeyOf=c=>{c=String(c??'').trim();return (Object.prototype.hasOwnProperty.call(LEGACY_CAT,c)?LEGACY_CAT[c]:c)||'Genel';};
 const catKey=p=>catKeyOf(p&&p.category);
+// Öznitelik içine yazılan değer: esc() tırnağı kaçırmıyor; adında " geçen bir kategori özniteliği kırardı.
+const escAttr=s=>esc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 (function fillCategorySelect(){
   const sel=document.getElementById('pr-category'); if(!sel) return;
   for(const [g,keys] of PRUVA_CAT_GROUPS){ const og=document.createElement('optgroup'); og.label=g;
@@ -2826,7 +2830,7 @@ window.renderSalesCategoryChips=()=>{
   const el=document.getElementById('sales-cat-chips');if(!el)return;
   const cats=[...new Set(allProducts.map(catKey))].sort((a,b)=>a.localeCompare(b,'tr'));
   if(!cats.length){el.innerHTML='';return;}
-  el.innerHTML=cats.map(c=>`<div class="cat-chip${c===salesSelectedCategory?' selected':''}" data-cat="${esc(c)}" onclick="selectSalesCategory(this.dataset.cat)">${esc(c)}</div>`).join('');
+  el.innerHTML=cats.map(c=>`<div class="cat-chip${c===salesSelectedCategory?' selected':''}" data-cat="${escAttr(c)}" onclick="selectSalesCategory(this.dataset.cat)">${esc(c)}</div>`).join('');
 };
 window.selectSalesCategory=c=>{
   salesSelectedCategory=(salesSelectedCategory===c)?null:c;
@@ -3721,7 +3725,7 @@ window.renderInvCategoryChips=()=>{
   const el=document.getElementById('ix-chips');if(!el)return;
   const cats=[...new Set(allProducts.map(catKey))].sort((a,b)=>a.localeCompare(b,'tr'));
   el.innerHTML=[`<div class="ix-chip${invCategory===null?' sel':''}" onclick="selectInvCategory(null)">Tümü</div>`]
-    .concat(cats.map(c=>`<div class="ix-chip${c===invCategory?' sel':''}" data-cat="${esc(c)}" onclick="selectInvCategory(this.dataset.cat)">${esc(c)}</div>`)).join('');
+    .concat(cats.map(c=>`<div class="ix-chip${c===invCategory?' sel':''}" data-cat="${escAttr(c)}" onclick="selectInvCategory(this.dataset.cat)">${esc(c)}</div>`)).join('');
 };
 window.selectInvCategory=c=>{invCategory=c;renderInvCategoryChips();applyInvFilters();};
 /* ── Benzer isimle arama (yazım hatası toleransı) — iOS PruvaFuzzy /

@@ -13,16 +13,23 @@
 (function () {
   var lang = window.PRUVA_LOGIN_LANG || 'tr';
   if (lang === 'tr') return;
-  var E = null, P = [];
+  var E = null, C = null, P = [];
+  // Ürün KATEGORİSİ adları ayrı sözlükte (d.c) ve YALNIZCA kategori gösteren öğelerde uygulanır.
+  // ⚠️ Genel sözlüğe (d.e) KOYMA: "Yumurta", "Peynir", "Bebek" gibi adlar aynı zamanda ürün/müşteri
+  //    adı olabilir; tam eşleşen her metin çevrildiği için esnafın kendi ürün adı ekranda değişirdi.
+  //    Yeni bir yerde kategori gösterirsen öğeye data-cat ver.
+  var CAT_SCOPE = '[data-cat], #pr-category';
+  function inCat(el) { return !!(el && el.closest && el.closest(CAT_SCOPE)); }
   // 'label': <optgroup label> (ürün formundaki kategori grupları)
   var ATTRS = ['placeholder', 'title', 'aria-label', 'label'];
 
   function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-  function tr(text) {
+  function tr(text, cat) {
     if (!E || !text) return null;
     var k = text.trim();
     if (k.length < 2) return null;
-    var v = E[k];
+    var v = (cat && C) ? C[k] : undefined;
+    if (v === undefined) v = E[k];
     if (v === undefined) {
       for (var i = 0; i < P.length; i++) {
         var m = P[i][0].exec(k);
@@ -37,13 +44,13 @@
     if (n.nodeType === 3) {
       var p = n.parentNode;
       if (!p || /^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName) || p.isContentEditable) return;
-      var r = tr(n.nodeValue);
+      var r = tr(n.nodeValue, inCat(p));
       if (r !== null && r !== n.nodeValue) n.nodeValue = r;
     } else if (n.nodeType === 1) {
       if (/^(SCRIPT|STYLE)$/.test(n.nodeName)) return;
       for (var a = 0; a < ATTRS.length; a++) {
         var val = n.getAttribute(ATTRS[a]);
-        if (val) { var t = tr(val); if (t !== null && t !== val) n.setAttribute(ATTRS[a], t); }
+        if (val) { var t = tr(val, inCat(n)); if (t !== null && t !== val) n.setAttribute(ATTRS[a], t); }
       }
       for (var c = n.firstChild; c; c = c.nextSibling) walk(c);
     }
@@ -61,6 +68,7 @@
   fetch('i18n/' + lang + '.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d || !d.e) return;
     E = d.e;
+    C = d.c || null;
     P = (d.p || []).map(function (pair) {
       // "{0} adet" → /^(.+?) adet$/
       var re = '^' + esc(pair[0]).replace(/\\\{\d\\\}/g, '(.+?)') + '$';
