@@ -2590,7 +2590,10 @@ async function findStoreId(user){
   if(user.isAnonymous){ try{ return localStorage.getItem(STAFF_KEY)||null; }catch{ return null; } }
   try{ const q=await getDocs(query(collection(db,'stores'),where('ownerFirebaseUid','==',user.uid),limit(10)));
     if(!q.empty){ const ud=await getDoc(doc(db,'users',user.uid)).catch(()=>null); const pref=ud?.exists()?ud.data().storeId:null;
-      return (q.docs.find(d=>d.id===pref)||q.docs[0]).id; } }catch(e){console.warn('[Store] sahip sorgusu',e);}
+      const hit=q.docs.find(d=>d.id===pref)||q.docs[0];
+      // Belgeler zaten elimizde: initApp aynı ikisini YENİDEN okumasın (yavaş bağlantıda ad saniyelerce boş kalıyordu).
+      window.__prefetched={uid:user.uid,storeId:hit.id,store:hit,user:ud};
+      return hit.id; } }catch(e){console.warn('[Store] sahip sorgusu',e);}
   try{ const ud=await getDoc(doc(db,'users',user.uid)); if(ud.exists()&&ud.data().storeId){
       const sd=await getDoc(doc(db,'stores',ud.data().storeId)); if(sd.exists()) return sd.id; } }catch(e){console.warn('[Store] users',e);}
   return null;
@@ -2621,7 +2624,9 @@ async function initApp(user){
   document.getElementById('settings-email').textContent=user.email||'';
   let staffGone=false;
   try{
-    const ud=user.isAnonymous?{exists:()=>false}:await getDoc(doc(db,'users',user.uid));
+    const pf=(window.__prefetched&&window.__prefetched.uid===user.uid&&window.__prefetched.storeId===window.__resolvedStoreId)?window.__prefetched:null;
+    window.__prefetched=null;
+    const ud=user.isAnonymous?{exists:()=>false}:(pf?.user||await getDoc(doc(db,'users',user.uid)));
     storeId=window.__resolvedStoreId||(ud.exists()?(ud.data().storeId||user.uid):user.uid);
     // 🔴 Mağaza belgesi gelmeden "Mağazam" yer tutucusu YAZILMAZ: yavaş bağlantıda kullanıcı
     //    kendi mağazası yerine adsız bir mağaza görüyordu. Önce bu tarayıcıda son görülen ad
@@ -2632,7 +2637,7 @@ async function initApp(user){
     let nameResolved=false;
     // Mağaza belgesinden sahip adı ve kategori (uygulamanın ana ekranındaki "Hoş geldin, <ad>")
     try{
-      const sd=await getDoc(doc(db,'stores',storeId));
+      const sd=pf?.store||await getDoc(doc(db,'stores',storeId));
       if(sd.exists()){
         const d=sd.data();
         { const nm=d.storeName||d.name||'Mağazam'; paintName(nm); nameResolved=true; try{ localStorage.setItem('pruva_store_name_'+storeId,nm); }catch{} }
