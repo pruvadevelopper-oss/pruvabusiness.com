@@ -2623,15 +2623,19 @@ async function initApp(user){
   try{
     const ud=user.isAnonymous?{exists:()=>false}:await getDoc(doc(db,'users',user.uid));
     storeId=window.__resolvedStoreId||(ud.exists()?(ud.data().storeId||user.uid):user.uid);
-    const name=ud.exists()?(ud.data().storeName||ud.data().storeCode||'Mağazam'):'Mağazam';
-    ['sidebar-store-name','settings-store-name'].forEach(id=>document.getElementById(id).textContent=name);
-    document.getElementById('hx-store').textContent=name;
+    // 🔴 Mağaza belgesi gelmeden "Mağazam" yer tutucusu YAZILMAZ: yavaş bağlantıda kullanıcı
+    //    kendi mağazası yerine adsız bir mağaza görüyordu. Önce bu tarayıcıda son görülen ad
+    //    (mağaza kimliğine bağlı) gösterilir; yoksa alan boş kalır, ad belge gelince yazılır.
+    const paintName=nm=>{ ['sidebar-store-name','settings-store-name','hx-store'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=nm;}); };
+    let cachedName=''; try{ cachedName=localStorage.getItem('pruva_store_name_'+storeId)||''; }catch{}
+    paintName(cachedName||'\u00A0');
+    let nameResolved=false;
     // Mağaza belgesinden sahip adı ve kategori (uygulamanın ana ekranındaki "Hoş geldin, <ad>")
     try{
       const sd=await getDoc(doc(db,'stores',storeId));
       if(sd.exists()){
         const d=sd.data();
-        if(d.storeName||d.name){ const nm=d.storeName||d.name; document.getElementById('hx-store').textContent=nm; ['sidebar-store-name','settings-store-name'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=nm;}); }
+        { const nm=d.storeName||d.name||'Mağazam'; paintName(nm); nameResolved=true; try{ localStorage.setItem('pruva_store_name_'+storeId,nm); }catch{} }
         const cat=window.PRUVA_CAT;
         document.getElementById('hx-category').textContent=cat[d.category]||'Mağaza';
         window.__ownerName=d.ownerFirstName||'';
@@ -2652,7 +2656,8 @@ async function initApp(user){
           }
         }
       } else if(user.isAnonymous) staffGone=true;
-    }catch(e){ if(user.isAnonymous&&e?.code==='permission-denied') staffGone=true; }
+    }catch(e){ console.error('[Store] mağaza belgesi okunamadı',e); if(user.isAnonymous&&e?.code==='permission-denied') staffGone=true; }
+    if(!nameResolved && !cachedName) paintName('Mağazam');
     // 🔴 Sahip bu çalışanı sildiyse (ya da üyelik kalktıysa) tarayıcı mağazada KALMAZ.
     if(staffGone){ return staffKicked('Bu mağazaya erişiminiz kaldırılmış. Yeniden girmek için işvereninizden kod isteyin.'); }
   }catch{storeId=user.uid;}
