@@ -2321,7 +2321,7 @@ catch (e) { console.warn('Kalıcı önbellek açılamadı, bellekte çalışıl�
 const ai   = getAI(app, { backend: new VertexAIBackend() });
 
 let storeId=null, allProducts=[], cart=[], selectedPay='cash';
-let dailySummaries=[], monthlySummaries=[], recentTransactions=[];
+let dailySummaries=[], monthlySummaries=[], recentTransactions=[], trendDays=null; // trendDays[k] = k gün önceki ciro (0 = bugün, 60'a kadar)
 let pendingRefundTx=null;
 let verCustomers=[], currentVerCustomer=null, verEntrySign=1, editingProductId=null;
 
@@ -2391,6 +2391,7 @@ window.doLogout = async()=>{
   // Ciro özeti tarayıcıda KALMAZ (ortak bilgisayar) ve sonraki hesaba taşınmaz.
   try{ Object.keys(localStorage).filter(k=>k.startsWith('pruva_sum_')).forEach(k=>localStorage.removeItem(k)); }catch{}
   dailySummaries=[];monthlySummaries=[];
+  trendDays=null;
   await signOut(auth);storeId=null;allProducts=[];cart=[];showLogin();};
 
 /* ── ÇALIŞAN GİRİŞİ (2026-10-07) — uygulamalardaki akışın aynısı ────────────────────────────
@@ -4532,12 +4533,12 @@ function checkCriticalStock(){
 // Ana ekran rakamları ve trend kartları BOŞ BEKLEMEZ: bu tarayıcıda son görülen özet
 // (mağaza kimliğine bağlı) hemen çizilir, yoksa sıfırlarla; taze veri gelince güncellenir.
 function sumCacheKey(){ return 'pruva_sum_'+storeId; }
-function sumCacheSave(){ try{ localStorage.setItem(sumCacheKey(),JSON.stringify({d:dailySummaries,m:monthlySummaries,day:new Date().toDateString()})); }catch{} }
+function sumCacheSave(){ try{ localStorage.setItem(sumCacheKey(),JSON.stringify({d:dailySummaries,m:monthlySummaries,t:trendDays,day:new Date().toDateString()})); }catch{} }
 function paintHomeFromCache(){
   if(!storeId||dailySummaries.length) return;
   let c=null; try{ c=JSON.parse(localStorage.getItem(sumCacheKey())||'null'); }catch{}
   // Önbellek yalnızca AYNI GÜN içinse kullanılır: dünkü ciroyu "bugün" diye göstermek yanlış bilgi olur.
-  if(c&&c.day===new Date().toDateString()&&Array.isArray(c.d)&&c.d.length){ dailySummaries=c.d; monthlySummaries=Array.isArray(c.m)?c.m:[]; }
+  if(c&&c.day===new Date().toDateString()&&Array.isArray(c.d)&&c.d.length){ dailySummaries=c.d; monthlySummaries=Array.isArray(c.m)?c.m:[]; trendDays=Array.isArray(c.t)?c.t:null; }
   else{ const today=new Date(),a=[]; for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);a.push({date:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,revenue:0,orders:0});} dailySummaries=a; }
   try{ renderHomeStats(); }catch(e){ console.warn('[Home] ön çizim',e); }
 }
@@ -4546,8 +4547,9 @@ async function loadDailySummaries(){
   try{
     const today=new Date(),days30=[];
     for(let i=29;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days30.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
-    const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy(documentId(),'desc'),limit(31)));
+    const snap=await getDocs(query(collection(db,'stores',storeId,'dailySummaries'),orderBy(documentId(),'desc'),limit(62)));
     const m={};snap.docs.forEach(d=>{m[d.id]=d.data();});
+    { const t=[]; for(let k=0;k<=60;k++){ const d=new Date(today); d.setDate(d.getDate()-k); const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; t.push(m[key]?.totalRevenue||0); } trendDays=t; }
     dailySummaries=days30.map(k=>({date:k,revenue:m[k]?.totalRevenue||0,orders:m[k]?.saleCount||0}));
     sumCacheSave();
     renderHomeStats();renderReports();renderForecast();
@@ -4583,14 +4585,20 @@ function renderHomeStats(){
     chgEl.textContent=(chg>=0?'↗ ':'↘ ')+Math.abs(chg).toFixed(0)+'%';
     chgEl.className='hx-trend '+(chg>=0?'up':'down');
   }else{chgEl.textContent='';chgEl.className='hx-trend';}
-  // Büyüme trendi — uygulamadaki üç kart: hafta / ay / yıl
-  const sum=a=>a.reduce((s,d)=>s+(d.revenue||0),0);
+  // 🔴 Büyüme trendi — ÜÇ PLATFORMDA TEK TANIM (2026-10-09; iOS DashboardStats / Android TrendStats):
+  //   Bu Hafta = son 7 TAM gün / önceki 7 gün · Bu Ay = son 30 TAM gün / önceki 30 gün
+  //   Bu Yıl   = son 6 ay / önceki 6 ay
+  //   BUGÜN yüzdeye girmez; önceki dönemde satış yoksa yüzde yerine "—".
+  //   Eskiden "Bu Ay" yarım ayı geçen ayın tamamıyla, "Bu Yıl" bu ayı 12 ay öncekiyle kıyaslıyordu.
   const pct=(cur,prev)=>prev>0?(cur-prev)/prev*100:null;
-  const d=dailySummaries;
-  const wk=pct(sum(d.slice(-7)),sum(d.slice(-14,-7)));
-  const ms=monthlySummaries;
-  const mo=ms.length>1?pct(ms[ms.length-1].revenue,ms[ms.length-2].revenue):pct(sum(d.slice(-15)),sum(d.slice(-30,-15)));
-  const yr=ms.length>1?pct(ms[ms.length-1].revenue,ms[0].revenue):null;
+  const d=dailySummaries, ms=monthlySummaries, td=trendDays;
+  const rng=(a,i,j)=>{let x=0;for(let k=i;k<=j;k++)x+=(a[k]||0);return x;};
+  const wk=td?pct(rng(td,1,7),rng(td,8,14)):null;
+  const mo=td?pct(rng(td,1,30),rng(td,31,60)):null;
+  // Ay kovaları: mb[k] = k ay önceki takvim ayı (0 = bu ay) — eksik aylar 0 sayılır.
+  const nowD=new Date(), mb=new Array(12).fill(0);
+  ms.forEach(x=>{ const [yy,mm]=String(x.month).split('-').map(Number); const k=(nowD.getFullYear()-yy)*12+(nowD.getMonth()+1-mm); if(k>=0&&k<12) mb[k]+=x.revenue||0; });
+  const yr=ms.length?pct(rng(mb,0,5),rng(mb,6,11)):null;
   trendCard('trend-week','Bu Hafta',d.slice(-7).map(x=>x.revenue),wk);
   trendCard('trend-month','Bu Ay',d.map(x=>x.revenue),mo);
   trendCard('trend-year','Bu Yıl',ms.length?ms.map(x=>x.revenue):d.map(x=>x.revenue),yr);
