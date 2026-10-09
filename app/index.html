@@ -2483,6 +2483,7 @@ async function staffKicked(msg){
    mgmt  (hasManagementAccess) : sahip + ortak + müdür    → yönetim ekranları, veresiye, fiyat/stok
    inv   (canAccessInventory)  : yönetim ya da izinli çalışan → Ürünlerim, ürün ekleme, kayıp
    refund(canProcessRefund)    : yönetim ya da izinli çalışan → iade
+   fin  + canViewReports       : sahip/ortak ya da 'raporları görebilir' verilmiş çalışan/müdür (2026-10-09)
    owner : mağazanın sahibi (hesap) → mağazalar, davet kampanyası, hesap silme
    ⚠️ Bu yalnızca ARAYÜZ kapısıdır; asıl yetki Firestore kurallarında. */
 var PERMS={owner:true,fin:true,mgmt:true,inv:true,refund:true,staffName:''};
@@ -2666,7 +2667,7 @@ async function initApp(user){
           if(!me){ staffGone=true; }
           else{
             const role=String(me.role||'employee'), top=role==='admin'||role==='partner', mg=top||role==='manager';
-            applyPerms({owner:false,fin:top,mgmt:mg,inv:mg||me.canAccessInventory===true,refund:mg||me.canProcessRefund===true,staffName:me.displayName||me.username||''});
+            applyPerms({owner:false,fin:top||me.canViewReports===true,mgmt:mg,inv:mg||me.canAccessInventory===true,refund:mg||me.canProcessRefund===true,staffName:me.displayName||me.username||''});
             window.__ownerName=me.displayName||me.username||'';
             const nm=window.__ownerName+' · '+({partner:'Ortak',manager:'Müdür',admin:'Yönetici'}[role]||'Çalışan');
             ['sidebar-email','settings-email'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=nm; });
