@@ -798,7 +798,7 @@ body.drop-dragging, body.drop-dragging * { user-select:none !important; -webkit-
 .ix-chips::-webkit-scrollbar { display:none; }
 .ix-chip { white-space:nowrap; padding:7px 14px; border-radius:20px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); font-size:13px; font-weight:600; cursor:pointer; }
 .ix-chip.sel { background:#fff; color:#6D4AE8; border-color:#fff; }
-.ix-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; padding:16px 26px 100px; background:#F4F5F8; min-height:calc(100% - 170px); }
+.ix-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; align-content:start; /* yoksa az üründe kart sayfa boyunca uzuyor */ padding:16px 26px 100px; background:#F4F5F8; min-height:calc(100% - 170px); }
 .ix-card { background:var(--card); border-radius:16px; padding:12px; position:relative; cursor:pointer; box-shadow:0 2px 8px rgba(14,24,56,.06); transition:var(--press-transition); }
 .ix-card:active { transform:scale(.97); }
 .ix-badge { position:absolute; top:8px; right:8px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; z-index:1; }
@@ -2689,7 +2689,7 @@ async function loadProducts(){
   if(!storeId)return;
   try{
     const snap=await getDocs(collection(db,'stores',storeId,'products'));
-    allProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.isDeleted&&p.isAvailable!==false);
+    allProducts=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.isDeleted&&p.isAvailable!==false&&String(p.name||'').trim()); /* adsız belge = yalnızca stok farkı yazılmış yarım kayıt, ürün değil (uygulamalar da atlar) */
     renderInvCategoryChips();applyInvFilters();checkCriticalStock();
   }catch(e){
     document.getElementById('inv-grid').innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Ürün yüklenemedi</div><div class="empty-sub">${esc(e.message)}</div></div>`;
