@@ -177,12 +177,14 @@ body {
 .nav-item.active .nav-label { color:#fff; font-weight:700; }
 .sidebar-footer { padding:10px; border-top:1px solid rgba(255,255,255,0.07); }
 /* Web → telefon girişi: kenar çubuğunda HER ZAMAN görünür QR (WhatsApp mantığı). */
-.app-qr.hidden { display:none; }
-.app-qr { margin:8px 10px; padding:10px; border-radius:12px; background:rgba(255,255,255,0.06); text-align:center; }
-.app-qr-title { font-size:11.5px; font-weight:600; color:rgba(255,255,255,0.8); margin-bottom:8px; }
-.app-qr-code { display:inline-block; background:#fff; padding:6px; border-radius:10px; min-width:120px; min-height:120px; }
-.app-qr-code svg { display:block; width:120px; height:120px; }
-.app-qr-hint { font-size:10.5px; color:rgba(255,255,255,0.45); margin-top:7px; line-height:1.4; }
+#app-qr-page { position:fixed; inset:0; z-index:2900; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; padding:16px; }
+#app-qr-page.hidden { display:none; }
+.app-qr-sheet { position:relative; background:var(--card,#fff); color:var(--text,#111); border-radius:20px; padding:28px 28px 24px; max-width:380px; width:100%; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,0.4); }
+.app-qr-close { position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; border:none; background:rgba(127,127,127,0.18); color:inherit; font-size:14px; cursor:pointer; }
+.app-qr-title { font-size:18px; font-weight:700; margin-bottom:16px; }
+.app-qr-code { display:inline-block; background:#fff; padding:10px; border-radius:14px; min-width:240px; min-height:240px; }
+.app-qr-code svg { display:block; width:240px; height:240px; }
+.app-qr-hint { font-size:13.5px; opacity:.7; line-height:1.55; margin-top:16px; }
 #app-qr-modal { position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; padding:16px; }
 #app-qr-modal.hidden { display:none; }
 .app-qr-dialog { background:var(--card,#fff); color:var(--text,#111); border-radius:16px; padding:22px; max-width:360px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,0.35); }
@@ -1269,12 +1271,10 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <div class="nav-item" id="nav-sales" onclick="switchTab('sales')"><div class="nav-icon nav-svg"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 1.9-1.5L23 6H6"/></svg></div><div class="nav-label">Hızlı Satış</div></div>
       <div class="nav-item" id="nav-inv" onclick="switchTab('inv')"><div class="nav-icon nav-svg"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div><div class="nav-label">Ürünlerim</div></div>
       <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><div class="nav-icon nav-svg"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div><div class="nav-label">Seçenekler</div></div>
+      <!-- Web → telefon girişi: yalnızca bir satır; basınca QR sayfası açılır (kullanıcı kararı 2026-10-14).
+           QR yalnızca sayfa açıkken üretilir ve dinlenir. -->
+      <div class="nav-item" id="nav-appqr" onclick="openAppQr()"><div class="nav-icon">📱</div><div class="nav-label" id="nav-appqr-label">Telefonda aç</div></div>
       </nav>
-    <div class="app-qr hidden" id="app-qr">
-      <div class="app-qr-title" id="app-qr-title">📱 Telefonda aç</div>
-      <div class="app-qr-code" id="app-qr-code"></div>
-      <div class="app-qr-hint" id="app-qr-hint"></div>
-    </div>
     <div class="sidebar-footer">
       <button class="theme-btn" id="theme-btn" onclick="cycleTheme()"></button>
       <div class="sidebar-user" onclick="switchTab('settings')">
@@ -2361,7 +2361,7 @@ const PREVIEW = ['localhost','127.0.0.1'].includes(location.hostname) && new URL
 if(PREVIEW){ window.__pruvaPreview=true;
   // Yalnızca localhost: ?preview=onboard kurulum ekranını sahte kullanıcıyla gösterir (hiçbir şey yazmaz).
   if(new URLSearchParams(location.search).get('preview')==='onboard') setTimeout(()=>{Object.assign(ob,{step:'role',user:{email:'test@ornek.com',displayName:'Ahmet Yılmaz',uid:'x'}});document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');document.getElementById('onboard').classList.remove('hidden');obRender();},300);
-} else onAuthStateChanged(auth, u => { if(staffJoining) return; document.getElementById('onboard')?.classList.add('hidden'); if(u){ Promise.resolve(routeUser(u)).then(()=>{ if(!u.isAnonymous) window.appQrStart?.(true); }); } else { window.appQrStop?.(); showLogin(); } });
+} else onAuthStateChanged(auth, u => { if(staffJoining) return; document.getElementById('onboard')?.classList.add('hidden'); if(u){ const n=document.getElementById('nav-appqr'); if(n){ n.style.display=u.isAnonymous?'none':''; try{ const T=APPQR_T[window.PRUVA_LOGIN_LANG||'en']||APPQR_T.en; document.getElementById('nav-appqr-label').textContent=T.title.replace('📱 ',''); }catch(e){} } routeUser(u); } else { window.appQrStop?.(); showLogin(); } });
 
 let isSignupMode=false;
 window.toggleAuthMode = () => {
@@ -2475,14 +2475,21 @@ window.qrLoginStart=async(manual)=>{
       const r=(await fn('webLoginClaim')({sessionId:sid,secret})).data;
       if(gen!==qrLoginGen) return;
       failStreak=0;
-      if(r.status==='ok'){ qrLoginStop(); await signInWithCustomToken(auth,r.token); }
+      if(r.status==='ok'){
+        qrLoginStop();
+        // Onay geldi: mağaza verisi yüklenene kadar QR'ı DONMUŞ gibi bırakma (2026-10-14 kullanıcı bildirimi).
+        codeEl.innerHTML='<div class="spinner" style="display:block;margin:84px auto"></div>'; hint.textContent='';
+        document.getElementById('auth-loading')?.classList.remove('hidden');
+        try{ await signInWithCustomToken(auth,r.token); }
+        catch(e){ console.warn('[QRLogin] giriş',e); document.getElementById('auth-loading')?.classList.add('hidden'); err.textContent=L.fail||''; }
+      }
       else if(r.status==='expired'){ qrLoginStart(); }
     }catch(e){
       console.warn('[QRLogin] claim',e);
       // Onaylanmış ama jeton üretilemiyorsa (sunucu hatası) sessizce bekleme — söyle.
       if(++failStreak>=3 && gen===qrLoginGen){ qrLoginStop(); codeEl.innerHTML=''; err.textContent=L.fail||''; }
     }
-  },2500);
+  },1500);
 };
 window.qrLoginToggle=()=>qrLoginStart(true);   // eski çağrı yerleri için
 
@@ -2499,7 +2506,9 @@ const APPQR_T={
   ar:{title:'📱 افتح على الهاتف',hint:'على الهاتف: Pruva Business ← شاشة الدخول ← «حسابي مفتوح على الويب» ثم امسح الرمز.',ask:'طلب دخول من هاتف',body:'يريد %s الدخول إلى هذا الحساب. وافق فقط إذا كان هاتفك.',ok:'موافقة',no:'رفض',device:'هاتف'}};
 let appQrUnsub=null, appQrTimer=null, appQrGen=0, appQrRounds=0;
 window.appQrStop=()=>{ appQrGen++; if(appQrUnsub){appQrUnsub();appQrUnsub=null;} if(appQrTimer){clearTimeout(appQrTimer);appQrTimer=null;}
-  document.getElementById('app-qr')?.classList.add('hidden'); document.getElementById('app-qr-modal')?.classList.add('hidden'); };
+  document.getElementById('app-qr-modal')?.classList.add('hidden'); };
+window.openAppQr=()=>{ document.getElementById('app-qr-page').classList.remove('hidden'); window.appQrStart(true); };
+window.closeAppQr=()=>{ document.getElementById('app-qr-page').classList.add('hidden'); window.appQrStop(); };
 window.appQrStart=async(fresh)=>{
   const u=auth.currentUser; if(!u||u.isAnonymous) return;
   const box=document.getElementById('app-qr'), code=document.getElementById('app-qr-code'); if(!box) return;
@@ -2523,7 +2532,7 @@ window.appQrStart=async(fresh)=>{
       if(d.status==='requested'&&!asked){ asked=true; askApprove(data.sessionId,d.device,T,gen); }
       if(d.status==='approved'||d.status==='rejected'){ setTimeout(()=>{ if(gen===appQrGen) window.appQrStart(); },1500); }
     },e=>console.warn('[AppQR] dinleyici',e));
-  }catch(e){ console.warn('[AppQR]',e); if(gen===appQrGen){ code.innerHTML=''; box.classList.add('hidden'); } }
+  }catch(e){ console.warn('[AppQR]',e); if(gen===appQrGen){ code.innerHTML=''; document.getElementById('app-qr-hint').textContent=(window.PRUVA_QRL||{}).fail||''; } }
 };
 function askApprove(sessionId,device,T,gen){
   const m=document.getElementById('app-qr-modal');
@@ -5818,6 +5827,13 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key===
 <div id="app-qr-modal" class="hidden"><div class="app-qr-dialog">
   <h3 id="app-qr-m-title"></h3><p id="app-qr-m-body"></p>
   <div class="app-qr-actions"><button class="app-qr-no" id="app-qr-m-no"></button><button class="app-qr-ok" id="app-qr-m-ok"></button></div>
+</div></div>
+<div id="app-qr-page" class="hidden" onclick="if(event.target===this)closeAppQr()"><div class="app-qr-sheet">
+  <button class="app-qr-close" onclick="closeAppQr()" aria-label="Kapat">✕</button>
+  <div class="app-qr-title" id="app-qr-title">📱 Telefonda aç</div>
+  <div class="app-qr-code" id="app-qr-code"></div>
+  <div class="app-qr-hint" id="app-qr-hint"></div>
+  <div id="app-qr" class="hidden"></div>
 </div></div>
 </body>
 </html>
