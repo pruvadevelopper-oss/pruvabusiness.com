@@ -5183,6 +5183,32 @@ window.closeAISheet=()=>{
   setTimeout(()=>document.getElementById('ai-droplet')?.classList.remove('hidden'), 260);
 };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAISheet(); });
+// Telefonda kartın HER YERİNDEN aşağı kaydırınca kapanır (uygulamadaki gibi).
+// Mesaj listesi en üstte değilse önce liste kayar.
+(()=>{
+  const sh=document.getElementById('tab-ai'); if(!sh)return;
+  let y0=null,x0=0,armed=null,dy=0;
+  sh.addEventListener('touchstart',e=>{ if(e.touches.length!==1)return; y0=e.touches[0].clientY; x0=e.touches[0].clientX; armed=null; dy=0; },{passive:true});
+  sh.addEventListener('touchmove',e=>{
+    if(y0===null)return;
+    const t=e.touches[0], d=t.clientY-y0, dx=t.clientX-x0;
+    if(armed===null){
+      if(Math.abs(d)<8&&Math.abs(dx)<8)return;
+      const list=document.getElementById('ai-messages');
+      const atTop=!list||list.scrollTop<=0||!list.contains(e.target);
+      armed = d>0 && Math.abs(d)>Math.abs(dx) && atTop && window.innerWidth<=768;
+    }
+    if(!armed)return;
+    e.preventDefault();
+    dy=Math.max(0,d);
+    sh.style.transition='none';
+    sh.style.transform='translateY('+(dy<80?dy*0.55:44+(dy-80)*0.3)+'px)';
+  },{passive:false});
+  sh.addEventListener('touchend',()=>{
+    if(armed){ sh.style.transition=''; sh.style.transform=''; if(dy>55) closeAISheet(); }
+    y0=null; armed=null;
+  });
+})();
 
 
 /* ── Hesap silme / mağaza sıfırlama — uygulamayla aynı adımlar ve aynı sıra ──
