@@ -64,7 +64,7 @@ body {
 
 /* LOGIN */
 #login-screen {
-  position:fixed; inset:0;
+  position:fixed; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
   background: linear-gradient(160deg,#0B1330 0%,#16224F 48%,#22397F 100%);
   display:flex; align-items:center; justify-content:center; z-index:1000;
 }
@@ -76,7 +76,12 @@ body {
 }
 #auth-loading.hidden { display:none; }
 #auth-loading .spinner { display:block; width:28px; height:28px; border-width:3px; margin:0; }
-.login-box { width:380px; display:flex; flex-direction:column; align-items:center; }
+/* ⚠️ margin:auto + overflow-y:auto: sığarsa ortalı, sığmazsa KAYDIRILIR (eskiden üstü/altı kesiliyordu). */
+.login-box { width:min(820px,100%); margin:auto; padding:28px 16px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; }
+.login-row { display:flex; gap:20px; width:100%; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+.login-row > .login-card { flex:1 1 320px; max-width:380px; box-sizing:border-box; }
+.qr-card { text-align:center; }
+.qr-card h3 { margin:0 0 14px; font-size:15px; font-weight:600; color:#fff; }
 .login-logo-img { height:34px; width:auto; margin-bottom:14px; }
 .login-tagline { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:36px; }
 .login-card {
@@ -930,6 +935,7 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
     <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><select id="login-lang" aria-label="Language" onchange="try{localStorage.setItem('pruvaLang',this.value)}catch(e){};location.reload()" style="padding:6px 10px;border-radius:10px;border:1px solid var(--border,#d6dbe6);background:transparent;color:inherit;font-size:13px"></select></div>
     <img src="../pruva-logo-transparent.png" alt="Pruva Business" class="login-logo-img">
     <div class="login-tagline" data-i18n="tagline">Akıllı POS · 24 Dil · Offline-First</div>
+    <div class="login-row">
     <div class="login-card">
       <div class="input-group"><label data-i18n="emailLabel">E-posta</label><input type="email" id="login-email" data-i18n-placeholder="emailPlaceholder" placeholder="ornek@sirket.com" autocomplete="email"></div>
       <div class="input-group"><label data-i18n="passLabel">Şifre</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
@@ -944,12 +950,6 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
       <div class="login-divider"><span data-i18n="orDivider">VEYA</span></div>
       <button class="btn-social" onclick="doAppleLogin()" data-i18n="continueWithApple"> Apple ile devam et</button>
       <button class="btn-social" onclick="doGoogleLogin()" data-i18n="continueWithGoogle"> Google ile devam et</button>
-      <button class="btn-social" id="qr-login-btn" onclick="qrLoginToggle()">📱 <span id="qr-login-label">Uygulamadan QR ile giriş</span></button>
-      <div id="qr-login-box" style="display:none;margin-top:12px;text-align:center">
-        <div id="qr-login-code" style="display:inline-block;background:#fff;padding:10px;border-radius:14px;min-width:200px;min-height:200px"></div>
-        <div id="qr-login-hint" style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5"></div>
-        <div id="qr-login-error" style="color:#EF4444;font-size:12.5px;margin-top:6px;min-height:16px"></div>
-      </div>
       <div class="login-signup-toggle" style="margin-top:14px"><a onclick="staffLoginToggle();return false;" id="staff-login-link">👤 Çalışan Girişi</a></div>
       <div id="staff-login-box" style="display:none;margin-top:10px">
         <div class="input-group"><label>Çalışana Özel Kod</label><input type="text" id="staff-code" placeholder="ÖRN. A7F3K9-4M2QXP" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doStaffLogin()"></div>
@@ -957,6 +957,15 @@ html, body, .card, .topbar { transition: background-color .35s ease, color .35s 
         <button class="btn-login" id="staff-login-btn" onclick="doStaffLogin()"><span>Çalışan Olarak Gir</span></button>
         <div id="staff-login-error" style="color:#EF4444;font-size:12.5px;margin-top:8px;min-height:16px"></div>
       </div>
+    </div>
+    <!-- QR ile giriş — WhatsApp Web gibi HER ZAMAN GÖRÜNÜR (kullanıcı kararı 2026-10-14):
+         düğmenin arkasına saklanınca kimse bakmıyordu. Kod sessizce yenilenir. -->
+    <div class="login-card qr-card" id="qr-login-box">
+      <h3>📱 <span id="qr-login-label">Uygulamadan QR ile giriş</span></h3>
+      <div id="qr-login-code" style="display:inline-block;background:#fff;padding:10px;border-radius:14px;min-width:200px;min-height:200px"></div>
+      <div id="qr-login-hint" style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.5"></div>
+      <div id="qr-login-error" style="color:#EF4444;font-size:12.5px;margin-top:6px;min-height:16px;cursor:pointer" onclick="qrLoginStart()"></div>
+    </div>
     </div>
   </div>
 </div>
@@ -2403,34 +2412,59 @@ window.staffLoginToggle=()=>{ const b=document.getElementById('staff-login-box')
 // ── QR ile giriş: kod göster → uygulamadan okutulup onaylanınca o hesaba gir.
 // ⚠️ `secret` yalnızca BU sekmede yaşar ve QR'a GİRMEZ: kodun fotoğrafını çeken
 // biri oturumu alamaz (sunucu yalnızca sha256'sını tutar). Bkz. CF webLoginStart.
-let qrLoginTimer=null;
-window.qrLoginToggle=async()=>{
-  const box=document.getElementById('qr-login-box'), codeEl=document.getElementById('qr-login-code');
-  const hint=document.getElementById('qr-login-hint'), err=document.getElementById('qr-login-error');
+let qrLoginTimer=null, qrLoginGen=0, qrLoginRounds=0;
+const QR_MAX_ROUNDS=20;   // ~1 saat açık kalan sekmede sonsuza dek kod üretme
+function qrLoginStop(){ if(qrLoginTimer){ clearInterval(qrLoginTimer); qrLoginTimer=null; } qrLoginGen++; }
+// Kod TARAYICIDA üretilir ve HEMEN çizilir; sunucu kaydı arkada tamamlanır
+// (eskiden QR, sunucu soğuk başlangıcı bitene kadar boş duruyordu).
+// Süre dolmadan 15 sn önce yeni kod kendiliğinden gelir — dokunmak gerekmez.
+window.qrLoginStart=async(manual)=>{
+  const codeEl=document.getElementById('qr-login-code'), hint=document.getElementById('qr-login-hint'), err=document.getElementById('qr-login-error');
+  if(!codeEl) return;
   const L=window.PRUVA_QRL||{};
-  if(qrLoginTimer){ clearInterval(qrLoginTimer); qrLoginTimer=null; }
-  if(box.style.display!=='none' && codeEl.dataset.live==='1'){ box.style.display='none'; codeEl.dataset.live='0'; return; }
-  box.style.display='block'; err.textContent=''; hint.textContent=''; codeEl.innerHTML='<div class="spinner" style="display:block;margin:84px auto"></div>';
+  qrLoginStop(); const gen=qrLoginGen;
+  if(manual===true) qrLoginRounds=0;
+  if(qrLoginRounds++>=QR_MAX_ROUNDS){ codeEl.innerHTML=''; err.textContent=L.expired||''; return; }
+  err.textContent='';
+  const hex=b=>Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const sessionId=hex(crypto.getRandomValues(new Uint8Array(18)));
+  const secret=hex(crypto.getRandomValues(new Uint8Array(32)));
+  const qr=qrcode(0,'M'); qr.addData('pruva://weblogin?s='+sessionId); qr.make();
+  codeEl.innerHTML=qr.createSvgTag({cellSize:5,margin:2,scalable:false});
+  hint.textContent=L.hint||'';
+  const fn=n=>httpsCallable(getFunctions(app),n);
+  let ttl=180;
   try{
-    const hex=b=>Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');
-    const secret=hex(crypto.getRandomValues(new Uint8Array(32)));
     const secretHash=hex(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(secret))));
-    const fn=n=>httpsCallable(getFunctions(app),n);
-    const {data}=await fn('webLoginStart')({secretHash});
-    const qr=qrcode(0,'M'); qr.addData('pruva://weblogin?s='+data.sessionId); qr.make();
-    codeEl.innerHTML=qr.createSvgTag({cellSize:5,margin:2,scalable:false}); codeEl.dataset.live='1';
-    hint.textContent=L.hint||'';
-    const until=Date.now()+(data.ttlSeconds||180)*1000;
-    qrLoginTimer=setInterval(async()=>{
-      if(Date.now()>until){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.innerHTML=''; codeEl.dataset.live='0'; hint.textContent=''; err.textContent=L.expired||''; return; }
-      try{
-        const r=(await fn('webLoginClaim')({sessionId:data.sessionId,secret})).data;
-        if(r.status==='ok'){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.dataset.live='0'; await signInWithCustomToken(auth,r.token); }
-        else if(r.status==='expired'){ clearInterval(qrLoginTimer); qrLoginTimer=null; codeEl.innerHTML=''; codeEl.dataset.live='0'; hint.textContent=''; err.textContent=L.expired||''; }
-      }catch(e){ console.warn('[QRLogin] claim',e); }
-    },2500);
-  }catch(e){ console.warn('[QRLogin]',e); codeEl.innerHTML=''; codeEl.dataset.live='0'; err.textContent=L.fail||''; }
+    const {data}=await fn('webLoginStart')({secretHash,sessionId});
+    if(gen!==qrLoginGen) return;
+    if(data.sessionId!==sessionId){ // eski sunucu sürümü kendi kimliğini döndürdüyse onu çiz
+      const q2=qrcode(0,'M'); q2.addData('pruva://weblogin?s='+data.sessionId); q2.make();
+      codeEl.innerHTML=q2.createSvgTag({cellSize:5,margin:2,scalable:false});
+    }
+    ttl=data.ttlSeconds||180;
+    var sid=data.sessionId;
+  }catch(e){ console.warn('[QRLogin]',e); if(gen!==qrLoginGen) return; codeEl.innerHTML=''; err.textContent=L.fail||''; return; }
+  const refreshAt=Date.now()+Math.max(30,ttl-15)*1000;
+  let failStreak=0;
+  qrLoginTimer=setInterval(async()=>{
+    if(gen!==qrLoginGen) return;
+    if(document.getElementById('login-screen').classList.contains('hidden')){ qrLoginStop(); return; }
+    if(Date.now()>refreshAt){ qrLoginStart(); return; }
+    try{
+      const r=(await fn('webLoginClaim')({sessionId:sid,secret})).data;
+      if(gen!==qrLoginGen) return;
+      failStreak=0;
+      if(r.status==='ok'){ qrLoginStop(); await signInWithCustomToken(auth,r.token); }
+      else if(r.status==='expired'){ qrLoginStart(); }
+    }catch(e){
+      console.warn('[QRLogin] claim',e);
+      // Onaylanmış ama jeton üretilemiyorsa (sunucu hatası) sessizce bekleme — söyle.
+      if(++failStreak>=3 && gen===qrLoginGen){ qrLoginStop(); codeEl.innerHTML=''; err.textContent=L.fail||''; }
+    }
+  },2500);
 };
+window.qrLoginToggle=()=>qrLoginStart(true);   // eski çağrı yerleri için
 window.doStaffLogin=async()=>{
   const err=m=>{ document.getElementById('staff-login-error').textContent=m||''; };
   // Rakamlar ASCII'ye (Arap/Fars), harfler büyük; ayraç ve boşluk atılır. Son 6 hane kişisel kod.
@@ -2504,7 +2538,7 @@ function applyPerms(p){
 }
 if(location.hostname==='localhost') window.__applyPerms=applyPerms;   // yalnızca yerel geliştirme: rol görünümünü denemek için
 function optApplyRole(isOwner){ applyPerms({owner:isOwner,fin:isOwner,mgmt:isOwner,inv:isOwner,refund:isOwner,staffName:''}); }
-function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
+function showLogin(){document.getElementById('auth-loading').classList.add('hidden');document.getElementById('login-screen').classList.remove('hidden');try{ window.qrLoginStart && window.qrLoginStart(); }catch(e){}document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');}
 
 /* Kategori adları — uygulamanın StoreCategory rawValue'ları ve Türkçe adlarıyla BİREBİR. */
 const RESTAURANT_UNLOCKED=false; // iOS RestaurantModule.featureUnlocked ile aynı — açınca web'de de açılır
