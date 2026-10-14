@@ -2504,6 +2504,7 @@ const APPQR_T={
   es:{title:'📱 Abrir en el teléfono',hint:'En el teléfono: Pruva Business → pantalla de inicio de sesión → «Tengo sesión en la web» y escanea.',ask:'Solicitud de inicio de sesión',body:'%s quiere iniciar sesión en esta cuenta. Aprueba solo si es tu teléfono.',ok:'Aprobar',no:'Rechazar',device:'Un teléfono'},
   ru:{title:'📱 Открыть на телефоне',hint:'На телефоне: Pruva Business → экран входа → «Я вошёл в веб» и отсканируйте.',ask:'Запрос на вход с телефона',body:'%s хочет войти в этот аккаунт. Подтверждайте, только если это ваш телефон.',ok:'Подтвердить',no:'Отклонить',device:'Телефон'},
   ar:{title:'📱 افتح على الهاتف',hint:'على الهاتف: Pruva Business ← شاشة الدخول ← «حسابي مفتوح على الويب» ثم امسح الرمز.',ask:'طلب دخول من هاتف',body:'يريد %s الدخول إلى هذا الحساب. وافق فقط إذا كان هاتفك.',ok:'موافقة',no:'رفض',device:'هاتف'}};
+try{ const _T=APPQR_T[window.PRUVA_LOGIN_LANG||'en']||APPQR_T.en; const _l=document.getElementById('nav-appqr-label'); if(_l) _l.textContent=_T.title.replace('📱 ',''); }catch(e){}
 let appQrUnsub=null, appQrTimer=null, appQrGen=0, appQrRounds=0;
 window.appQrStop=()=>{ appQrGen++; if(appQrUnsub){appQrUnsub();appQrUnsub=null;} if(appQrTimer){clearTimeout(appQrTimer);appQrTimer=null;}
   document.getElementById('app-qr-modal')?.classList.add('hidden'); };
