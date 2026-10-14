@@ -2361,7 +2361,7 @@ const PREVIEW = ['localhost','127.0.0.1'].includes(location.hostname) && new URL
 if(PREVIEW){ window.__pruvaPreview=true;
   // Yalnızca localhost: ?preview=onboard kurulum ekranını sahte kullanıcıyla gösterir (hiçbir şey yazmaz).
   if(new URLSearchParams(location.search).get('preview')==='onboard') setTimeout(()=>{Object.assign(ob,{step:'role',user:{email:'test@ornek.com',displayName:'Ahmet Yılmaz',uid:'x'}});document.getElementById('app').classList.add('hidden');document.getElementById('ai-droplet').classList.add('hidden');document.getElementById('onboard').classList.remove('hidden');obRender();},300);
-} else onAuthStateChanged(auth, u => { if(staffJoining) return; document.getElementById('onboard')?.classList.add('hidden'); if(u){ const n=document.getElementById('nav-appqr'); if(n){ n.style.display=u.isAnonymous?'none':''; try{ const T=APPQR_T[window.PRUVA_LOGIN_LANG||'en']||APPQR_T.en; document.getElementById('nav-appqr-label').textContent=T.title.replace('📱 ',''); }catch(e){} } routeUser(u); } else { window.appQrStop?.(); showLogin(); } });
+} else onAuthStateChanged(auth, u => { if(staffJoining) return; document.getElementById('onboard')?.classList.add('hidden'); if(u){ const n=document.getElementById('nav-appqr'); if(n){ n.style.display=''; try{ const T=APPQR_T[window.PRUVA_LOGIN_LANG||'en']||APPQR_T.en; document.getElementById('nav-appqr-label').textContent=T.title.replace('📱 ',''); }catch(e){} } routeUser(u); } else { window.appQrStop?.(); showLogin(); } });
 
 let isSignupMode=false;
 window.toggleAuthMode = () => {
@@ -2475,6 +2475,21 @@ window.qrLoginStart=async(manual)=>{
       const r=(await fn('webLoginClaim')({sessionId:sid,secret})).data;
       if(gen!==qrLoginGen) return;
       failStreak=0;
+      if(r.status==='needsAnon'){
+        // Onaylayan bir ÇALIŞAN: hesabı bu tarayıcıya taşınır, sunucu bu tarayıcının anonim kimliğini ister.
+        staffJoining=true;
+        try{ if(!auth.currentUser) await signInAnonymously(auth); }catch(e){ staffJoining=false; console.warn('[QRLogin] anonim',e); err.textContent=L.fail||''; qrLoginStop(); }
+        return;
+      }
+      if(r.status==='ok'&&r.staff){
+        qrLoginStop();
+        codeEl.innerHTML='<div class="spinner" style="display:block;margin:84px auto"></div>'; hint.textContent='';
+        try{ localStorage.setItem(STAFF_KEY,r.staff.storeId); }catch{}
+        staffJoining=false;
+        document.getElementById('onboard')?.classList.add('hidden');
+        await routeUser(auth.currentUser);
+        return;
+      }
       if(r.status==='ok'){
         qrLoginStop();
         // Onay geldi: mağaza verisi yüklenene kadar QR'ı DONMUŞ gibi bırakma (2026-10-14 kullanıcı bildirimi).
@@ -2483,7 +2498,7 @@ window.qrLoginStart=async(manual)=>{
         try{ await signInWithCustomToken(auth,r.token); }
         catch(e){ console.warn('[QRLogin] giriş',e); document.getElementById('auth-loading')?.classList.add('hidden'); err.textContent=L.fail||''; }
       }
-      else if(r.status==='expired'){ qrLoginStart(); }
+      else if(r.status==='expired'){ staffJoining=false; qrLoginStart(); }
     }catch(e){
       console.warn('[QRLogin] claim',e);
       // Onaylanmış ama jeton üretilemiyorsa (sunucu hatası) sessizce bekleme — söyle.
