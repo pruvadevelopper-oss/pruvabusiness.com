@@ -2282,8 +2282,6 @@ import { getFirestore, initializeFirestore, persistentLocalCache, persistentMult
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 import { getStorage, ref as stRef, uploadBytes, getDownloadURL, deleteObject }
   from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js';
-import { getAI, getGenerativeModel, VertexAIBackend }
-  from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-ai.js';
 
 const app  = initializeApp({
   apiKey:"AIzaSyCimvApFc-8Wvv9pUiBlovY_9n3S_LgNEo",
@@ -2343,7 +2341,7 @@ let db;
 try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
 catch (e) { console.warn('Kalıcı önbellek açılamadı, bellekte çalışılıyor:', e); db = getFirestore(app); }
 // iOS ile aynı kural: backend .vertexAI() olmalı, .googleAI() DEĞİL — Blaze planına bağlı, ücretsiz kredi gerektirmez.
-const ai   = getAI(app, { backend: new VertexAIBackend() });
+// Gemini doğrudan çağrılmaz (2026-10-15): sunucudaki aiGenerate kotayı uygular. Bkz. aiGeminiRespond.
 
 let storeId=null, allProducts=[], cart=[], selectedPay='cash';
 let dailySummaries=[], monthlySummaries=[], recentTransactions=[], trendDays=null; // trendDays[k] = k gün önceki ciro (0 = bugün, 60'a kadar)
@@ -4051,9 +4049,10 @@ Mevcut ürünler: ${productList}
 
 Yalnızca stok, fiyat, satış ve işletme durumu ile ilgili konularda yardımcı ol. Alakasız konularda (siyaset, tarif, kişisel tavsiye, görsel/müzik üretme vb.) kibarca reddet: "Bu konuda yardımcı olamıyorum. Stok, satış veya işletme hakkında bir sorunuz varsa yanınızdayım."`;
 
-    const model=getGenerativeModel(ai,{model:'gemini-2.5-flash',systemInstruction:system});
-    const result=await model.generateContent(text);
-    const reply=(result.response.text()||'').trim();
+    // Sunucudaki aiGenerate (mağaza başına günlük kota). Kota dolarsa/erişilemezse null → yerel yanıt.
+    const {data}=await httpsCallable(getFunctions(app),'aiGenerate')({
+      kind:'chat', storeId, model:'gemini-2.5-flash', system, maxTokens:1024, parts:[{text}] });
+    const reply=String(data?.text||'').trim();
     if(!reply)return null;
     if(reply.startsWith('CMD:'))return await aiRespond(reply.slice(4).trim());
     return reply;
