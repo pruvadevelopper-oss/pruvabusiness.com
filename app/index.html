@@ -5857,6 +5857,30 @@ window.switchTab=(tab,fromOpt)=>{
     hit.style.left = (pos.x-hr)+'px'; hit.style.top = (pos.y-hr)+'px';
   }
 
+  // 🔧 Uzun süre arka planda kalınca damla ekranın ortasında yarım/takılı kalıyordu
+  // (2026-10-15, kullanıcı ekran görüntüsü). Sebep: sekme gizliyken basma/sürükleme
+  // bitişi (pointerup) hiç gelmiyor, rAF duruyor ve ekran ölçeği (DPR) değişebiliyor.
+  // Geri dönünce: yarıda kalan basmayı iptal et, tuvali yeniden ölçeklendir, damlayı yuvasına koy.
+  function recover(){
+    document.body.classList.remove('drop-dragging');
+    isPressed = false;
+    const nd = Math.min(window.devicePixelRatio||1,2);
+    if(nd !== DPR){ DPR = nd; }
+    resize();
+    lastT = 0;
+    if(phase==='grabbed' || phase==='falling'){
+      phase='resting'; pos.x=restX; pos.y=restY; fallVy=0; elong=1; squash=1; dropScale=1; alpha=1;
+    }
+    if(phase==='sinking'){ phase='hidden'; }
+    ctx.clearRect(0,0,W,H);
+  }
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recover(); });
+  window.addEventListener('pageshow', recover);
+  window.addEventListener('focus', recover);
+  window.addEventListener('blur', ()=>{ if(isPressed){ isPressed=false; document.body.classList.remove('drop-dragging'); if(phase==='grabbed'){ phase='resting'; } } });
+  // Tutma bekçisi (iOS tickGrabWatchdog karşılığı): 2 sn hareketsiz "tutulu" kalırsa bırak.
+  setInterval(()=>{ if(phase==='grabbed' && performance.now()-lastMoveT>2000 && !isPressed){ phase='resting'; } }, 1000);
+
   window.addEventListener('resize', resize);
   resize();
   requestAnimationFrame(loop);
