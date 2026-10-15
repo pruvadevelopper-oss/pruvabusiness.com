@@ -2504,7 +2504,7 @@ window.qrLoginStart=async(manual)=>{
       // Onaylanmış ama jeton üretilemiyorsa (sunucu hatası) sessizce bekleme — söyle.
       if(++failStreak>=3 && gen===qrLoginGen){ qrLoginStop(); codeEl.innerHTML=''; err.textContent=L.fail||''; }
     }
-  },1500);
+  },800);   // 1500 → 800 ms: telefonda onaydan sonra web daha çabuk fark etsin
 };
 window.qrLoginToggle=()=>qrLoginStart(true);   // eski çağrı yerleri için
 
@@ -2537,6 +2537,7 @@ window.appQrStart=async(fresh)=>{
   box.classList.remove('hidden'); code.innerHTML='<div class="spinner" style="display:block;margin:44px auto"></div>';
   try{
     const {data}=await httpsCallable(getFunctions(app),'appLoginStart')({});
+    httpsCallable(getFunctions(app),'appLoginDecide')({warm:true}).catch(()=>{});   // onay anında soğuk başlangıç olmasın
     if(gen!==appQrGen) return;
     const qr=qrcode(0,'M'); qr.addData('pruva://applogin?s='+data.sessionId); qr.make();
     code.innerHTML=qr.createSvgTag({cellSize:4,margin:1,scalable:true});
