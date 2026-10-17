@@ -3385,7 +3385,9 @@ async function tsPush(o){
     waiterNote:o.waiterNote||'',
     billingStatus:o.billingStatus||'active'
   };
-  await setDoc(ref,payload);
+  // merge ŞART: paidTotal (müşteri QR ödemesi) ve mergedInto/mergedFrom/guestCount
+  // (uygulamanın yazdığı) bu payload'da yok; merge'süz yazım onları siliyordu.
+  await setDoc(ref,payload,{merge:true});
 }
 window.tsAddItem=async pid=>{
   const p=allProducts.find(x=>x.id===pid);if(!p)return;
