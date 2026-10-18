@@ -2972,26 +2972,26 @@ window.selectSalesCategory=c=>{
 /* ── Cart ────────────────────────── */
 // İndirim ürün üzerinde tanımlanır (Envanter → Ürün Düzenle), kasada elle değiştirilmez.
 const effUnit=i=>Math.round(i.price*(1-(i.discountPercent||0)/100)*100)/100;
-/* ── Kasa sesleri — uygulamadaki SoundManager ile AYNI formüller (file/UX.swift) ── */
+/* ── Kasa sesleri — uygulamadaki PruvaFeedback ile AYNI dosyalar (2026-10-19, kullanıcı seçimi) ──
+   Kaynak: docs/sesler/uret*.py → app/sesler/*.wav. Dosyalar sessizden başlar ve yankısıyla sıfıra iner;
+   her çalma ayrı BufferSource olduğu için arka arkaya okutmada önceki ses kesilmez.
+   navigator.vibrate yalnızca Android tarayıcıda titreşir (iOS Safari desteklemez). */
 const PruvaSound=(()=>{
-  let ctx=null,beepBuf=null,chimeBuf=null;
+  let ctx=null; const bufs={}, loading={};
+  const FILES={scan:'K05_vibrafon',added:'A1_yumusak_besli',sale:'T05_sicak_basari',error:'E1_uc_donuk',warning:'W1_ayni_ikili'};
+  const VIB={scan:[12],added:[15,70,25],sale:[30,40,40,90,60],error:[40,50,40,50,40],warning:[30,90,30]};
   const ac=()=>{ if(!ctx){ try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch{} } return ctx; };
-  function buf(samples){ const c=ac(); const b=c.createBuffer(1,samples.length,44100); b.getChannelData(0).set(samples); return b; }
-  function beepSamples(){ const sr=44100,f=1976,d=0.09,e=0.003,n=Math.floor(sr*d),o=new Float32Array(n);
-    for(let i=0;i<n;i++){const t=i/sr,env=Math.min(1,t/e)*Math.min(1,(d-t)/e);o[i]=(Math.sin(2*Math.PI*f*t)*.82+Math.sin(4*Math.PI*f*t)*.18)*env*.5;} return o; }
-  function chimeSamples(){ // klasik yazar kasa "ka-ching": çekmece tıkı + zil + bozuk para
-    const sr=44100,n=Math.floor(sr*1.3),o=new Float64Array(n); let seed=0x9E3779B97F4A7C15n;
-    const rnd=()=>{seed=(seed*6364136223846793005n+1442695040888963407n)&0xFFFFFFFFFFFFFFFFn;return Number(seed>>11n)/2**53;};
-    const add=(st,dur,fn)=>{const s0=Math.floor(st*sr);for(let k=0;k<Math.floor(dur*sr)&&s0+k<n;k++)o[s0+k]+=fn(k/sr);};
-    add(0,.05,t=>(rnd()*2-1)*Math.exp(-t*90)*.8);
-    const f=2093; add(.06,1.2,t=>Math.min(1,t/.001)*(Math.sin(2*Math.PI*f*t)*Math.exp(-t*3)+Math.sin(2*Math.PI*f*2.76*t)*Math.exp(-t*8)*.5+Math.sin(2*Math.PI*f*5.4*t)*Math.exp(-t*15)*.3+Math.sin(2*Math.PI*f*8.9*t)*Math.exp(-t*25)*.2));
-    let st=.09; for(let j=0;j<7;j++){const cf=3500+rnd()*3000; add(st,.2,t=>Math.min(1,t/.0005)*Math.sin(2*Math.PI*cf*t)*Math.exp(-t*40)*.25); st+=.02+rnd()*.03;}
-    let pk=0;for(const v of o)pk=Math.max(pk,Math.abs(v)); const r=new Float32Array(n); for(let i=0;i<n;i++)r[i]=o[i]/pk*.5; return r; }
-  function play(b){ const c=ac(); if(!c)return; if(c.state==='suspended')c.resume(); const src=c.createBufferSource(); src.buffer=b; src.connect(c.destination); src.start(); }
-  return {
-    beep(){ try{ if(!ac())return; beepBuf=beepBuf||buf(beepSamples()); play(beepBuf);}catch{} },
-    sale(){ try{ if(!ac())return; chimeBuf=chimeBuf||buf(chimeSamples()); play(chimeBuf);}catch{} },
-  };
+  function load(k){ const c=ac(); if(!c||bufs[k]||loading[k]) return loading[k];
+    return loading[k]=fetch('sesler/'+FILES[k]+'.wav').then(r=>r.arrayBuffer()).then(a=>new Promise((ok,no)=>c.decodeAudioData(a,ok,no))).then(b=>{bufs[k]=b;}).catch(()=>{}); }
+  function play(k){ try{
+      if(navigator.vibrate) navigator.vibrate(VIB[k]);
+      const c=ac(); if(!c) return; if(c.state==='suspended') c.resume();
+      const go=()=>{ const b=bufs[k]; if(!b) return; const s=c.createBufferSource(); s.buffer=b; s.connect(c.destination); s.start(); };
+      if(bufs[k]) go(); else (load(k)||Promise.resolve()).then(go);
+    }catch{} }
+  // İlk dokunuşta hepsini önceden yükle (ilk okutmada gecikme olmasın).
+  addEventListener('pointerdown',()=>{ Object.keys(FILES).forEach(load); },{once:true});
+  return { beep(){play('scan');}, sale(){play('sale');}, added(){play('added');}, error(){play('error');}, warning(){play('warning');} };
 })();
 
 /* ── Cihaz ayarları (uygulamada da cihaz başına: critical_stock_percent_v1 /
@@ -3101,7 +3101,7 @@ function scanToCart(code){
   if(typeof switchTab==='function'&&document.getElementById('tab-sales')?.offsetParent===null) switchTab('sales');
   if(p){ addToCart(p.id); return true; }
   if(PERMS.inv&&/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); return true; }
-  showToast('Ürün bulunamadı: '+v); return false;
+  PruvaSound.error(); showToast('Ürün bulunamadı: '+v); return false;
 }
 let sxAutoTimer=null;
 window.sxAuto=inp=>{
@@ -3139,7 +3139,7 @@ window.sxKey=e=>{
     if(exact){addToCart(exact.id);inp.value='';sxHide();return;}
     if(sxHits.length)sxPick(sxSel);
     else if(PERMS.inv&&/^[0-9A-Za-z\-]{4,}$/.test(v)&&/\d/.test(v)){ inp.value='';sxHide(); showToast('Ürün yok — fiyatını girip ekleyin'); openProductModal(null,v,true); }
-    else showToast('Ürün bulunamadı: '+v);
+    else { PruvaSound.error(); showToast('Ürün bulunamadı: '+v); }
   }else if(e.key==='ArrowDown'||e.key==='ArrowUp'){
     e.preventDefault(); if(!sxHits.length)return;
     sxSel=(sxSel+(e.key==='ArrowDown'?1:-1)+sxHits.length)%sxHits.length;
