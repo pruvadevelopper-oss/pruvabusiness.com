@@ -33,3 +33,6 @@ logs/
 
 # Claude
 .claude/
+
+# Ajan notları — herkese açık depoya girmez
+CLAUDE.md
